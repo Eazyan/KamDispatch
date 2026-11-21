@@ -1,0 +1,40 @@
+services:
+  api:
+    environment:
+      SNOW_CITY_URL: http://snow-sim:8090
+      SNOW_CITY_REMOTE_URL: ${SNOW_CITY_REMOTE_URL:-}
+
+  snow-sim:
+    build:
+      context: .
+      dockerfile: Dockerfile.snow
+      additional_contexts:
+        simsource: ${SNOW_SIM_SOURCE:?Set SNOW_SIM_SOURCE to the simulator source checkout}
+    environment:
+      SNOW_WEATHER_URL: ${SNOW_WEATHER_URL:-https://api.open-meteo.com/v1/forecast}
+      SNOW_WEATHER_KEY: ${SNOW_WEATHER_KEY:-}
+      OPENBLAS_NUM_THREADS: 1
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8090/healthz', timeout=5).close()"]
+      interval: 10s
+      timeout: 8s
+      retries: 10
+    restart: unless-stopped
+
+  snow-city:
+    image: kamchatka-monitoring:${APP_VERSION:-dev}
+    command: [python, -m, monitoring.city_worker]
+    environment:
+      DATABASE_URL: "host=db port=5432 dbname=monitor user=monitor password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
+      MONITOR_MODE: ${MONITOR_MODE:-demo}
+      SNOW_CITY_URL: http://snow-sim:8090
+      SNOW_CITY_REMOTE_URL: ${SNOW_CITY_REMOTE_URL:-}
+    depends_on:
+      db:
+        condition: service_healthy
+      snow-sim:
+        condition: service_started
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    stop_grace_period: 125s
+    restart: unless-stopped

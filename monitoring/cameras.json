@@ -1,0 +1,144 @@
+[
+  {
+    "id": "zavoyko",
+    "area": "Елизово",
+    "section_id": "yelizovo-zavoyko-vilyuyskaya",
+    "section_name": "Перекрёсток Завойко и Вилюйской",
+    "road": true,
+    "interval_seconds": 25,
+    "coordinates": [158.383131, 53.186727],
+    "location_note": "Ул. Завойко, 8 · точка из каталога трансляции",
+    "road_priority": 1,
+    "road_priority_reason": "Перекрёсток Завойко и Вилюйской с пешеходным переходом"
+  },
+  {
+    "id": "chekhova",
+    "area": "Петропавловск-Камчатский",
+    "road": false,
+    "interval_seconds": 25,
+    "coordinates": [158.6449414, 53.0533533],
+    "location_note": "Ул. Чехова, 1А · точка из каталога трансляции"
+  },
+  {
+    "id": "moroznaya",
+    "area": "Елизово",
+    "road": false,
+    "interval_seconds": 60,
+    "coordinates": [158.2826490, 53.1806882],
+    "location_note": "Ориентир: нижняя станция подъёмника. Место крепления камеры не подтверждено."
+  },
+  {
+    "id": "ran-avachinsky",
+    "area": "Петропавловск-Камчатский",
+    "road": false,
+    "interval_seconds": 1800,
+    "coordinates": [158.639, 53.044],
+    "location_note": "Ориентир: станция на Мишенной сопке. Панорамный снимок проверяется раз в 30 минут."
+  },
+  {
+    "id": "noyabrsk-lenina-sovetskaya",
+    "area": "Ноябрьск",
+    "road": true,
+    "coordinates": [75.465133, 63.201172],
+    "location_note": "Ориентир: ул. Советская, 86/61 · открытый поток Глобал-Х."
+  },
+  {
+    "id": "kirovsk-bigwood-k6-base",
+    "area": "Кировск",
+    "road": false,
+    "coordinates": [33.697172, 67.609374],
+    "location_note": "Ориентир: нижняя станция К6 · снимок курорта «Большой Вудъявр»."
+  },
+  {
+    "id": "kirovsk-bigwood-north-parking",
+    "area": "Кировск",
+    "road": false,
+    "coordinates": [33.695286, 67.609791],
+    "location_note": "Ориентир: вход на северный склон у парковки · снимок курорта «Большой Вудъявр»."
+  },
+  {
+    "id": "kirovsk-bigwood-k6-slopes",
+    "area": "Кировск",
+    "road": false,
+    "location_note": "Верхняя станция К6, вид на трассы 15 и 17 · снимок курорта «Большой Вудъявр»."
+  },
+  {
+    "id": "kirovsk-bigwood-k6-top",
+    "area": "Кировск",
+    "road": false,
+    "location_note": "Северный склон, зона выхода с подъёмника К6 · снимок курорта «Большой Вудъявр»."
+  },
+  {
+    "id": "kirovsk-bigwood-k10-top",
+    "area": "Кировск",
+    "road": false,
+    "location_note": "Южный склон, верхняя станция К10 · снимок курорта «Большой Вудъявр»."
+  },
+  {
+    "id": "kirovsk-bigwood-k10-base",
+    "area": "Кировск",
+    "road": false,
+    "location_note": "Южный склон, посадка на К10 · снимок курорта «Большой Вудъявр»."
+  },
+  {
+    "id": "kirovsk-bigwood-south-parking",
+    "area": "Кировск",
+    "road": false,
+    "location_note": "Южный склон, вид от кафе на парковку · снимок курорта «Большой Вудъявр»."
+  },
+  {
+    "id": "kirovsk-bigwood-k4-base",
+    "area": "Кировск",
+    "road": false,
+    "location_note": "Южный склон, нижняя станция К4 · снимок курорта «Большой Вудъявр»."
+  },
+  {
+    "id": "fi-rovaniemi-napapiiri",
+    "area": "Рованиеми",
+    "road": true,
+    "coordinates": [25.853586, 66.545343],
+    "location_note": "Дорожная метеокамера C1452601 · Fintraffic / digitraffic.fi, CC BY 4.0."
+  },
+  {
+    "id": "fi-oulu-laanila",
+    "area": "Оулу",
+    "road": true,
+    "coordinates": [25.507024, 65.026835],
+    "location_note": "Дорожная метеокамера C1250401 · Fintraffic / digitraffic.fi, CC BY 4.0."
+  },
+  {
+    "id": "fi-kuusamo-petajalampi",
+    "area": "Куусамо",
+    "road": true,
+    "coordinates": [29.144609, 66.013444],
+    "location_note": "Дорожная метеокамера C1257301 · Fintraffic / digitraffic.fi, CC BY 4.0."
+  },
+  {
+    "id": "fi-sodankyla-luosto",
+    "area": "Соданкюля",
+    "road": true,
+    "coordinates": [26.917361, 67.157102],
+    "location_note": "Дорожная метеокамера C1453601 · Fintraffic / digitraffic.fi, CC BY 4.0."
+  },
+  {
+    "id": "bc-revelstoke",
+    "area": "Ревелсток",
+    "road": true,
+    "coordinates": [-118.218323, 51.00764],
+    "location_note": "Камера 11 · DriveBC, Open Government Licence – British Columbia."
+  },
+  {
+    "id": "bc-rogers-pass",
+    "area": "Перевал Роджерс",
+    "road": true,
+    "coordinates": [-117.5199019, 51.3015711],
+    "location_note": "Камера 101 · DriveBC, Open Government Licence – British Columbia."
+  },
+  {
+    "id": "bc-pine-pass",
+    "area": "Перевал Пайн",
+    "road": true,
+    "coordinates": [-122.610831, 55.356047],
+    "location_note": "Камера 165 · DriveBC, Open Government Licence – British Columbia."
+  }
+]

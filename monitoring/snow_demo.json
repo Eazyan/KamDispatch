@@ -1,0 +1,381 @@
+{
+  "status": "ready",
+  "start": "2026-01-18T14:00:00+00:00",
+  "end": "2026-01-18T17:00:00+00:00",
+  "weather_sources": [
+    "Демонстрационная погода"
+  ],
+  "models": [
+    "analytic"
+  ],
+  "raster_tiles": {
+    "123298/42666": {
+      "bbox_wgs84": [
+        158.6480712890625,
+        53.04946903057476,
+        158.65081787109375,
+        53.051120038785136
+      ],
+      "png": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAADtq0ridR2mPg5aic0bAAAABHRSTlMAZI60lUHHNgAAAVZJREFUeJztkzFOxDAQRb8jHIlUFOwW6WlyihwhRabhBvgcHGCLTUNFsS78T4n+2JtdQNyAkWLZT/Yfzx8H8OjIBfcxkOdvoCfzwz3oyGL3IJBs4NHHJZGXCiaph3XcVZkBxKUv6dRAmYE4h/I6N6CtATDbgc4Ah7YW8Gm8geJVvPwEe3Fk1rTbi0vcBAaWHZjASDaRsVzBqYKYba2GfLbCzVR3T75rOePJfEcgg5JdkM01QiJmJQPXWkXSPkwEc3StoztI4nqhw4Ju7gTaheKK4dI7WNygsGIqFZyB4QQ8g9yuYJJrgcwONonrLonFgUlcbkykp7V5qE6PFWRTZepOT34Q3Fbv/SJQrECGBbKsSpPNUNSx5ABpM0NWUYlZwGTWptkoJeBgS4Tbc6zWRx33pse32ntrn5zen9vqoxtdo/b48P0d/8ctrn9Fi9Ac+xv8OvI7vgApiJcsew/vCAAAAABJRU5ErkJggg=="
+    },
+    "123298/42667": {
+      "bbox_wgs84": [
+        158.6480712890625,
+        53.047817959114695,
+        158.65081787109375,
+        53.04946903057476
+      ],
+      "png": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAADtq0ridR2mPg5aic0bAAAABHRSTlMAZI60lUHHNgAAAVpJREFUeJytkrFxwzAMRUGd6buochGl8Aiags4ELgQXHoHTpIg2sO6i70J9igyUEVTlAFIkQxdpwk5PwqcAPKJ/OK4G5z/BUAN+AK4G5zpjR3QowWyI5rJsddTgvQBfN2oxFWCZqUdZs8ABKK4CXoEyxGMEMGZwxeSBMYewgtDAQYEfr5gDGBQwXzEpMAoc8wWjDsGGyy1bz/qui8mD4TADzjcVEXpsGUHpXfcwTPp9iohwioj4hatAxDVoa9DXANVzg8qgFlGYLbxHFMbGD7GB2FiTQGysTeB5i0BqWhEExDgRwBQgSONzSZDGp1A6qiNHbH9Ke2AIIHUljuwxp0lBQmzWz3hMjgznXXixyAQN1LijWGSHTvLU0hexqNOfaFU5K+V8EtN6QPrgIW7zBnxKDZ/DNhsA6y5MsXPUUIs71ni1lc31WPBRbg5Yvt/oKW8OuK8X8nFuDX4AtSl/4MoUrxUAAAAASUVORK5CYII="
+    },
+    "123298/42668": {
+      "bbox_wgs84": [
+        158.6480712890625,
+        53.04616682440388,
+        158.65081787109375,
+        53.047817959114695
+      ],
+      "png": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAADtq0ridR2mPg5aic0bAAAABHRSTlMAZI60lUHHNgAAApJJREFUeJxF07GK5EYQBuC/m52BlcFM4Blsxwaz2sCvoHPg4CJxTAsjB77EgZXcI1zj0IknmDnDRR2MzOgXXKfGwelVNrDhVpHjxqhM9e5yyvTRVKn+UoNkctV4Rn4KQmG/i/88QJmB+2K6rzIwg68LsXWGLkO1WS84foQBWP+JqwxfKpxx5QJuPsIBu/4l+pPCWqFGcV/h93uFFcGhwm3y9sekjU2HwQFxxvXr/zZ6pMXwDDZecC3/5j5b/Fyh4AVfy11us0JzQMmAKB65CJojSI9pwePX7w6WDFYSijd5QFcZ8u0n8gFFm+dxOtHpN7nDTTfokb1C/1oCep0CqDWVPi4ebxg1yAqW7F8l2JbT3w/BLr37gbjuKD7DrQxufcGK4/KQdJR7ZwJ2jCm/2ymlGi/RcvqQgyzkztb4HB0lZLiVYA+whuMS8NlXQFyCPQINY/KoqSWCPWve0wx8S5hpDnavIIQpCBMZjAOKcbngqiS2nUIFG1PAhsS2VahhxtnrWFh9p5BD8ChImJWCA7YdUL6jLuuQYfU9wIkaYm3c3sPsYSm9Lqs27oXf6ljjMuiyauOe+5sKmzImBdTGlb7UcKc7myMxe/ryrCXCI7ygL4fKjssTPKcvWZuYnqBUOCLOwTzkTIXz5hUfwWYYTt0TrDOMA59gmyHODQOA6wouw5TaDOUJX2SQ5Y/8P5DVTmEUGVjnDoeVQhSZf6r1lr0/Z5hE5lOtt2wZjIIkmfsa6Mb067OO/lZSpEIbZ9t39N/IQg4Zgh3agZMIOex34DtfshkaEZlJV+ig5IkKJI9lhkvftZN8qkD8xV8YbppmkoJveeqw0BMr5yYBT3QdEv1FIQqK3rkW8/uge3DdgoLONf8DTcqB2URy2QoAAAAASUVORK5CYII="
+    },
+    "123298/42669": {
+      "bbox_wgs84": [
+        158.6480712890625,
+        53.04451562644129,
+        158.65081787109375,
+        53.04616682440388
+      ],
+      "png": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAADtq0ridR2mPg5aic0bAAAABHRSTlMAZI60lUHHNgAAAvZJREFUeJwt0rFrHEcUBvBv1rcXtIKcCb4UV4eAV4X7NBoF7CJpVrBvba+LCJKAszboX1gH0qSSQWtw0hxBY26+M1q3USCrOn9GKuvUCNxIh7IvzMrTzY+Z9z3mDahzjJDHBZG0Tgos9RINxAjnSXclglavoyNMrVTzRHsR/KWaHiHO4pKbqk2GXrV/AZObgq1+cBm01R4WgFSdXjhAz/UatwFMS9XTDUBX2uMOgPihdqeRha67HjEAU+oS+AFdf8zahCJFx9p4tErOB5h2q/mYaPUN50NM3K7LJMAv1WKIMc/+Kypieb1REsN6trYkeBHdf3wDs18PAszxQkIJYPbzQUUUCxxMswFi3JkR8hRfmPzmDuIxYWeIMRq2t4Edwo7r0HhYDYAK1tihTyDyGTADkGF3gISHwCsAI5Q7AVLSRkSGEdKXIbeizxLiEDHociAq6SVt4WC+ppdQgl7Ywmf4hixsKOELdqBkX5JNDbbkAC7/jHR7YLdiwWOQOUj/CKn2XkisXuXheoEtVSeVQ99kAXYxUfVSefTNkNjU26pneemhR0BEuu9V9Qqxh7oAzY/7A5ifoB4AnTxR1X8tBL23QOoDnM8xjT/ClRSqq9pMDdbhnTbXUnTq95IGWLkMmFw00qnPt44+wvbpXdnv/c7yfQjIYDokUq79Dt+HExYR8elhQZdxMcLaWRjWt9yUTVa9HeMsTLp6B3+/arLZ8nf8IWE8b+F3ReyMS9Qvc+DzBdJdEYx9h/qxADGRvJYc0WICm7oAdXIiOfBoE7JcAHFVR+Hp8lGCB6E7U85vqc9Njk/wIHRnisU9XYnJkGB8RsDIo64/cbBIMf6zNCOIaH/sLTYqxCzqu3ZadD2ZxU+T8LVqNtOiU/LQLAK8/pZepL1I6W7g5DtSZP/iKzr7PAHM38sVGynfbdFnzzeBqF39Qycyv7f28qQFfju/jEKRvW2lFB0i9pfRGy9Sqq6KbIJk2TNyIvJQdS12grT9QHiRMLr1ISb/AyC/kh9Z7uXlAAAAAElFTkSuQmCC"
+    },
+    "123299/42667": {
+      "bbox_wgs84": [
+        158.65081787109375,
+        53.047817959114695,
+        158.653564453125,
+        53.04946903057476
+      ],
+      "png": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAADtq0ridR2mPg5aic0bAAAABHRSTlMAZI60lUHHNgAAAhtJREFUeJxVkqFu21AUhj9fxdbikYC2IAUjjbQ5YI8wT9O4gW9UBZXOZK9gPFQwDwwZxFJ8ItV0Gpj3KAElLaoGraqerq/jOIfdT/f857/3PwCsW5HIYXlPX95vkVuoHkJ7dj6LSIqqv0UW+FkiAv4f9d2CoFzLFrwtGwukWUnOxNuy6M5q95zpiMARHCtR7Rca7tIkpRvj7dJpjKo3yY2VUIIK8Z/frVe9DUmZsXzyV1lI5yTZGvt7lcWR6gYnP4B5yiKe+A8GzLMUvJxpzLIx4KKIwO1cVH8NcIsJU9e4cKq0G6OdMCi0cZHYwTpESn2NF84tOA/VrtGay9zLrbXQr/ZZFH29d42l7j11uoBaOb17vDumqBdudQ+cLYTeL64GkKTg5EzdQxJJ3l1TfRCwvja082nrYgWztXXRlasjCm2uHVTjMyXlqv93U/HEl1JHagDnBLsmOvOPTUj179YNRiCp9xvEZmUzr9MrR+g3wPz1HS5COVy5MA9MkH5rwCtgNkeKwVtxAx5SHHocHXegHHr0R+NPjiKakBKReHgfZlekHIAGX5DiANwIAkGy4Ub4ChFED6K8JRFKfXxePguE4hANqHQyFwYJ8FP/pzCS8Hj/KGZZjvWhEY4SQNsKRwn41LaPdpf7emPAWOLSgHG9bl/kBHhtcwpU3ZQnwKkeixNREilGyZnFkmyUnAlP1qPkzC/KF2Tc4+jyP+A8tgNse5+TAAAAAElFTkSuQmCC"
+    },
+    "123299/42668": {
+      "bbox_wgs84": [
+        158.65081787109375,
+        53.04616682440388,
+        158.653564453125,
+        53.047817959114695
+      ],
+      "png": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAADtq0ridR2mPg5aic0bAAAABHRSTlMAZI60lUHHNgAAAYBJREFUeJy1kj1SwzAQhZ8UzEDqOAU9M+BTqKFJZRiLgp4mXEJHSBHfIGail4KehlwnHIGCYVY/QXFDxRaW9Hn1vN634GDwG48b0LcFmK9AlsAakF0JAPoCqA7gUICqBdiXwAC0hagC4G1ZB4DBnp5RSoQoJUIECRHLYfPncszkUWMU3eisxsLVqDb8KYGxxD/GJq25SM20WycwZdr59KJh2vE+AmaT2YcXmkx30jhMSfYpNWQ0JIcSXEmGiVfCck5SHFFgrPCcDC5XWEZtRQ4Caixj/xTZi2f2aPaStgsztZJTBTx5sV21ESiDeZCAOVpQ2TQ5ApQUIBISbZrG4+QYsdKMDLaj9qqxt/Wptxc6j25abrRPN1PGdnIobAL0dnIw0P4ug+l2whZa+qdd7O6+WUNLh3W4x92+6aHptVVBnW/7xgpYDHgO4MPdCuDLoQ1jzm93HcDuK/4B313dObH2Mzvn6ocAeIjOvbp6ISDXysHVjYA1cBaBmVFAB1wC+AHDTI0u61XeWQAAAABJRU5ErkJggg=="
+    },
+    "123299/42669": {
+      "bbox_wgs84": [
+        158.65081787109375,
+        53.04451562644129,
+        158.653564453125,
+        53.04616682440388
+      ],
+      "png": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAADtq0ridR2mPg5aic0bAAAABHRSTlMAZI60lUHHNgAAApdJREFUeJw10rFu3EYQxvE/eaYQrYocDJ1hqEpjIOFTrAK4SbUJuAIsNy7jy0swb6BCdKHqAhyD43eArnchvopTHl0opXEwuMbw5HJ/HHJnhh/de/9cG151FTgP6I13BtGDC8Ay+tIg+wHcnYer4KUNC/8zuI9NYBGeH2EDLqmiqNwEv/4JZ2looTqZwEnapcc1kBucl5L6Q/oHyAzmkpSGhxWebPlhY2X6Nw2quZ2zbNc46e5+Nwjaiou2opSaB6mpUeRFWwRJbS81Aa0pWm+fUD+oLQyyGKwLrZzajPu/IVbWhYJTA6o9i+pCUhdcEz0CCmtf7RFuDUImu8GtF57GQ+GLpRRxNlpj08B1976iiBR0HjzE7vdAEdcLZJuGaEvOrrpIB5zCItrGr9Wy9/jyhuKyAsrtnv88lVZklxVztNvzKZBrZe0TcvUD9TPcBDA/UbILwsUTsNiOBucnWnEZOcdtD1CDQax4idsK3kFhEKxCmt7NDKzhM9t69BNMA5wdDAK8ejfBT2ePxwqy8FTRD366P785gktjjc108mlaAWcpHcH9b8c5PxrYGkoK4G1KBvZEFJ58+x1iLk49mZ1TTZO9uZNFNn+C7vXVg3AVzs5DzWEZ+wHXUPZHGO/b3QEX0RN8memvkdOYa5dS2kc2s+FtoohOdm33mk0+fkgUVbmTgedL3rcPFEFJfRo7z9c87ZcUf2xHS1Ub+DpL4xXFb7tDt5ximcY0NhRlPyi2loGU+tTGSjZFjBH6tEudfaImTJm4n30eO+92h+Ou4ONslELZD/W0XhhnSbpd7vS9IuXpoPWFVBOeTfA5jbp5YeB/sZ9hfShMgCzWadanfSh0XZPLQptmjwbtlbc0BIOU9iGzpkvplm/Pb4YJNhlB8gAAAABJRU5ErkJggg=="
+    },
+    "123299/42670": {
+      "bbox_wgs84": [
+        158.65081787109375,
+        53.042864365225824,
+        158.653564453125,
+        53.04451562644129
+      ],
+      "png": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAADtq0ridR2mPg5aic0bAAAABHRSTlMAZI60lUHHNgAAAudJREFUeJwtk7Fq7EYUhv/VRguWIdfNGqIUaUIgSuFXmDXJbdLMBc0G9jZpXFi38CPEj7ABKQGnUaExO78uVm+C9SopUmTnFjdlGMKcMEu64WOYc77zn4Es5YPTMPW6bkgLyFK809i2+ZakVRCRcKvxuVvsEjAJxE6j8roh2RnIfAJ8GRIwBvNHkUFnnP6qSGcMpg8iw0XB6VjS3pgaEuZgUXHsgdwYDfEjHUj2wNfGKIgn7YZ0PwLfWAMIHtgp0mngyrcJ2FuDhmzXuzkOwISuM6okWxgRCxC/WqNLco/LWZwC8eBNvUqgmKLTeMQcunpBAtUUqGEbITUaBzT0rHHzg5AKpcXJ32D9fUw3dh2wS3ZYvyaps9RjxQdr0F2TVhfHGijZdQbckPai8jWwYmdqvNw3tDnZAStv1xrzUNJmpwCyaBcKT4sVu6QPFOIAMPuOJg0IqOajSuAm6TsCnIMCfBZO+jtknMIeCMvokr5BQXIAZBIm/dZUPD0tUXynF2zX/B/ITKewSzNiOsnSJ742CTwOwLwMiecmS+HXZ+Ay0qhMmcVLmnwFvxT/RhUWi/kxtYw4SdCqosppb82GEErYg/P9unHG1A2Ec2wzyt7oM2PqEnM2xWHFf3KDQi3qSzxlY7QLHooWZwoXl2AWScXD+YBcA8WpLO8b/nZUeQ1UqaxnSv9Z53oPQkYJ1CvyaY/MJkAJDgtXsEdB3eDfIq0lbhOo2Jb4vZhChy8/O/c9SFvi/Xmkgdu8Cv2KdFscXgn319y/i487T74GRXxbchjF3gVyA84S2orunRynkFbveQqha/j8VsL0R1r4gIJuy5edBPbsPwHxKakqpi/YP/c5dii8Q3U45RT6FXKcx05Vh0vylzH2BZSZZFBfHEo681ZIDOuf5E9c+TtasxUGHDHJEVP46K3pZh8Rryfx12OcozVv7vwM+XkUbkYZgzXflpwglpH7u0i6G6w4IrqGHK7+LuhqfEX+B2Z7+Hvo62+0AAAAAElFTkSuQmCC"
+    },
+    "123299/42671": {
+      "bbox_wgs84": [
+        158.65081787109375,
+        53.041213040756475,
+        158.653564453125,
+        53.042864365225824
+      ],
+      "png": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAADtq0ridR2mPg5aic0bAAAABHRSTlMAZI60lUHHNgAAAwBJREFUeJwd0zFvG0cQBeDHU8RAx0JqZANUITdpKMDs3YgykP4U8OyAKeIyOQH6CdH9BAYQFcAVC56heytw1UYyuPwpaRJE6yBWSW8O+4JTNYMPmJlmHh45IRcH85T1CcgJHvGenHbnaahHp0X9Bre44yzbf9eLVdYv6hxzyM9QZ4eq8j6ZIxiF2Xe8OtNDjgFzRKtY5SSfYJlD94rMSO/CyejIZ5CP5IgrktloGKZwJCsUqyU52xs+foW2q3G42WqLedzB30/d0SZh/TPYQtJC0SR3VQ7e9tAkrH/qFDeJasDOd9Eky3rcJY38CBefHD4m93VnQlq1J4NwkwSOXryilaaJk8D7yOmL42iky65twYqXe8diiFWnhfoCvupK5B1gJARixddSSuLb4s4iciX+6pTyCgVpEGkUp1a9MMsDSYhWcXqmz6reRnIGkYo4UNTDYSDHLTiDg7hyX35YP4GnJY6aLRMm5YBjRI7Ims0WefoEzc6ILAcfk8BpOfQZmu3pOUeDm0Rc4DiWuOn+ccHRkUkUFqk0Bf2tfDn00cVFIi3AlVEoj6MzmiWu2XmCOHVyXmXHbHbA0khXVutXLBNep2AZpA9G65csU173kI+kCGp95Fk4/ojx15KHDethmHjnzzDuPUGki795+4UYd6WH2qncFWkfBxh3nMJktwVP0wJsC7Hc/W+D9/MBMpxFXrUj8Rq/vztAtj0hp8d6cLpGnB8g25+wyob608l/EImK5Cw7lrcK584HzBMyH9kGRhuYEFuo81PbwGqDz9FhnoQ6PzEN2qVqgPmW6vykaKAWNmj/w+cYWEnVW/0DeKcwxks6qZ4oEMEpzjD0TvKFokFo4wEbrRTeuGjQflvdMTIt2Mg2Uaq3jShuYNYp/JWz1cmZ/lrxGixTlN+Qc1AP5Pf4pYX9ghmK+U5Rj2HLLsp9Vns4b5Odvzbr5yifsQLMbc/Xecp1H2V6VyEx/9rIqs/lCstiWWep+eTExTNSoCcv+/QSFwmNUKbkok8q8DIh9T/bNF5ckUGHoAAAAABJRU5ErkJggg=="
+    },
+    "123299/42672": {
+      "bbox_wgs84": [
+        158.65081787109375,
+        53.03956165303218,
+        158.653564453125,
+        53.041213040756475
+      ],
+      "png": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAADtq0ridR2mPg5aic0bAAAABHRSTlMAZI60lUHHNgAAAsdJREFUeJxF0zGPHDUYBuB3httDGiT2kLJXbEOVgo1EfgKzK6CgmovGK2XqJMUiwU+4Fb/gIu2soJviHJ1fRzH1CZ1/DcVOCrbFWflDdgS4m0e2v/ezPdhOyeGS9IFtERixnQbeTEgX2JbCe3ReePMJaQOvKh/eYS9yaKrAN6TauEi88XKoF56aVLSyRXAS1qMLfWd0x7hFtBL2tEFd7nVFbhEpoyYDlmqHBMeFH29B4nn7CGSNYUG2eEdsdme45grDE5olPBV10bi/OwxPg1l+J+EZTbOyxxL00aiVxB/IF1gcS7wXb1TlThW5w+L3Ah/EUp/bBK/xdCghMvIW/KMK7Jd+dHAS2IJvPxXqKwke70+V+RYPljKalY+CcKpMDT/e+2C+dyKId58d6isXHlwwsOIRf50G9dyeYDM4yN5Hs+AJY+zhxEL+FDHgW8h9j+tIHB/7BHeQ0N84IYavnBh4Won6KsMTG81SRifRVFYOGL78K/AXCT+LHEA5QCiBex9tBj8ijD6yd8kNSCIEK1Q/SuqlcCSOnzOkxbynwnUwGKYjDTYkqRoXNYZp5G/4iaRRr5xo0AkV3Kg3WnUph/YyNs9s0Gszu0g5Dl7CzdxGvb4rQM/8HHZzir7sga9TDidxd06nJzXwzUjQStAlaQqcFRJT2kAuSQMsVvlo0qg3JMB9hnWCOU1d0ng54KWiNvU5Nc5JJyOU6voXmHCLIgGhGtUCj7sayM8Zs3qiAKoGu9wygKJDyd2j0iQwwBlUXVGfVTmABmZQSFUXJHv2gEKbKtb5zJRCoYAEr/+DFsCe7NOWKkVogDLttknfyOMiFei7/+E2z+7Ii7QcKE2+gzW3X3ycUNElmHCYNxkWdCNNW6hmo/+FQNNCTWjqBHPamGC2IvOaiozsG0yW6Q9BkXI/GNUAy9zspC5y1TR5kzaZZdA5Y0fT/ANVaBeak6CVIQAAAABJRU5ErkJggg=="
+    },
+    "123300/42668": {
+      "bbox_wgs84": [
+        158.653564453125,
+        53.04616682440388,
+        158.65631103515625,
+        53.047817959114695
+      ],
+      "png": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAADtq0ridR2mPg5aic0bAAAABHRSTlMAZI60lUHHNgAAAZ1JREFUeJxdkj1uwzAMhSkj8pApQ+3Be4b4FF66axANxEfQKXSIpnOHBrDooTdor1PkCB3agrRly/IS6Av5+PgDAADt3cLuI8IufRdE+5CSspCaiG4mAZqIAiZAuSxHMbilskOe01CWU1JWRzNIvSnKRZyALlc1e/OpEyWqt0TkWcrgJtLmgGZg4ruYHntwnH5F1K4S0x/7wBUQfbFTjKBYNDEaOQq4baDNAcmHGMuqXAJk6Ii4Wnfz/7iWbZYATIC8MYqUc4atJMIAlAHRaLSVlLUAOnCwNlqqGAB9V4ulogPoAKrVwPFdfhBOsavAhZSFp7WrO4N1lIoobLuZIx4AcN2Am775wpKFfYx8LS8raD5H7iRwiCg3P6OMmIFUruldRuwBDpJSc/qrgEqUcbAyYg/QezbGQ5uBGhiAzMgxqJyXBtUCDkj+LLIngCa4TvfkL9FwHa6dHsi3semS0GhHvo1bUWSMJvJt3IoazKkUEHPQcD/+gv0iW1m+dX/GId6H5ZPxFbp5CWxmBmOxzZJBPxbS0HIQvhrG4g3gH6q335FQVaotAAAAAElFTkSuQmCC"
+    }
+  },
+  "tiles_by_segment": {
+    "osm-94577830": [
+      "123298/42668",
+      "123298/42669",
+      "123299/42669"
+    ],
+    "osm-94577832": [
+      "123299/42668",
+      "123299/42669",
+      "123299/42670",
+      "123299/42671",
+      "123299/42672"
+    ],
+    "osm-94577852": [
+      "123299/42670",
+      "123299/42671",
+      "123299/42672"
+    ],
+    "osm-209694124": [
+      "123299/42668",
+      "123300/42668"
+    ],
+    "osm-209694131": [
+      "123298/42666",
+      "123298/42667",
+      "123299/42667"
+    ]
+  },
+  "segments": [
+    {
+      "id": "osm-94577830",
+      "name": "улица Тельмана",
+      "osm_way": 94577830,
+      "camera_id": null,
+      "coordinates": [
+        [
+          158.6481775,
+          53.0467699
+        ],
+        [
+          158.6486354,
+          53.0465516
+        ],
+        [
+          158.648953,
+          53.046441
+        ],
+        [
+          158.6495543,
+          53.0461589
+        ],
+        [
+          158.6507936,
+          53.0456397
+        ],
+        [
+          158.6514028,
+          53.0454329
+        ]
+      ],
+      "status": "watch",
+      "excess_cm": 4.03
+    },
+    {
+      "id": "osm-94577832",
+      "name": "Карьерная улица",
+      "osm_way": 94577832,
+      "camera_id": null,
+      "coordinates": [
+        [
+          158.6519593,
+          53.0406157
+        ],
+        [
+          158.6519984,
+          53.0414684
+        ],
+        [
+          158.6520515,
+          53.0422416
+        ],
+        [
+          158.6520309,
+          53.0429472
+        ],
+        [
+          158.6520326,
+          53.043113
+        ],
+        [
+          158.6521146,
+          53.0449221
+        ],
+        [
+          158.6521808,
+          53.0450531
+        ],
+        [
+          158.6522222,
+          53.0451267
+        ],
+        [
+          158.6522903,
+          53.0458615
+        ],
+        [
+          158.6523129,
+          53.0463325
+        ],
+        [
+          158.6523196,
+          53.0465064
+        ],
+        [
+          158.6523979,
+          53.0466225
+        ]
+      ],
+      "status": "watch",
+      "excess_cm": 6.04
+    },
+    {
+      "id": "osm-94577852",
+      "name": "Елизовская улица",
+      "osm_way": 94577852,
+      "camera_id": null,
+      "coordinates": [
+        [
+          158.6531824,
+          53.040615
+        ],
+        [
+          158.6531939,
+          53.0415135
+        ],
+        [
+          158.6531966,
+          53.0429724
+        ],
+        [
+          158.6531789,
+          53.0435886
+        ]
+      ],
+      "status": "watch",
+      "excess_cm": 6.99
+    },
+    {
+      "id": "osm-209694124",
+      "name": "Владивостокская улица",
+      "osm_way": 209694124,
+      "camera_id": null,
+      "coordinates": [
+        [
+          158.6524814,
+          53.0467579
+        ],
+        [
+          158.6532642,
+          53.0463618
+        ],
+        [
+          158.653428,
+          53.0462948
+        ],
+        [
+          158.653561,
+          53.0462537
+        ],
+        [
+          158.6536893,
+          53.0462246
+        ]
+      ],
+      "status": "no_signal",
+      "excess_cm": 0.25
+    },
+    {
+      "id": "osm-209694131",
+      "name": "Зеркальная улица",
+      "osm_way": 209694131,
+      "camera_id": null,
+      "coordinates": [
+        [
+          158.6495121,
+          53.0495353
+        ],
+        [
+          158.6502848,
+          53.0494345
+        ],
+        [
+          158.6503863,
+          53.0494179
+        ],
+        [
+          158.6504902,
+          53.0493991
+        ],
+        [
+          158.6505916,
+          53.0493737
+        ],
+        [
+          158.6506942,
+          53.0493417
+        ],
+        [
+          158.6507755,
+          53.0493085
+        ],
+        [
+          158.6508519,
+          53.0492746
+        ],
+        [
+          158.6510181,
+          53.0491862
+        ],
+        [
+          158.6513848,
+          53.0489692
+        ],
+        [
+          158.6517905,
+          53.0487139
+        ],
+        [
+          158.6520573,
+          53.0485424
+        ],
+        [
+          158.6522449,
+          53.0484204
+        ],
+        [
+          158.6524041,
+          53.048312
+        ],
+        [
+          158.6524494,
+          53.0482672
+        ],
+        [
+          158.6524873,
+          53.0482179
+        ],
+        [
+          158.6525165,
+          53.0481638
+        ],
+        [
+          158.6525397,
+          53.0481026
+        ],
+        [
+          158.6525605,
+          53.0480167
+        ],
+        [
+          158.6525773,
+          53.0478627
+        ]
+      ],
+      "status": "no_signal",
+      "excess_cm": 0.0
+    }
+  ],
+  "calculated_at": "2026-01-18T14:00:00+00:00"
+}
