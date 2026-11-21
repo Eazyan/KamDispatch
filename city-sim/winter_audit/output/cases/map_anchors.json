@@ -1,0 +1,307 @@
+[
+  {
+    "case_id": "grade",
+    "title": "Улица Гагарина · оценка продольного уклона",
+    "feature": {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            158.6515367,
+            53.0232268
+          ],
+          [
+            158.6503398,
+            53.0228859
+          ]
+        ]
+      },
+      "properties": {
+        "edge_id": "osm:148397251:1096883064:1425120773",
+        "physical_road_id": "osm:148397251:1096883064:1425120773",
+        "osm_way_id": 148397251,
+        "length_m": 89,
+        "from_node": 1096883064,
+        "to_node": 1425120773,
+        "name": "улица Гагарина",
+        "road_class": "residential",
+        "speed_limit_kmh": null,
+        "source_id": "osm_mosaic",
+        "source_locator": "way/148397251",
+        "graph_version": "osm-1143744836afc553-demo-v1",
+        "existence_status": "mapped_unverified",
+        "responsibility_status": "unknown",
+        "operational_status": "unknown",
+        "usable_width_m": null,
+        "osm_tags": {
+          "highway": "residential",
+          "name": "улица Гагарина",
+          "name:etymology:wikidata": "Q7327"
+        },
+        "relief_quality": "dsm_proxy",
+        "mean_grade_pct": -23.85
+      }
+    }
+  },
+  {
+    "case_id": "width",
+    "title": "Улица Ватутина · ширина по OSM",
+    "feature": {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            158.6317411,
+            53.0519644
+          ],
+          [
+            158.6326964,
+            53.0524915
+          ]
+        ]
+      },
+      "properties": {
+        "edge_id": "osm:101397004:1170911342:10301972334",
+        "physical_road_id": "osm:101397004:1170911342:10301972334",
+        "osm_way_id": 101397004,
+        "length_m": 87,
+        "from_node": 1170911342,
+        "to_node": 10301972334,
+        "name": "улица Ватутина",
+        "road_class": "tertiary",
+        "speed_limit_kmh": null,
+        "source_id": "osm_mosaic",
+        "source_locator": "way/101397004",
+        "graph_version": "osm-1143744836afc553-demo-v1",
+        "existence_status": "mapped_unverified",
+        "responsibility_status": "unknown",
+        "operational_status": "unknown",
+        "usable_width_m": null,
+        "osm_tags": {
+          "highway": "tertiary",
+          "lanes": "2",
+          "lanes:backward": "1",
+          "lanes:forward": "1",
+          "lit": "yes",
+          "maxspeed:type": "RU:urban",
+          "name": "улица Ватутина",
+          "name:en": "Vatutina street",
+          "surface": "asphalt",
+          "width": "5"
+        },
+        "relief_quality": "dsm_proxy",
+        "mean_grade_pct": -0.36
+      }
+    }
+  },
+  {
+    "case_id": "facility",
+    "title": "Детская краевая больница · точка OSM",
+    "feature": {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          158.6374649,
+          53.0584228
+        ]
+      },
+      "properties": {
+        "object_id": "osm:node:1391841291",
+        "kind": "hospital",
+        "name": "Детская краевая больница",
+        "geometry_basis": "osm_node_or_centroid",
+        "source_id": "osm_mosaic",
+        "verification_status": "mapped_unverified"
+      }
+    }
+  },
+  {
+    "case_id": "contract",
+    "title": "Мишенная улица · участок для сверки договора",
+    "feature": {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            158.6264336,
+            53.0350088
+          ],
+          [
+            158.6272346,
+            53.0345154
+          ]
+        ]
+      },
+      "properties": {
+        "edge_id": "osm:94434670:1096962415:1096962254",
+        "physical_road_id": "osm:94434670:1096962254:1096962415",
+        "osm_way_id": 94434670,
+        "length_m": 77,
+        "from_node": 1096962415,
+        "to_node": 1096962254,
+        "name": "Мишенная улица",
+        "road_class": "residential",
+        "speed_limit_kmh": null,
+        "source_id": "osm_mosaic",
+        "source_locator": "way/94434670",
+        "graph_version": "osm-1143744836afc553-demo-v1",
+        "existence_status": "mapped_unverified",
+        "responsibility_status": "unknown",
+        "operational_status": "unknown",
+        "usable_width_m": null,
+        "osm_tags": {
+          "highway": "residential",
+          "lanes": "2",
+          "lanes:backward": "1",
+          "lanes:forward": "1",
+          "lit": "automatic",
+          "name": "Мишенная улица",
+          "sidewalk": "no",
+          "surface": "asphalt"
+        },
+        "relief_quality": "dsm_proxy",
+        "mean_grade_pct": 6.358
+      }
+    }
+  },
+  {
+    "case_id": "yard",
+    "title": "Дворовой подъезд · вне дорожного графа",
+    "feature": {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            158.6436132,
+            53.0334167
+          ],
+          [
+            158.6436888,
+            53.0333201
+          ]
+        ]
+      },
+      "properties": {
+        "physical_road_id": "osm:729764900:6836073233:6836073239",
+        "osm_way_id": 729764900,
+        "name": null,
+        "highway": "service",
+        "source_id": "osm_mosaic",
+        "reason": "outside_demo_road_classes",
+        "relation_ids": [],
+        "osm_tags": {
+          "highway": "service",
+          "service": "driveway"
+        },
+        "endpoint_tags": {},
+        "existence_status": "mapped_unverified"
+      }
+    }
+  },
+  {
+    "case_id": "winter",
+    "title": "Улица Фрунзе · сценарное перекрытие",
+    "feature": {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            158.6359581,
+            53.0342679
+          ],
+          [
+            158.6367651,
+            53.0343342
+          ]
+        ]
+      },
+      "properties": {
+        "edge_id": "osm:189442552:1096962339:1096962226",
+        "physical_road_id": "osm:189442552:1096962226:1096962339",
+        "osm_way_id": 189442552,
+        "length_m": 55,
+        "from_node": 1096962339,
+        "to_node": 1096962226,
+        "name": "улица Фрунзе",
+        "road_class": "residential",
+        "speed_limit_kmh": null,
+        "source_id": "osm_mosaic",
+        "source_locator": "way/189442552",
+        "graph_version": "osm-1143744836afc553-demo-v1",
+        "existence_status": "mapped_unverified",
+        "responsibility_status": "unknown",
+        "operational_status": "unknown",
+        "usable_width_m": null,
+        "osm_tags": {
+          "highway": "residential",
+          "name": "улица Фрунзе",
+          "name:be": "вуліца Фрунзэ",
+          "name:en": "Frunze Street",
+          "name:etymology:wikidata": "Q191882",
+          "name:ru": "улица Фрунзе",
+          "oneway": "no"
+        },
+        "relief_quality": "dsm_proxy",
+        "mean_grade_pct": -3.9
+      }
+    }
+  },
+  {
+    "case_id": "overpass",
+    "title": "Северо-Восточное шоссе · район проектного путепровода",
+    "feature": {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            158.6404411,
+            53.0651971
+          ],
+          [
+            158.6404068,
+            53.0652363
+          ]
+        ]
+      },
+      "properties": {
+        "edge_id": "osm:1567417235:458899741:14274670474",
+        "physical_road_id": "osm:1567417235:458899741:14274670474",
+        "osm_way_id": 1567417235,
+        "length_m": 5,
+        "from_node": 458899741,
+        "to_node": 14274670474,
+        "name": "Северо-Восточное шоссе",
+        "road_class": "primary",
+        "speed_limit_kmh": null,
+        "source_id": "osm_mosaic",
+        "source_locator": "way/1567417235",
+        "graph_version": "osm-1143744836afc553-demo-v1",
+        "existence_status": "mapped_unverified",
+        "responsibility_status": "unknown",
+        "operational_status": "unknown",
+        "usable_width_m": null,
+        "osm_tags": {
+          "highway": "primary",
+          "lanes": "3",
+          "lit": "yes",
+          "maxspeed": "RU:urban",
+          "name": "Северо-Восточное шоссе",
+          "oneway": "yes",
+          "ref": "А-401",
+          "smoothness": "excellent",
+          "surface": "asphalt",
+          "turn:lanes": "through|through|through"
+        },
+        "relief_quality": "shorter_than_grid",
+        "mean_grade_pct": -3.636
+      }
+    }
+  }
+]

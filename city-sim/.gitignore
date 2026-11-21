@@ -1,0 +1,13 @@
+__pycache__/
+.venv/
+out/
+
+/city_sim/.state/
+
+/city_sim/data/building-location-checks.json.gz
+
+.DS_Store
+.env
+.env.*
+*.sqlite3
+*.pyc

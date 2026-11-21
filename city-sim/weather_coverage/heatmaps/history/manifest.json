@@ -1,0 +1,27 @@
+{
+  "source": "Open-Meteo Historical Forecast",
+  "license": "CC BY 4.0",
+  "request_profile": "best_match (API default)",
+  "processed_utc": "2026-11-20T06:53:25+00:00",
+  "sites": 298,
+  "hours": 66,
+  "batches": 15,
+  "rows": 19668,
+  "returned_coordinate_pairs": 4,
+  "start_local": "2026-11-18T00:00:00+12:00",
+  "end_local": "2026-11-20T17:00:00+12:00",
+  "units": {
+    "temp_c": "°C",
+    "feels_like_c": "°C",
+    "wind_ms": "m/s",
+    "gust_ms": "m/s",
+    "wind_deg": "°",
+    "snowfall_cm_1h": "cm",
+    "rain_mm_1h": "mm",
+    "visibility_m": "m",
+    "humidity_pct": "%",
+    "cloud_pct": "%",
+    "pop_pct": "%",
+    "precip_mm_1h": "mm"
+  }
+}
