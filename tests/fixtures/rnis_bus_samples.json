@@ -1,0 +1,54 @@
+[
+  {
+    "success": true,
+    "headers": {
+      "meta": {}
+    },
+    "payload": {
+      "vehicles": [
+        {
+          "VehicleUUID": "example-bus-1",
+          "VehicleType": "bus",
+          "Longitude": 158.7888,
+          "Latitude": 53.0107,
+          "DeviceTime": 1795996776
+        },
+        {
+          "VehicleUUID": "example-bus-2",
+          "VehicleType": "bus",
+          "Longitude": 158.6143,
+          "Latitude": 53.0701,
+          "DeviceTime": 1795996773
+        }
+      ],
+      "clusters": []
+    },
+    "errors": []
+  },
+  {
+    "success": true,
+    "headers": {
+      "meta": {}
+    },
+    "payload": {
+      "vehicles": [
+        {
+          "VehicleUUID": "example-bus-1",
+          "VehicleType": "bus",
+          "Longitude": 158.7889,
+          "Latitude": 53.0109,
+          "DeviceTime": 1795996785
+        },
+        {
+          "VehicleUUID": "example-bus-2",
+          "VehicleType": "bus",
+          "Longitude": 158.6133,
+          "Latitude": 53.0698,
+          "DeviceTime": 1795996800
+        }
+      ],
+      "clusters": []
+    },
+    "errors": []
+  }
+]

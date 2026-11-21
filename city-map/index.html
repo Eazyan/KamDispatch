@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neverrie · карта снега</title>
+  <link rel="stylesheet" href="../vendor/maplibre-gl.css">
+  <link rel="stylesheet" href="../app.css">
+  <link rel="stylesheet" href="map.css">
+  <script src="../vendor/maplibre-gl.js" defer></script>
+  <script src="map.js" type="module"></script>
+</head>
+<body>
+  <main aria-label="Городская карта Neverrie">
+    <div id="map"></div>
+    <span id="metadata" hidden></span><span id="scene-location" hidden></span><span id="coords" hidden></span>
+    <p id="scene-status" role="status"></p><p id="ops-result-status" role="status"></p>
+    <section class="city-controls" aria-label="Настройки карты">
+      <div class="city-tools">
+        <button id="view" type="button" aria-label="Переключить 2D и 3D">3D</button>
+        <select id="area" aria-label="Район карты"></select>
+        <button id="focus" type="button" aria-label="Вернуться к выбранному району">⌖</button>
+        <details><summary>Слои</summary>
+          <div class="city-layers">
+            <label><input type="checkbox" id="terrain" checked> Рельеф</label>
+            <label><input type="checkbox" id="buildings" checked> Здания</label>
+            <label><input type="checkbox" id="roads" checked> Дороги</label>
+            <label><input type="checkbox" id="assets"> Инфраструктура</label>
+            <label><input type="checkbox" id="slopes"> Уклоны</label>
+            <label><input type="checkbox" id="candidates"> Контуры для проверки</label>
+            <label><input type="checkbox" id="topo"> Аудит высот</label>
+            <label><input type="checkbox" id="show-wind"> Ветер из расчёта</label>
+          </div>
+        </details>
+      </div>
+      <div id="model-tools" hidden>
+        <div class="city-tools">
+          <select id="model-layer" aria-label="Слой модели снега">
+            <option value="snow_cm">Свежий снег</option>
+            <option value="drift_cm">Наносы · итог расчёта</option>
+            <option value="volume">Свежий снег · объём</option>
+          </select>
+          <output id="frame-time" for="model-frame"></output>
+        </div>
+        <div class="city-tools">
+          <button id="play" type="button" aria-pressed="false" aria-label="Воспроизвести расчёт">▶</button>
+          <input id="model-frame" type="range" min="0" max="0" value="0" aria-label="Время расчёта на карте">
+        </div>
+        <div id="model-scale"></div>
+      </div>
+      <input id="snow-height" type="number" hidden value="12">
+      <input id="ops-snow-opacity" type="number" hidden value="78">
+    </section>
+  </main>
+</body>
+</html>

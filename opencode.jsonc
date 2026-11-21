@@ -1,0 +1,61 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "local/security",
+  "providers": {
+    "local": {
+      "name": "Local Qwen Security",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "http://127.0.0.1:8081/v1"
+      },
+      "models": {
+        "security": {
+          "modelID": "local-security",
+          "name": "HuiHui Qwen3.6 35B MAX",
+          "capabilities": {
+            "reasoning": {
+              "supported": true
+            },
+            "tools": true,
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          }
+        }
+      }
+    }
+  },
+  "compaction": {
+    "auto": false,
+    "background": false,
+    "keep": {
+      "tokens": 16000
+    },
+    "buffer": "25%"
+  },
+  "permissions": [
+    {
+      "action": "shell",
+      "resource": "*",
+      "effect": "ask"
+    },
+    {
+      "action": "edit",
+      "resource": "*",
+      "effect": "ask"
+    },
+    {
+      "action": "webfetch",
+      "resource": "*",
+      "effect": "ask"
+    },
+    {
+      "action": "external_directory",
+      "resource": "*",
+      "effect": "deny"
+    }
+  ]
+}
