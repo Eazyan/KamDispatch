@@ -4,6 +4,8 @@
 
 ## Быстрый запуск
 
+[API обращений жителей](docs/CITIZENS_API.md) · [Журнал разработки](docs/CITIZENS_LOG.md)
+
 Нужны запущенный Docker Engine с Compose, Python 3 и Bash. На чистой копии из папки компонента выполните:
 
 ```bash
@@ -211,3 +213,21 @@ docker compose -f compose.yaml -f compose.s3.yaml -f compose.mail-test.yaml up -
 ## Симулятор города
 
 Проект 3D-карты, ветра и снега размещён в [city-sim](city-sim/README_CITY_SIM.md). Запуск из `city-sim/`: `docker compose -f compose.city-sim.yml up --build --detach --wait`. Карта доступна на http://127.0.0.1:8008.
+## Обращения жителей
+
+Запустите `./bootstrap.sh`. Скрипт создаёт локальную конфигурацию при первом запуске и поднимает PostgreSQL, API, обработчик мониторинга и Telegram-бота. Форма открывается по адресу [localhost:8080/citizens/](http://localhost:8080/citizens/). Для подключения Telegram задайте `BOT_TOKEN` в `.env` или в окружении и повторите команду. Внутренний ключ создаётся в `.env` автоматически. Без токена форма работает, а бот завершает запуск без подключения к Telegram. Используйте один экземпляр опроса на токен.
+
+Сводка зон локального режима доступна командой `docker compose run --rm bot python -m monitoring.citizen_bot --zones --min-reports 2`. Для режима `live` передайте токен оператора или наблюдателя через переменную `CITIZEN_STAFF_TOKEN` и опцию `docker compose run --rm -e CITIZEN_STAFF_TOKEN bot …`.
+
+### Переход с предыдущей версии
+
+Остановите старый бот и старую веб-форму перед переносом, сохраните копию SQLite и задайте `BOT_TOKEN` от исходного бота. Telegram требует этот токен для чтения ранее загруженных фото. Выберите режим назначения через настройки KamDispatch. Из корня проекта выполните:
+
+```bash
+docker compose run --rm -v "$(realpath ../bot/reports.sqlite3):/tmp/legacy.sqlite3:ro" \
+  api python -m monitoring.citizen_import /tmp/legacy.sqlite3
+```
+
+Для систем с SELinux можно использовать копию базы и параметр монтирования `:ro,Z`. Импорт сохраняет автора Telegram, адрес, описание, координаты, исходное время и фото. При ошибке вся операция откатывается. Повтор пропускает уже перенесённые записи. После переноса обращения открываются по UUID, указанному в «Моих обращениях». Прежнюю папку можно хранить как архив. SQLite используется только командой переноса.
+
+Контракт и настройка границ районов описаны в [API обращений](docs/CITIZENS_API.md).
