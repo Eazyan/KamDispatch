@@ -5,6 +5,8 @@ import math
 from PIL import Image, ImageDraw
 import pytest
 
+pytest.importorskip("numpy", reason="Install requirements-traffic.txt for the optional traffic experiment")
+
 from monitoring.traffic_image import analyze_roads, calibration
 
 
@@ -104,3 +106,11 @@ def test_thin_label_stroke_and_short_colored_icon_do_not_prove_traffic():
     short = {"id": "short", "coordinates": [road["coordinates"][0], [158.005, road["coordinates"][0][1]]]}
     ImageDraw.Draw(after).line((30, 80, 50, 80), fill=(240, 185, 55), width=5)
     assert analyze_roads(before, after, capture, [short])["features"][0]["properties"]["traffic_status"] == "unknown"
+
+
+def test_device_pixel_screenshots_cannot_use_css_control_points():
+    before, capture, road = scene()
+    capture["viewport"] = [200, 160]
+    retina = before.resize((400, 320))
+    with pytest.raises(ValueError, match="CSS viewport"):
+        analyze_roads(retina, retina, capture, [road])

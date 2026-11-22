@@ -1,6 +1,10 @@
 """Contract checks for screenshot-derived road-corridor observations."""
 import math
 
+import pytest
+
+pytest.importorskip("numpy", reason="Install requirements-traffic.txt for the optional traffic experiment")
+
 from PIL import Image, ImageDraw
 
 

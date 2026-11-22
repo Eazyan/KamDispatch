@@ -84,6 +84,8 @@ def screen_samples(points):
 def analyze_roads(before, after, capture, roads):
     if before.size != after.size or max(before.size) > 4096:
         raise ValueError("Screenshot pair must have equal dimensions, at most 4096 pixels")
+    if "viewport" in capture and tuple(capture["viewport"]) != before.size:
+        raise ValueError("Screenshot dimensions must match the CSS viewport")
     timestamp = datetime.fromisoformat(capture["captured_at"])
     if timestamp.tzinfo is None:
         raise ValueError("Capture time requires a UTC offset")

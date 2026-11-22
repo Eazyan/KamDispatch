@@ -112,7 +112,7 @@ def capture(output, chrome, center, zoom):
                 raise RuntimeError("Expected traffic disabled for the reference screenshot")
             camera = parse_qs(urlsplit(page.url).query).get("m")
             metadata["reference_captured_at"] = datetime.now(timezone.utc).isoformat()
-            page.screenshot(path=str(output / "traffic-off.png"), animations="disabled")
+            page.screenshot(path=str(output / "traffic-off.png"), animations="disabled", scale="css")
             page.get_by_role("button", name="Пробки", exact=True).click()
             page.wait_for_url(lambda u: "traffic" in parse_qs(urlsplit(u).query, keep_blank_values=True))
             page.wait_for_timeout(3000)
@@ -121,7 +121,7 @@ def capture(output, chrome, center, zoom):
                 raise RuntimeError("Camera changed while enabling traffic")
             metadata["captured_at"] = datetime.now(timezone.utc).isoformat()
             metadata["traffic_url"] = page.url
-            page.screenshot(path=str(output / "traffic-on.png"), animations="disabled")
+            page.screenshot(path=str(output / "traffic-on.png"), animations="disabled", scale="css")
             metadata["image_sha256"] = {name: digest(output / name) for name in ("traffic-off.png", "traffic-on.png")}
             write_json(output / "capture.json", metadata)
     except Exception as exc:
