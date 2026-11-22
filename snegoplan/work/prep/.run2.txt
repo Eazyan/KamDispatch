@@ -1,0 +1,50 @@
+rc=0
+st_build_zone_contract (tasks=327, vehicles=5)
+ok test_decode_roundtrip
+wrote /tmp/tmpe8rvncco/o.geojson: 4 features
+ok test_decode_cli
+
+ALL TESTS PASSED
+[0m
+[0m$ [0mpython3 - <<'EOF'
+import json, sys
+sys.path.insert(0, ".")
+from prep.decode import summarize
+pmap = json.load(open("out/zone3_map.json"))
+sol = json.load(open("out/zone3_solution.json"))
+print("tasks:", len(pmap["tasks"]), " vehicles:", len(pmap["vehicles"]),
+      " classes:", sorted(pmap["classes"]))
+summarize(pmap, sol)
+EOF
+tasks: 327  vehicles: 5  classes: ['КДМ', 'грейдер']
+
+=== objective (raw sums) ===
+  total          594175.8
+  latency        593554.2
+  deadhead         3107.9
+  wait                0.0
+  overtime            0.0
+  makespan         5980.6
+  lateness            0.0
+  status=ok  unassigned=[]
+=== per-vehicle km ===
+  M01      service    10.19 km   deadhead   11.28 km   return 01:30
+  M02      service    11.10 km   deadhead    7.62 km   return 01:33
+  M03      service    10.32 km   deadhead   12.64 km   return 01:32
+  M04      service     8.28 km   deadhead    3.81 km   return 01:34
+  M05      service     7.84 km   deadhead   13.16 km   return 01:39
+[0m
+Done. Everything from TASK.md is complete:
+
+**Review fixes to the existing `./prep/` package:**
+1. `excel.py` — crashed on footer note rows in «Машины»/«Точки» and on the density-table sub-header; now skipped robustly.
+2. `build.py` (real bug) — map file stored graph node ids in task `start_node/end_node` while `decode.py` expects compressed indices (KeyError on zone-3 decode); map tasks now carry both.
+3. `tasks.py` — removed a `коэф_скорости` factor not present in TASK.md's service-time formula.
+4. `decode.py` — skip zero-length deadhead legs (invalid 1-point LineStrings), orient leg geometry along driving direction, real deadhead `start_time`.
+
+**Remaining steps done:**
+- `tests/test_prep.py` — 7 plain-assert tests (formulas, Excel+vehicle expansion, pass counts per edge/direction/deadlines, capable-class-or-reported, matrix symmetry-of-reachability/triangle inequality on both tiny and real zone-3 graphs, HGS contract of `plows`/`map`, round-trip decode + decode CLI). **All pass.**
+- Zone 3 build: 250 edges → **327 tasks** (max work width 3.55 m → 1–4 passes per direction, u→v fixed), 118 compressed nodes, 0 unreachable, 5 plow vehicles (M01–M03 КДМ, M04–M05 грейдер; 7 non-plow machines skipped), «Северные районы»: h=25 cm, traffic 1.15.
+- Solver `./input/hgs` (10 s): status **ok**, unassigned **[]**, all priority-1 deadlines met (lateness 0); objective total 594 175.8 = latency 593 554.2 + 0.2·deadhead 3 107.9.
+- Decoded `out/zone3_routes.geojson`: 387 LineStrings (327 service + 60 deadhead). Per-vehicle service/deadhead km and return times printed above.
+- `REPORT.md` written, including the main open assumption (zone→condition-name mapping is geographic; constant in `formulas.py` to change if the real mapping differs).

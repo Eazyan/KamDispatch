@@ -1,0 +1,58 @@
+# Основные папки и данные среды
+.obsidian/
+/Без названия.base
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+node_modules/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+dist/
+build/
+
+# Бинарники C++
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.lib
+*.a
+*.pdb
+*.ilk
+*.exp
+
+# Логи и временное
+*.log
+/logs/
+/cloud_work.zip
+
+# Временные и сырые данные
+/hgs/tmp/
+/mapdata/data/raw/
+
+# Экспорт старого PR
+/team_05/
+
+# Локальные рабочие файлы (приватные ссылки/пути, не публикуются)
+/AGENTS.md
+/CLAUDE.md
+/WORKLOG.md
+
+# �������������� / ���������
+/mapdata/data/raw/
+/hgs/tmp/
+/backend/cache/
+*.log
+logs/
+WORKLOG.md
+
+AGENTS.md
+CLAUDE.md
+
