@@ -83,4 +83,38 @@ addEventListener("resize",refit);
 if(window.ResizeObserver)new ResizeObserver(refit).observe(document.getElementById("wrap"));
 document.getElementById("tg").onclick=()=>{const p=document.getElementById("p");p.classList.toggle("min");document.getElementById("tg").textContent=(p.classList.contains("min")?"[+]":"[-]")+" Снегоплан: карта"};
 refit();setTimeout(refit,100);
+</script>
+<script>
+/* Сервисные слои (classify_service.py). Выполняется только если данные переданы;
+   старый вызов без service.csv сюда не заходит. */
+if(D.svc){
+ E.forEach((e,i)=>{const s=D.svc.e[i];e.svc=s[0];e.crit=s[1];e.rev=s[2];e.stg=s[3]||0});
+ const body=document.querySelector("#p .body");
+ const mk=h=>{const l=document.createElement("label");l.innerHTML=h;return l};
+ const wr=body.querySelector('input[value="wsrc"]').parentElement;
+ wr.after(mk('<input type="radio" name="m" value="svc"> Сервисный класс'),
+  mk('<input type="radio" name="m" value="stage"> Этап 1 (автобус/крит.доступ)'),
+  mk('<input type="checkbox" id="rev"> На проверке'),
+  mk('<input type="checkbox" id="crp"> Крит. подъезды'),
+  mk('<input type="checkbox" id="cpp"> Больницы/клиники'));
+ const SC=["#2166ac","#d73027","#7b3294"],SN=["муниципальные (уборка)","не подтверждено (подъезды)","на ручной проверке"];
+ const STC=["#d7191c","#fdae61","#cccccc"],STN=["этап 1 (bus/крит.доступ)","municipal, этапы 2+","не municipal (не подтверждено)"];
+ const _col=col;col=function(e){return mode=="svc"?SC[e.svc]:mode=="stage"?STC[e.stg?0:(e.svc==0?1:2)]:_col(e)};
+ const _lw=lw;lw=function(e){return mode=="svc"?(e.svc==2?2.8:2):mode=="stage"?(e.stg?3.4:1.6):_lw(e)};
+ let showRev=false,showCrp=false,showCpp=false;
+ function path(e){cx.beginPath();for(let i=0;i<e.p.length;i+=2){const X=e.p[i]*s+ox,Y=e.p[i+1]*s+oy;i?cx.lineTo(X,Y):cx.moveTo(X,Y)}}
+ const _draw=draw;draw=function(){_draw();
+  if(showCrp&&mode=="svc"){for(const e of E){if(!e.crit)continue;cx.strokeStyle="#ff7f00";cx.lineWidth=5;path(e);cx.stroke()}}
+  if(showRev){cx.fillStyle="#7b3294";for(const q of D.svc.rev){cx.fillRect(q[0]*kx*s+ox-2.5,-q[1]*s+oy-2.5,5,5)}}
+  if(showCpp){cx.strokeStyle="#000";cx.lineWidth=1.5;for(const q of D.svc.pois){const X=q[0]*kx*s+ox,Y=-q[1]*s+oy;cx.beginPath();cx.moveTo(X-4,Y);cx.lineTo(X+4,Y);cx.moveTo(X,Y-4);cx.lineTo(X,Y+4);cx.stroke()}}
+ };
+ const _legend=legend;legend=function(){if(mode=="svc"){let h=SC.map((c,i)=>`<span><i style="background:${c}"></i>${SN[i]}</span>`).join("");if(showCrp)h+=`<span><i style="background:#ff7f00"></i>крит. подъезды</span>`;document.getElementById("leg").innerHTML=h}
+  else if(mode=="stage"){document.getElementById("leg").innerHTML=STC.map((c,i)=>`<span><i style="background:${c}"></i>${STN[i]}</span>`).join("")}
+  else _legend()};
+ document.querySelectorAll('input[name=m]').forEach(r=>r.onchange=()=>{mode=r.value;draw()});
+ document.getElementById("rev").onchange=ev=>{showRev=ev.target.checked;draw()};
+ document.getElementById("crp").onchange=ev=>{showCrp=ev.target.checked;draw()};
+ document.getElementById("cpp").onchange=ev=>{showCpp=ev.target.checked;draw()};
+ draw();
+}
 </script></body></html>

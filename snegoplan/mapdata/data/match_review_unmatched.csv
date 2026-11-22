@@ -1,0 +1,102 @@
+table,id,status,confidence,rationale,source,lon,lat
+ksodd_street_match,road_categories.csv|Подъезд к мкрн. Долиновка от ТЭЦ-2 до конечной автобусной остановки в мкрн. Долиновка,unmatched,low,"улица не найдена: ""подъезд к долиновка от тэц-2 до конечной автобусной остановки в долиновка"" (best fuzzy 0.26)",ksodd.pdf p36,,
+ksodd_street_match,road_categories.csv|Подъезд в мкрн. Тундровый от краевой автомобильной дороги «Петропавловск- Камчатский-Налычево»,unmatched,low,"улица не найдена: ""подъезд в тундровый от краевой автомобильной дороги петропавловск- камчатский-налычево"" (best fuzzy 0.28)",ksodd.pdf p37,,
+ksodd_street_match,road_categories.csv|Подъезд от краевой дороги «Полигон Радыгино» до конечной остановки ОТ «Поселок Радыгино»,unmatched,low,"улица не найдена: ""подъезд от краевой дороги полигон радыгино до конечной остановки от поселок радыгино"" (best fuzzy 0.27)",ksodd.pdf p37,,
+ksodd_street_match,road_categories.csv|Подъезд к мкрн. Чапаевка от краевой автомобильной дороги «Петропавловск- Камчатский-Налычево»,unmatched,low,"улица не найдена: ""подъезд к чапаевка от краевой автомобильной дороги петропавловск- камчатский-налычево"" (best fuzzy 0.28)",ksodd.pdf p37,,
+ksodd_street_match,road_categories.csv|Подъезд МТФ от краевой автомобильной дороги «Петропавловск-Камчатский- Налычево»,unmatched,low,"улица не найдена: ""подъезд мтф от краевой автомобильной дороги петропавловск-камчатский- налычево"" (best fuzzy 0.30)",ksodd.pdf p37,,
+ksodd_street_match,"road_categories.csv|От дороги Королёва мимо микрорынка вдоль ж.д. Королёва,41 вдоль ж.д. Королёва,47/2 до ж.д. Курчатова,55",unmatched,low,"улица не найдена: ""от дороги королева мимо микрорынка вдоль ж д королева 41 вдоль ж д королева 47 2 до ж д курчатова 55"" (best fuzzy 0.27)",ksodd.pdf p37,,
+ksodd_street_match,road_categories.csv|Обустройство мест захоронения (подъездная автомобильная дорога в восточной части города Петропавловска-Камчатского),unmatched,low,"улица не найдена: ""обустройство мест захоронения подъездная автомобильная дорога в восточной части города петропавловска-камчатского"" (best fuzzy 0.25)",ksodd.pdf p38,,
+ksodd_point_match,19) А/д к квартал Нагорный – Восточное ш.|А/д к квартал Нагорный (вход/выход),unmatched,low,"улица не найдена: ""а д к квартал нагорный"" (best fuzzy 0.43); в точке <2 улиц v3: ""19 а д к квартал нагорный -""",ksodd.pdf p67,,
+ksodd_point_match,21) Пересечение ул. Ракетная – а/д в мкрн. Долиновка – ул. Степная – а/д к ул. С|а/д в мкрн. Долиновка (вход/выход),unmatched,low,"улица не найдена: ""а д в долиновка"" (best fuzzy 0.55); перекрёсток геом d=79м (Спортивная+Ракетная улица)",ksodd.pdf p67,,
+ksodd_point_match,22) Пересечение въезд в мкрн. Заозерный – а/д к мкрн. Долиновка – а/д к мкрн. Да|Въезд в мкрн. Заозерный (вход/выход),unmatched,low,"улица не найдена: ""въезд в заозерный"" (best fuzzy 0.42); в точке <2 улиц v3: ""22 пересечение въезд в микрорайон заозерный - а д к микрорай""",ksodd.pdf p67,,
+ksodd_point_match,22) Пересечение въезд в мкрн. Заозерный – а/д к мкрн. Долиновка – а/д к мкрн. Да|А/д к мкрн. Долиновка (вход/выход),unmatched,low,"улица не найдена: ""а д к долиновка"" (best fuzzy 0.50); в точке <2 улиц v3: ""22 пересечение въезд в микрорайон заозерный - а д к микрорай""",ksodd.pdf p67,,
+ksodd_point_match,22) Пересечение въезд в мкрн. Заозерный – а/д к мкрн. Долиновка – а/д к мкрн. Да|А/д к мкрн. Дальний (вход/выход),unmatched,low,"улица не найдена: ""а д к дальний"" (best fuzzy 0.50); в точке <2 улиц v3: ""22 пересечение въезд в микрорайон заозерный - а д к микрорай""",ksodd.pdf p67,,
+ksodd_point_match,23) Пересечение въезд в мкрн. Чапаевка – Восточное ш.|Въезд в мкрн. Чапаевка (вход/выход),unmatched,low,"улица не найдена: ""въезд в чапаевка"" (best fuzzy 0.61); в точке <2 улиц v3: ""23 пересечение въезд в микрорайон чапаевка -""",ksodd.pdf p67,,
+ksodd_point_match,27) Пересечение а/д к мкрн. Чапаева – а/д к квартал Нагорный – а/д к СНТ Звездоч|А/д к квартал Нагорный (вход/выход),unmatched,low,"улица не найдена: ""а д к квартал нагорный"" (best fuzzy 0.43); в точке <2 улиц v3: ""27 пересечение а д к микрорайон - а д к квартал нагорный - а""",ksodd.pdf p68,,
+ksodd_point_match,27) Пересечение а/д к мкрн. Чапаева – а/д к квартал Нагорный – а/д к СНТ Звездоч|А/д к СНТ Звездочка (вход/выход),unmatched,low,"улица не найдена: ""а д к снт звездочка"" (best fuzzy 0.44); в точке <2 улиц v3: ""27 пересечение а д к микрорайон - а д к квартал нагорный - а""",ksodd.pdf p68,,
+ksodd_point_match,"35) Регулируемый пешеходный переход в районе Петропавловское ш., д. 33/1|Въезд во двор",unmatched,low,"улица не найдена: ""въезд во двор"" (best fuzzy 0.55); в точке <2 улиц v3: ""35 регулируемый пешеходный переход в районе д 33 1""",ksodd.pdf p69,,
+traffic_lights_match,2,ambiguous,low,"дом ""академика королева, 21а"" по residential.csv (num, w102506720); номер по числовой части; OSM-пары нет",ksodd.pdf p42,158.6533658,53.0529728
+traffic_lights_match,18,unmatched,low,"только улица, геопривязки нет: ""улица Красная Сопка""",ksodd.pdf p43,,
+traffic_lights_match,21,unmatched,low,"только улица, геопривязки нет: ""Ленинградская улица""",ksodd.pdf p43,,
+traffic_lights_match,23,unmatched,low,"только улица, геопривязки нет: ""Ленинградская улица""",ksodd.pdf p43,,
+traffic_lights_match,30,unmatched,low,пересечение не вычислено: Красногвардейская улица+Пограничная улица,ksodd.pdf p43,,
+traffic_lights_match,32,unmatched,low,"только улица, геопривязки нет: ""Пограничная улица""",ksodd.pdf p43,,
+traffic_lights_match,41,unmatched,low,"только улица, геопривязки нет: ""проспект Победы""",ksodd.pdf p43,,
+traffic_lights_match,42,ambiguous,low,"пересечение ""проспект Победы+улица Чубарова"" геом d=20м; дубль кластера C34, представитель ksodd_id=39",ksodd.pdf p43,158.6132656,53.0695340
+traffic_lights_match,48,unmatched,low,"только улица, геопривязки нет: ""улица Тушканова""",ksodd.pdf p44,,
+traffic_lights_match,49,unmatched,low,"только улица, геопривязки нет: ""Звёздная улица""",ksodd.pdf p44,,
+traffic_lights_match,51,unmatched,low,"только улица, геопривязки нет: ""Звёздная улица""",ksodd.pdf p44,,
+traffic_lights_match,52,unmatched,low,"только улица, геопривязки нет: ""проспект Циолковского""",ksodd.pdf p44,,
+traffic_lights_match,57,unmatched,low,пересечение не вычислено: проспект Содружества+Вулканная улица,ksodd.pdf p44,,
+traffic_lights_match,n458899782,unmatched,high,пара с КСОДД-строкой найдена (см. ksodd_id с osm_id=n458899782),osm_petropavlovsk.json,158.6165822,53.0691146
+traffic_lights_match,n1391627282,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6539482,53.0340793
+traffic_lights_match,n1425986913,unmatched,high,пара с КСОДД-строкой найдена (см. ksodd_id с osm_id=n1425986913),osm_petropavlovsk.json,158.6623298,52.9983425
+traffic_lights_match,n2002442577,unmatched,high,пара с КСОДД-строкой найдена (см. ksodd_id с osm_id=n2002442577),osm_petropavlovsk.json,158.655781,53.0452904
+traffic_lights_match,n2002442580,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6557067,53.0453249
+traffic_lights_match,n2269390464,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6681039,52.991708
+traffic_lights_match,n5299760655,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.614939,53.0693925
+traffic_lights_match,n5299760656,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6151579,53.0693682
+traffic_lights_match,n5301247373,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6024739,53.0705116
+traffic_lights_match,n5301247374,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6018285,53.0704884
+traffic_lights_match,n5301247375,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6027379,53.0704134
+traffic_lights_match,n5301247376,unmatched,high,пара с КСОДД-строкой найдена (см. ksodd_id с osm_id=n5301247376),osm_petropavlovsk.json,158.6021228,53.0703502
+traffic_lights_match,n5517335078,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6928656,53.029449
+traffic_lights_match,n7131908549,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6538317,53.0338619
+traffic_lights_match,n7190729850,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6575991,53.0053613
+traffic_lights_match,n7190729858,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6576108,53.0052452
+traffic_lights_match,n7192483495,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6628165,52.9980213
+traffic_lights_match,n8570779407,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6408943,53.0670152
+traffic_lights_match,n8570779408,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6410632,53.0669874
+traffic_lights_match,n12070191949,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6537138,53.0340746
+traffic_lights_match,n12070191950,unmatched,high,пара с КСОДД-строкой найдена (см. ksodd_id с osm_id=n12070191950),osm_petropavlovsk.json,158.6533918,53.0337192
+traffic_lights_match,n12070191964,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6562637,53.0450752
+traffic_lights_match,n12070197808,unmatched,high,пара с КСОДД-строкой найдена (см. ksodd_id с osm_id=n12070197808),osm_petropavlovsk.json,158.6745558,53.0361303
+traffic_lights_match,n12070197814,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6750839,53.0357363
+traffic_lights_match,n13294140060,unmatched,high,OSM traffic_signals node; пары в КСОДД-таблице (61 адрес) нет,osm_petropavlovsk.json,158.6489282,53.0194813
+traffic_lights_match,n13294140061,unmatched,high,пара с КСОДД-строкой найдена (см. ksodd_id с osm_id=n13294140061),osm_petropavlovsk.json,158.6488727,53.0196086
+poi_critical,n1096814604,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6600246,53.0384847
+poi_critical,n1391841301,ambiguous,,"дубль POI hospital, представитель osm_id=n1391841291",attractors.csv,158.6384334,53.0585575
+poi_critical,n2198928767,ambiguous,,"дубль POI hospital, представитель osm_id=n2198928749",attractors.csv,158.6427131,53.0493695
+poi_critical,n2206285732,ambiguous,,"дубль POI school, представитель osm_id=n2206285731",attractors.csv,158.6539824,53.0474004
+poi_critical,n2223562108,ambiguous,,"дубль POI school, представитель osm_id=w212508327",attractors.csv,158.6654862,53.0501289
+poi_critical,n2481686732,ambiguous,,"дубль POI hospital, представитель osm_id=w128734224",attractors.csv,158.6493677,53.0190996
+poi_critical,n2499509756,ambiguous,,"дубль POI government, представитель osm_id=w128734226",attractors.csv,158.6489009,53.0187209
+poi_critical,n2524993654,ambiguous,,"дубль POI government, представитель osm_id=n2524993660",attractors.csv,158.6605309,53.0424060
+poi_critical,n2525022352,ambiguous,,"дубль POI government, представитель osm_id=n2525022351",attractors.csv,158.6861765,53.0321165
+poi_critical,n2531897280,ambiguous,,"дубль POI government, представитель osm_id=n2531897286",attractors.csv,158.6409705,53.0587281
+poi_critical,n2556611700,ambiguous,,"дубль POI government, представитель osm_id=w128734226",attractors.csv,158.6488974,53.0186801
+poi_critical,n2556615479,ambiguous,,"дубль POI government, представитель osm_id=n7344930330",attractors.csv,158.6220551,53.0423813
+poi_critical,n2930713770,ambiguous,,"дубль POI government, представитель osm_id=n2925338963",attractors.csv,158.6523699,53.0101020
+poi_critical,n4356734294,ambiguous,,"дубль POI government, представитель osm_id=n2531897286",attractors.csv,158.6412860,53.0592129
+poi_critical,n4441938265,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6598407,53.0385489
+poi_critical,n4441938267,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6609884,53.0392943
+poi_critical,n4441938273,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6607745,53.0388534
+poi_critical,n4441938274,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6612930,53.0387264
+poi_critical,n4441938277,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6599704,53.0385302
+poi_critical,n4441938278,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6605585,53.0388304
+poi_critical,n4441938963,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6606755,53.0376234
+poi_critical,n4441938965,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6607349,53.0379507
+poi_critical,n4441938966,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6605861,53.0379766
+poi_critical,n4441938967,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6598828,53.0374946
+poi_critical,n4441938968,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6596883,53.0377342
+poi_critical,n4441938969,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6596007,53.0386370
+poi_critical,n4441938970,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6604996,53.0379997
+poi_critical,n6278073885,ambiguous,,"дубль POI hospital, представитель osm_id=w98408583",attractors.csv,158.6178790,53.0448293
+poi_critical,n6346274443,ambiguous,,"дубль POI government, представитель osm_id=w128734226",attractors.csv,158.6489000,53.0187031
+poi_critical,n7170895008,ambiguous,,"дубль POI government, представитель osm_id=n7184011303",attractors.csv,158.6564958,53.0359348
+poi_critical,n7170895009,ambiguous,,"дубль POI government, представитель osm_id=n7184011303",attractors.csv,158.6562459,53.0359429
+poi_critical,n7344930329,ambiguous,,"дубль POI government, представитель osm_id=n7344930330",attractors.csv,158.6223907,53.0425797
+poi_critical,n7344930332,ambiguous,,"дубль POI government, представитель osm_id=n7344930330",attractors.csv,158.6221313,53.0424385
+poi_critical,n13109505801,ambiguous,,"дубль POI school, представитель osm_id=w1430125708",attractors.csv,158.6464717,53.0718004
+poi_critical,w94412906,ambiguous,,"дубль POI hospital, представитель osm_id=n4084104260",attractors.csv,158.6604970,53.0395684
+poi_critical,w102609585,ambiguous,,"дубль POI hospital, представитель osm_id=w445127790",attractors.csv,158.6298556,53.0589850
+poi_critical,w122733168,ambiguous,,"дубль POI hospital, представитель osm_id=n1370662341",attractors.csv,158.6355259,53.0592171
+poi_critical,w128734194,ambiguous,,"дубль POI hospital, представитель osm_id=w128734224",attractors.csv,158.6501237,53.0187601
+poi_critical,w193192244,ambiguous,,"дубль POI government, представитель osm_id=w193192324",attractors.csv,158.6726729,53.0440438
+poi_critical,w285165768,ambiguous,,"дубль POI hospital, представитель osm_id=w285165767",attractors.csv,158.6383453,53.0599654
+poi_critical,w444252523,ambiguous,,"дубль POI school, представитель osm_id=w101397014",attractors.csv,158.6330817,53.0532577
+poi_critical,w450278169,ambiguous,,"дубль POI school, представитель osm_id=w102507239",attractors.csv,158.6526277,53.0541852
+poi_critical,w526812401,ambiguous,,"дубль POI hospital, представитель osm_id=n2002570471",attractors.csv,158.6658301,53.0375931
+poi_critical,w526812402,ambiguous,,"дубль POI hospital, представитель osm_id=n2002570471",attractors.csv,158.6657314,53.0376406
+poi_critical,w823068529,ambiguous,,"дубль POI school, представитель osm_id=w102609544",attractors.csv,158.6248080,53.0641191
+poi_critical,w1511067051,ambiguous,,"дубль POI school, представитель osm_id=n13940738001",attractors.csv,158.6460201,53.0563251
