@@ -769,7 +769,7 @@ def test_bus_dashboard_preview_collection_and_demo_isolation(settings, tmp_path)
 
     from monitoring.bus import measure_passages
     from monitoring.bus_demo import START, demo_inputs, demo_sections
-    from monitoring.bus_worker import collect, dashboard_rnis, load_sections
+    from monitoring.bus_worker import collect, dashboard_rnis, load_sections, map_rnis
 
     road = json.loads((Path(__file__).resolve().parents[1] / "monitoring/snow_segments.json").read_text())[1]
     path = tmp_path / "sections.json"
@@ -798,6 +798,10 @@ def test_bus_dashboard_preview_collection_and_demo_isolation(settings, tmp_path)
         ).fetchone()["n"] == len(positions)
         assert dashboard_rnis(conn, preview, "preview", now)["rows"][0]["reason"] == "buses"
         assert dashboard_rnis(conn, preview, "preview", now + timedelta(hours=4)) is None
+        layer = map_rnis(conn, preview, "preview", now)
+        assert layer["state"] == "ready"
+        assert [point["id"] for point in layer["positions"]] == ["bus-b"]
+        assert map_rnis(conn, preview, "preview", now + timedelta(minutes=2))["positions"] == []
         collect(conn, "preview", sections, geometry, now + timedelta(minutes=1), [], "unavailable")
         assert conn.execute("SELECT closed_at FROM bus_hints WHERE run_id='preview'").fetchone()["closed_at"]
 
@@ -807,3 +811,5 @@ def test_bus_dashboard_preview_collection_and_demo_isolation(settings, tmp_path)
         demo = client.get("/api/v1/dashboard?run=demo").json()["bus_observations"]
         assert demo["source"] == "simulation"
         assert demo["scenarios"][0]["rows"][2]["reason"] == "buses"
+        overlay = client.get("/api/v1/dashboard?run=demo").json()["bus_map"]
+        assert overlay["source"] == "simulation" and len(overlay["positions"]) == 4

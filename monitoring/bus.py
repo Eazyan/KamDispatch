@@ -23,6 +23,7 @@ class Position:
     lat: float
     measured_at: datetime
     received_at: datetime
+    route: str | None = None
 
 
 @dataclass(frozen=True)

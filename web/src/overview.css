@@ -156,3 +156,9 @@
   min-height:38px; font-size:.73rem; overflow-wrap:anywhere;
 }
 .cleanup-phases button[aria-pressed=true] { border-color:#a4e6d7; background:#2d505b; }
+
+.map-bus-pin { min-width: 30px; min-height: 24px; padding: 1px 4px; border: 2px solid var(--pin); border-radius: 6px; background: #102532; color: #eafff7; font: 700 11px/1 system-ui, sans-serif; box-shadow: 0 0 0 3px #74edc530; }
+.ops-map-tools .ops-bus-toggle { color: #b1f7df; }
+.ops-bus-detail { position: absolute; bottom: calc(100% + 8px); left: 0; display: flex; align-items: center; gap: 12px; width: max-content; max-width: 100%; padding: 8px 10px; border: 1px solid #56897c; border-radius: 9px; background: #102532f5; color: #eafff7; font-size: 12px; }
+.ops-bus-detail div { display: grid; gap: 2px; }
+.ops-bus-detail span { color: #b9d6d0; }

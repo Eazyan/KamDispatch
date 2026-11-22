@@ -613,6 +613,9 @@ function App() {
   }
 
   const showOverview = tab === 'overview';
+  const serviceMode = serviceData?.mode ?? data?.mode;
+  const showBusDemoLink = tab === 'dispatch' && (serviceMode === 'preview' || serviceMode === 'demo') &&
+    data?.bus_observations?.source !== 'simulation';
   const signals = data?.events.filter(item => !onlyActiveSignals || item.state !== 'resolved') ?? [];
   return <div className="app-shell app-monitor">
     <a className="skip-link" href="#main-content" onClick={e => {
@@ -640,8 +643,11 @@ function App() {
       {!showOverview && <header className="workspace-head">
         <div><div className="section-place"><span className="small-dot" />Алгоритмы Камчатки</div><h1>{page[0]}</h1><p>{page[1]}</p></div>
         <div className="page-tools">
-          {scenario ? <label className="section-demo-select"><span>Демосценарий</span>
-            <select value={scenario} onChange={e => changeScenario(parseScenario(e.currentTarget.value))}>
+          {showBusDemoLink && <a className="bus-demo-link" href="/demo#dispatch">
+            <Icon name="bus" width="17" height="17" />Демо задержек автобусов
+          </a>}
+          {scenario || data?.mode === 'demo' ? <label className="section-demo-select"><span>Демосценарий</span>
+            <select value={scenario ?? ''} onChange={e => changeScenario(parseScenario(e.currentTarget.value))}>
               <option value="">Данные сервиса</option>
               {Object.entries(demoScenarios).map(([id, title]) => <option key={id} value={id}>{title}</option>)}
             </select>

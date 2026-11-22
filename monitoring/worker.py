@@ -227,7 +227,7 @@ def main():
     run_id = settings.mode
     cameras = list(settings.cameras())
     bus_sections = []
-    if settings.bus_rnis_enabled:
+    if settings.collect_buses:
         try:
             bus_sections = load_bus_sections(settings.bus_sections_path)
         except (OSError, ValueError, TypeError) as exc:
@@ -274,7 +274,7 @@ def main():
                                     lambda: snow_tick(settings, run_id, client, snow_segments))
                 if settings.mode == "live" or settings.mail_test:
                     services.submit(repeat, stop, 2, "mail", lambda: mail_tick(settings, run_id, media))
-                if settings.bus_rnis_enabled:
+                if settings.collect_buses:
                     services.submit(run_collection, stop, settings, run_id, bus_sections)
                 try:
                     while not stop.is_set():

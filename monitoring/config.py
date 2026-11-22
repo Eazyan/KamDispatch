@@ -25,7 +25,7 @@ class Settings:
     city_map_url: str = os.getenv("CITY_MAP_URL", "").strip()
     snow_segments_path: Path = Path(os.getenv("SNOW_SEGMENTS_FILE", str(ROOT / "monitoring" / "snow_segments.json")))
     cameras_path: Path = Path(os.getenv("MONITOR_CAMERAS", str(ROOT / "monitoring" / "cameras.json")))
-    bus_rnis_enabled: bool = os.getenv("BUS_RNIS_ENABLED") == "1"
+    bus_rnis_enabled: bool | None = (os.getenv("BUS_RNIS_ENABLED") == "1") if os.getenv("BUS_RNIS_ENABLED") else None
     bus_sections_path: Path | None = Path(os.environ["BUS_SECTIONS_FILE"]) if os.getenv("BUS_SECTIONS_FILE") else None
     base_url: str = os.getenv("PUBLIC_URL", "http://localhost:8080").rstrip("/")
     oidc_issuer: str = os.getenv("OIDC_ISSUER", "").rstrip("/")
@@ -45,6 +45,10 @@ class Settings:
     snow_probability: float = float(os.getenv("SNOW_PROBABILITY", "0.5"))
     summary_hour: int = int(os.getenv("SUMMARY_HOUR", "7"))
     freshness: int = int(os.getenv("FRAME_FRESHNESS_SECONDS", "90"))
+
+    @property
+    def collect_buses(self):
+        return self.mode == "preview" if self.bus_rnis_enabled is None else self.bus_rnis_enabled
 
     @property
     def city_snow(self):

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Icon, type IconName } from './Icon';
+import { busDuration, busReasons } from './BusChecks';
 import { OverviewMap, type MapMarker } from './OverviewMap';
 import { cleanupPhases, demoScenarios, scenarioClock, type CleanupPhase, type DemoScenario } from './overviewDemo';
 import { actionRequired, overviewWidgets, taskStages, type Widget } from './overviewWidgets';
@@ -44,6 +45,7 @@ function cardDesign(widget: Widget): { label: string; icon: IconName; mood: stri
   if (widget.type === 'forecast') return { label: 'Погодное предупреждение', icon: 'forecast', mood: 'blue' };
   if (widget.type === 'model') return { label: 'Расчётный нанос', icon: 'map', mood: 'blue' };
   if (widget.type === 'camera') return { label: 'Снег по камере', icon: 'camera', mood: 'blue' };
+  if (widget.type === 'bus') return { label: 'Задержка автобусов', icon: 'bus', mood: 'amber' };
   const { row } = widget;
   if (widget.priority === 100) return { label: 'Срочно проверить', icon: 'bell', mood: 'red' };
   if (row.task?.stage === 'done') return { label: 'Ожидает приёмки', icon: 'check', mood: 'green' };
@@ -69,7 +71,9 @@ function WidgetCard({ widget, selected, onSelect, onDispatch, onSignal, onCamera
     : signal?.reason || report?.description || issueNames[row.kind]
     : widget.type === 'model' ? 'Модель указывает, где снег может накопиться сильнее.'
     : widget.type === 'forecast' ? fullTime(widget.warning.payload.start) + ' — ' + shortTime(widget.warning.payload.end)
-    : widget.type === 'camera' ? widget.camera.scene?.evidence : '';
+    : widget.type === 'camera' ? widget.camera.scene?.evidence
+    : widget.type === 'bus' ? busDuration(widget.observation.usual_seconds) + ' → ' +
+      busDuration(widget.observation.observed_seconds) + ' мин:сек' : '';
   const amount = widget.type === 'model' ? widget.segment.excess_cm : widget.type === 'dispatch' ? widget.segment?.excess_cm : null;
   const shownImage = !!image && (!task || selected);
   const [imageError, setImageError] = useState<string>();
@@ -100,11 +104,14 @@ function WidgetCard({ widget, selected, onSelect, onDispatch, onSignal, onCamera
       {row && report && (signal || task) && <p><strong>Обращение {report.reference && '№ ' + report.reference}</strong>{report.description}</p>}
       {task?.result && task.assignee && <p>{task.assignee}{task.due_at && ' · Срок ' + fullTime(task.due_at)}</p>}
       {widget.type === 'model' && <p>Избыток свежего снега относительно фонового снегопада. Участок рекомендуется проверить.</p>}
+      {widget.type === 'bus' && <p><strong>{widget.observation.direction_label} · Имитация</strong>
+        {widget.observation.reason && busReasons[widget.observation.reason]}</p>}
       <div className="card-actions">
         {row && <button type="button" onClick={() => onDispatch(row)}>{task ? 'Открыть задание' : 'Открыть в очереди'}</button>}
         {signal && !scenario && <button type="button" onClick={e => onSignal(signal.id, e.currentTarget)}>К сигналу</button>}
         {widget.type === 'camera' && <button type="button" onClick={() => onCamera(widget.camera.id)}>Открыть камеру</button>}
         {widget.type === 'forecast' && <a href="#forecast">Открыть прогноз</a>}
+        {widget.type === 'bus' && <a href="#dispatch">Открыть в диспетчерской</a>}
       </div>
     </div>}
   </article>;
@@ -119,6 +126,7 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
   const widgets = useMemo(() => overviewWidgets(data, roads, Date.parse(scenario ? clock : updatedAt) || Date.now()),
     [data, roads, scenario, updatedAt, clock]);
   const markers = useMemo<MapMarker[]>(() => widgets.flatMap(widget => {
+    if (widget.type === 'bus') return [];
     const coordinates = widget.coordinates;
     if (!coordinates?.some(([lon, lat]) => lon >= 158.48 && lon <= 158.80 && lat >= 52.91 && lat <= 53.16)) return [];
     return [{ id: widget.id, label: widget.title, coordinates, priority: widget.priority,
@@ -132,6 +140,37 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
   const [onlyActions, setOnlyActions] = useState(false);
   const [showSnow, setShowSnow] = useState(true);
   const [showMarkers, setShowMarkers] = useState(true);
+  const [showBuses, setShowBuses] = useState(true);
+  const [selectedBusId, setSelectedBusId] = useState<string>();
+  const [busClock, setBusClock] = useState(Date.now);
+  const busMap = data.bus_map;
+  useEffect(() => {
+    if (busMap?.source !== 'rnis') return;
+    const timer = window.setInterval(() => setBusClock(Date.now()), 5000);
+    return () => window.clearInterval(timer);
+  }, [busMap?.source]);
+  const positions = useMemo(() => busMap?.positions.filter(bus =>
+    busMap.source === 'simulation' || Date.parse(bus.measured_at) > busClock - 90_000), [busMap, busClock]);
+  const busMarkers = useMemo<MapMarker[]>(() => (positions ?? []).flatMap(bus => {
+    const route = bus.route?.trim();
+    if (!route || !/\d/.test(route)) return [];
+    return [{ id: 'bus:' + bus.id, label: 'Автобус · маршрут ' + route, kind: 'bus', badge: route,
+      coordinates: [[bus.lon, bus.lat]], color: '#74edc5', priority: -1 }];
+  }), [positions]);
+  const displayedMarkers = useMemo(() => [
+    ...(showMarkers ? markers : []), ...(showBuses ? busMarkers : []),
+  ], [markers, busMarkers, showMarkers, showBuses]);
+  const demoCoordinates = !scenario && busMap?.source === 'simulation'
+    ? JSON.stringify(busMap.positions.map(bus => [bus.lon, bus.lat])) : '';
+  const demoBusFocus = useMemo(() => demoCoordinates ? {
+    id: 'demo-buses', revision: 0, fitOnly: true,
+    coordinates: JSON.parse(demoCoordinates) as RoadPoint[],
+  } : null, [demoCoordinates]);
+  const selectedBus = showBuses && positions?.find(bus => bus.id === selectedBusId);
+  const busStatus = busMarkers.length ? busMarkers.length.toString() :
+    busMap?.state === 'waiting' ? 'ждём GPS' :
+      busMap?.state === 'unavailable' ? 'РНИС недоступна' :
+        positions?.length ? 'нет номеров маршрутов' : 'нет свежих GPS';
   const [hidden, setHidden] = useState(false);
   const revision = useRef(0);
   const cards = useRef(new Map<string, HTMLElement>());
@@ -151,7 +190,8 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
     }
     setSelected(widget.id);
     const marker = markers.find(item => item.id === widget.id);
-    setSelection(marker ? { id: widget.id, coordinates: marker.coordinates, revision: ++revision.current } : null);
+    const coordinates = marker?.coordinates ?? (widget.type === 'bus' ? widget.coordinates : undefined);
+    setSelection(coordinates ? { id: widget.id, coordinates, revision: ++revision.current } : null);
     if (fromMap) {
       setHidden(false); setOnlyActions(false);
       requestAnimationFrame(() => {
@@ -175,9 +215,17 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
 
   return <section className="ops-overview" aria-label="Дорожная обстановка">
     <OverviewMap cityUrl={scenario && !cleanup ? null : data.city_map_url} cleanupAt={cleanup ? clock : undefined} runId={validSnow ? snow?.remote_run_id : undefined}
-      roads={validSnow ? roads : emptyRoads} markers={markers} selection={selection}
-      showSnow={showSnow} showMarkers={showMarkers} onClientState={setState} onModelState={(status, progress) => { setModel(status); setModelProgress(progress); }}
-      onSelect={id => { const widget = widgets.find(item => item.id === id); if (widget) select(widget, true); }} />
+      roads={validSnow ? roads : emptyRoads} markers={displayedMarkers} selection={selection ?? demoBusFocus}
+      showSnow={showSnow} showMarkers={displayedMarkers.length > 0} onClientState={setState} onModelState={(status, progress) => { setModel(status); setModelProgress(progress); }}
+      onSelect={id => {
+        if (id.startsWith('bus:')) {
+          const busId = id.slice(4);
+          setSelectedBusId(current => current === busId ? undefined : busId);
+          return;
+        }
+        const widget = widgets.find(item => item.id === id);
+        if (widget) select(widget, true);
+      }} />
     <div className="ops-map-shade" />
     <header className="ops-heading">
       <div className="ops-location"><span className="small-dot" />Петропавловск-Камчатский</div>
@@ -228,8 +276,17 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
       </>}
     </aside>
     <div className="ops-map-tools" aria-label="Отображение на карте">
+      {selectedBus && <div className="ops-bus-detail" role="status">
+        <div><strong>{selectedBus.route ? 'Маршрут ' + selectedBus.route : 'Автобус'}</strong>
+          <span>{busMap?.source === 'simulation' ? 'Имитация' : 'РНИС'} · {fullTime(selectedBus.measured_at)}</span></div>
+        <button type="button" aria-label="Закрыть сведения об автобусе" onClick={() => setSelectedBusId(undefined)}>
+          <Icon name="close" width="16" height="16" /></button>
+      </div>}
       <button type="button" aria-pressed={showSnow} onClick={() => setShowSnow(!showSnow)}><Icon name="forecast" width="16" height="16" />Снег</button>
       <button type="button" aria-pressed={showMarkers} onClick={() => setShowMarkers(!showMarkers)}><Icon name="bell" width="16" height="16" />События</button>
+      {busMap ? <button className="ops-bus-toggle" type="button" aria-pressed={showBuses} onClick={() => setShowBuses(!showBuses)}>
+        <Icon name="bus" width="16" height="16" />Автобусы · {busStatus}{busMap.source === 'simulation' && ' · имитация'}
+      </button> : data.mode !== 'live' && <a href="/demo" title="Открыть автобусы на демонстрационной карте"><Icon name="bus" width="16" height="16" />Демо автобусов</a>}
       {data.city_map_url && !scenario && <a href={data.city_map_url} target="_blank" rel="noopener noreferrer">
         <Icon name="expand" width="15" height="15" />Сценарии модели</a>}
     </div>

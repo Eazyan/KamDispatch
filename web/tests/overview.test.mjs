@@ -13,7 +13,7 @@ const [scenarios, ranking] = await Promise.all([loadModule('../src/overviewDemo.
 const getWidgets = data => ranking.overviewWidgets(data, data.snow_forecast?.segments ?? [], Date.parse(data.run_id === 'design-demo' && data.forecasts[0]?.source
   ? scenarios.scenarioClock('response', 'work') : scenarios.demoClock));
 
-test('calm shift stays quiet and snowfall raises one actionable card for joint evidence', () => {
+test('calm shift stays quiet and snowfall includes one corroborated bus delay', () => {
   assert.deepEqual(getWidgets(scenarios.demoDashboard('calm')), []);
   const widgets = getWidgets(scenarios.demoDashboard('snowfall'));
   assert.equal(widgets[0].row.location_key, 'telman');
@@ -21,7 +21,12 @@ test('calm shift stays quiet and snowfall raises one actionable card for joint e
   assert.equal(widgets[0].segment.id, 'telman');
   assert.equal(widgets.filter(item => item.id === 'model:telman').length, 0);
   assert.equal(widgets.filter(item => item.type === 'camera').length, 0);
-  assert.equal(widgets.filter(ranking.actionRequired).length, 2);
+  assert.equal(widgets.filter(item => item.type === 'bus').length, 1);
+  const bus = widgets.find(item => item.type === 'bus');
+  assert.equal(bus.observation.section_id, 'telman');
+  assert.equal(bus.observation.vehicle_count, 2);
+  assert.equal(ranking.actionRequired(bus), true);
+  assert.equal(widgets.filter(ranking.actionRequired).length, 3);
 });
 
 test('overdue work and acceptance precede new non-urgent reports and running work', () => {
@@ -36,7 +41,7 @@ test('stale model, expired weather and inactive sources leave the active list', 
   data.warnings[0].payload.end = '2026-11-20T16:00:00+12:00';
   data.dispatch_queue[0].signals[0].active = false;
   data.cameras[0].status = 'stale';
-  const widgets = getWidgets(data);
+  const widgets = getWidgets(data).filter(item => item.type !== 'bus');
   assert.deepEqual(widgets.map(item => item.row.location_key), ['quarry']);
   assert.equal(widgets[0].segment, undefined);
 });
@@ -71,4 +76,9 @@ test('cleanup demo uses a single cyclone day and progresses from dispatch to rev
   assert.match(work.forecasts[0].source, /Open-Meteo/);
   assert.equal(work.forecasts[0].periods.find(period => period.at.includes('T06:00')).snow_cm, 1.82);
   assert(review.dispatch_queue.every(row => row.last_seen.startsWith('2026-01-15')));
+  const busRow = data => data.bus_observations.scenarios[0].rows.find(row => row.section_id === 'quarry');
+  assert.equal(busRow(before).reason, 'report');
+  assert.equal(busRow(work).reason, 'buses');
+  assert.equal(busRow(review).status, 'observed');
+  assert.equal(getWidgets(review).some(widget => widget.type === 'bus'), false);
 });
