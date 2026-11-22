@@ -55,7 +55,7 @@ def create_app(settings=None):
         settings.validate()
         app.state.citizen_districts = load_districts(settings.citizen_districts_path)
         migrate(settings)
-        citizens.reclassify_unassigned(settings, app.state.citizen_districts)
+        citizens.refine_report_districts(settings, app.state.citizen_districts)
         app.state.media = Media(settings)
         app.state.demo_media = Media(replace(settings, s3_bucket=""))
         app.state.jwks = jwt.PyJWKClient(settings.oidc_jwks, timeout=5) if settings.mode == "live" else None

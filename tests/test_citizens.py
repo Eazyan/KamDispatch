@@ -38,7 +38,7 @@ def post(client, photo=None, **fields):
 
 def test_rejects_invalid_citizen_reports(monkeypatch, tmp_path):
     monkeypatch.setattr(api, "migrate", lambda settings: None)
-    monkeypatch.setattr(api.citizens, "reclassify_unassigned", lambda settings, districts: None)
+    monkeypatch.setattr(api.citizens, "refine_report_districts", lambda settings, districts: None)
     settings = Settings(database="unused", mode="demo", media_dir=tmp_path)
     with TestClient(api.create_app(settings)) as client:
         assert post(client, description="   ").status_code == 422
@@ -245,7 +245,11 @@ def test_bot_submits_telegram_photo_through_api_and_reads_it_back():
 
 
 @pytest.mark.parametrize(("latitude", "longitude", "expected"), [
-    (53.0196, 158.6478, "petropavlovsk-kamchatsky"),
+    (53.0196, 158.6478, "pk-center"),
+    (53.05, 158.616667, "pk-seroglazka"),
+    (53.078, 158.645, "pk-severo-vostok"),
+    (52.954364, 158.673296, "pk-zavoyko"),
+    (53.10, 158.70, "petropavlovsk-kamchatsky"),
     (53.1873, 158.3804, "yelizovsky"),
     (52.9304, 158.4047, "vilyuchinsky"),
     (59.0838, 159.9511, "palana"),
@@ -254,6 +258,30 @@ def test_bot_submits_telegram_photo_through_api_and_reads_it_back():
 ])
 def test_bundled_kamchatka_districts(latitude, longitude, expected):
     districts = load_districts(None)
-    assert len(districts) == 14
+    assert sum(district.parent_id is None for district in districts) == 14
+    assert sum(district.parent_id == "petropavlovsk-kamchatsky" for district in districts) == 37
     district = locate_district(districts, latitude, longitude)
     assert (district.id if district else None) == expected
+
+
+
+def test_city_filter_includes_microdistricts_and_refines_existing_reports(tmp_path):
+    database = os.getenv("TEST_DATABASE_URL")
+    if not database:
+        pytest.skip("Set TEST_DATABASE_URL to a temporary PostgreSQL database")
+    settings = Settings(database=database, mode="demo", media_dir=tmp_path)
+    city = "petropavlovsk-kamchatsky"
+    with TestClient(api.create_app(settings)) as client:
+        options = client.get("/api/v1/citizens/districts").json()
+        assert {"id": "pk-seroglazka", "name": "Сероглазка", "parent_id": city} in options
+        report = post(client, latitude=53.05, longitude=158.616667).json()
+        assert report["district_id"] == "pk-seroglazka"
+        with connect(settings) as conn:
+            conn.execute("UPDATE citizen_reports SET district_id=%s, district=NULL WHERE id=%s",
+                         (city, report["id"]))
+
+    with TestClient(api.create_app(settings)) as client:
+        for district in (city, "pk-seroglazka"):
+            result = client.get(REPORTS, params={"id": report["id"], "district": district}).json()
+            assert result["items"] == [report]
+        assert not client.get(REPORTS, params={"id": report["id"], "district": "pk-center"}).json()["items"]

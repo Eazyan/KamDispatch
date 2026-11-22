@@ -45,6 +45,7 @@ class ReportPage(BaseModel):
 class DistrictOption(BaseModel):
     id: str
     name: str | None
+    parent_id: str | None = None
 
 
 class ReportRoute(APIRoute):
@@ -114,29 +115,31 @@ def save_report(conn, *, mode, actor, districts, image, description, latitude, l
     ).fetchone()
 
 
-def reclassify_unassigned(settings, districts):
+def refine_report_districts(settings, districts):
+    eligible = [UNASSIGNED, *sorted({district.parent_id for district in districts if district.parent_id})]
     with connect(settings) as conn, conn.cursor(name="unassigned_citizen_reports") as reports:
         reports.execute(
-            "SELECT id, latitude, longitude FROM citizen_reports WHERE mode=%s AND district_id=%s",
-            (settings.mode, UNASSIGNED),
+            "SELECT id, district_id, latitude, longitude FROM citizen_reports WHERE mode=%s AND district_id=ANY(%s)",
+            (settings.mode, eligible),
         )
         for report in reports:
             district = locate_district(districts, report["latitude"], report["longitude"])
-            if district:
+            if district and (report["district_id"] == UNASSIGNED or district.parent_id == report["district_id"]):
                 conn.execute(
                     """UPDATE citizen_reports SET district_id=%s, district=%s
                        WHERE id=%s AND mode=%s AND district_id=%s""",
-                    (district.id, district.name, report["id"], settings.mode, UNASSIGNED),
+                    (district.id, district.name, report["id"], settings.mode, report["district_id"]),
                 )
 
 
 def router(settings, citizen_identity, staff_identity):
     routes = APIRouter(tags=["citizens"], route_class=ReportRoute)
 
-    @routes.get("/api/v1/citizens/districts", dependencies=[Depends(staff_identity)])
+    @routes.get("/api/v1/citizens/districts", dependencies=[Depends(staff_identity)], response_model_exclude_unset=True)
     def list_districts(request: Request) -> list[DistrictOption]:
         return [
-            *(DistrictOption(id=district.id, name=district.name) for district in request.app.state.citizen_districts),
+            *(DistrictOption(id=district.id, name=district.name, **({"parent_id": district.parent_id} if district.parent_id else {}))
+              for district in request.app.state.citizen_districts),
             DistrictOption(id=UNASSIGNED, name=None),
         ]
 
@@ -181,7 +184,10 @@ def router(settings, citizen_identity, staff_identity):
             raise HTTPException(422, "Начало периода должно предшествовать концу")
         conditions = ["mode=%s"]
         values = [settings.mode]
-        for condition, value in (("district_id=%s", district), ("created_at >= %s", start),
+        if district is not None:
+            conditions.append("district_id=ANY(%s)")
+            values.append([district, *(item.id for item in request.app.state.citizen_districts if item.parent_id == district)])
+        for condition, value in (("created_at >= %s", start),
                                  ("created_at < %s", end), ("id=%s", id)):
             if value is not None:
                 conditions.append(condition)

@@ -15,7 +15,7 @@ type Report = {
   photo_url: string;
 };
 type Page = { items: Report[]; next_offset: number | null };
-type District = { id: string; name: string | null };
+type District = { id: string; name: string | null; parent_id?: string };
 type Result = { page?: Page; error?: string; signIn?: boolean };
 const dateFormat = new Intl.DateTimeFormat('ru', {
   dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Kamchatka',
@@ -176,7 +176,14 @@ export function CitizenReports({ token, onToken, selected }: {
     </form> : <form className="panel citizen-filters" onSubmit={filter}>
       <label>Район<select name="district" defaultValue={filters.district}>
         <option value="">Все районы</option>
-        {districts.map(district => <option key={district.id} value={district.id}>{district.name ?? 'Район не определён'}</option>)}
+        {districts.filter(district => !district.parent_id).map(district => {
+          const children = districts.filter(item => item.parent_id === district.id);
+          const name = district.name ?? 'Район не определён';
+          return children.length ? <optgroup key={district.id} label={name}>
+            <option value={district.id}>Весь городской округ</option>
+            {children.map(child => <option key={child.id} value={child.id}>{child.name}</option>)}
+          </optgroup> : <option key={district.id} value={district.id}>{name}</option>;
+        })}
       </select></label>
       <label>С даты<input name="start" type="date" defaultValue={filters.start} /></label>
       <label>По дату<input name="end" type="date" defaultValue={filters.end} /></label>
