@@ -17,8 +17,9 @@ from .bus_demo import dashboard_demo
 from .bus_worker import dashboard_rnis
 from .config import ROOT, Settings
 from .db import connect, migrate
+from .districts import load_districts
 from .dispatch import comparison, inspection_queue
-from . import dispatch_queue
+from . import citizens, dispatch_queue
 from .snow import city_roads, snow_forecast, snow_raster
 
 TRANSITIONS = {
@@ -51,6 +52,7 @@ def create_app(settings=None):
     @asynccontextmanager
     async def lifespan(app):
         settings.validate()
+        app.state.citizen_districts = load_districts(settings.citizen_districts_path)
         migrate(settings)
         app.state.media = Media(settings)
         app.state.demo_media = Media(replace(settings, s3_bucket=""))
@@ -93,6 +95,13 @@ def create_app(settings=None):
         if actor in settings.viewers:
             return actor, "viewer"
         raise HTTPException(403, "Нет доступа к мониторингу")
+
+    def citizen_identity(request: Request, authorization: str = Header(default="")):
+        if settings.mode == "live":
+            return oidc_actor(request, authorization)
+        return "local-demo"
+
+    app.include_router(citizens.router(settings, citizen_identity, identity))
 
     def selected_run(conn, requested):
         if settings.mode == "live":

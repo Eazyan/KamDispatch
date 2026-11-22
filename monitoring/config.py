@@ -13,6 +13,7 @@ class Settings:
     database: str = os.getenv("DATABASE_URL", "")
     mode: str = os.getenv("MONITOR_MODE", "demo")
     media_dir: Path = Path(os.getenv("MEDIA_DIR", str(ROOT / "runtime" / "media")))
+    citizen_districts_path: Path | None = Path(os.environ["CITIZEN_DISTRICTS_FILE"]) if os.getenv("CITIZEN_DISTRICTS_FILE") else None
     s3_bucket: str = os.getenv("S3_BUCKET", "")
     s3_endpoint: str = os.getenv("S3_ENDPOINT", "")
     model_url: str = os.getenv("MODEL_URL", "").rstrip("/")
