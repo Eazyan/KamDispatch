@@ -131,3 +131,7 @@ GRAPH-001 — права и зимние ширины; OPS-005 — провер�
 replay добавлен в tests. [Постановка и ограничения](CFD_SNOW_CASE.md). Ветер/mesh
 статичны, параметры E/D сценарные, полевая точность unknown. Далее длинный горизонт,
 несколько dt/сеток, затем geometry/mesh/air feedback; переносимый тяжёлый CI открыт.
+
+23.11.2026: текущий CFD checkout /private/tmp/kamdispatch-cfd-snow; общий
+/private/tmp/kamdispatch-city-sim-upload сохранён с неопубликованной дорожной работой.
+Следующее действие: длинный горизонт, несколько dt/сеток; затем geometry feedback.
