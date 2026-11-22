@@ -3,8 +3,10 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { RoadPoint, SnowSegment } from './types';
 
-export type MapMarker = { id: string; label: string; coordinates: RoadPoint[]; color: string; priority: number };
-type Selection = { id: string; coordinates: RoadPoint[]; revision: number };
+export type MapMarker = {
+  id: string; label: string; coordinates: RoadPoint[]; color: string; priority: number;
+} & ({ kind: 'bus'; badge: string } | { kind?: undefined });
+type Selection = { id: string; coordinates: RoadPoint[]; revision: number; fitOnly?: boolean };
 type Props = {
   cityUrl?: string | null; runId?: string; cleanupAt?: string; roads: SnowSegment[]; markers: MapMarker[];
   selection: Selection | null; showSnow: boolean; showMarkers: boolean;
@@ -72,10 +74,14 @@ function FallbackMap({ roads, markers, selection, showSnow, showMarkers, onSelec
       const point = mark.coordinates[Math.floor(mark.coordinates.length / 2)];
       if (!point) continue;
       const pill = document.createElement('button');
-      pill.className = 'map-pin';
+      pill.className = mark.kind === 'bus' ? 'map-bus-pin' : 'map-pin';
       pill.type = 'button';
       pill.setAttribute('aria-label', mark.label);
       pill.style.setProperty('--pin', mark.color);
+      if (mark.kind === 'bus') {
+        pill.textContent = mark.badge;
+        pill.title = mark.label;
+      }
       pill.onclick = event => { L.DomEvent.stopPropagation(event); onPick.current(mark.id); };
       L.marker(latLng(point), { keyboard: false, zIndexOffset: mark.priority * 10, icon: L.divIcon({
         className: 'map-pin-wrap', html: pill, iconSize: [26, 26], iconAnchor: [13, 13],
@@ -91,6 +97,7 @@ function FallbackMap({ roads, markers, selection, showSnow, showMarkers, onSelec
     const padding = window.matchMedia('(min-width: 901px)').matches ? 330 : 0;
     map.fitBounds(L.latLngBounds(path), { maxZoom: 15.8, animate: false,
       paddingTopLeft: [55, 105], paddingBottomRight: [padding + 30, 90] });
+    if (selection.fitOnly) return;
     const mark = path.length > 1 ? L.polyline(path, { color: '#fff', weight: 4, interactive: false })
       : L.circleMarker(path[0], { color: '#fff', radius: 14, fill: false, interactive: false });
     mark.addTo(map);
@@ -107,6 +114,7 @@ function embeddedUrl(cityUrl: string) {
     base.pathname = base.pathname.replace(/\/?$/, '/');
     const url = new URL('static/ops/index.html', base);
     url.searchParams.set('parent', location.origin);
+    url.searchParams.set('bus-markers', '2');
     return url;
   } catch { return null; }
 }
@@ -114,11 +122,13 @@ function embeddedUrl(cityUrl: string) {
 export function OverviewMap(props: Props) {
   const { cityUrl, runId, cleanupAt, roads, markers, selection, showSnow, showMarkers, onSelect, onClientState, onModelState } = props;
   const url = useMemo(() => cityUrl ? embeddedUrl(cityUrl) : null, [cityUrl]);
-  const [bridge, setBridge] = useState<{ url: string; state: 'ready' | 'offline' }>();
+  const [bridge, setBridge] = useState<{ url: string; state: 'ready' | 'offline'; busBadges?: boolean }>();
   const frame = useRef<HTMLIFrameElement>(null);
   const callbacks = useRef({ onSelect, onModelState });
   callbacks.current = { onSelect, onModelState };
-  const state = !url ? 'offline' : bridge?.url === url.href ? bridge.state : 'loading';
+  const mapState = !url ? 'offline' : bridge?.url === url.href ? bridge.state : 'loading';
+  const needsBusBadges = showMarkers && markers.some(mark => mark.kind === 'bus');
+  const state = mapState === 'ready' && needsBusBadges && !bridge?.busBadges ? 'offline' : mapState;
   useEffect(() => { onClientState(state); }, [state, onClientState]);
 
   useEffect(() => {
@@ -129,7 +139,8 @@ export function OverviewMap(props: Props) {
       const message = event.data;
       if (message?.type === 'camchatka:ready' || message?.type === 'camchatka:error') {
         clearTimeout(timer);
-        setBridge({ url: url.href, state: message.type === 'camchatka:ready' ? 'ready' : 'offline' });
+        setBridge({ url: url.href, state: message.type === 'camchatka:ready' ? 'ready' : 'offline',
+          busBadges: message.busBadges === true });
       }
       if (message?.type === 'camchatka:select' && typeof message.id === 'string') callbacks.current.onSelect(message.id);
       if (message?.type === 'camchatka:model' && ['loading', 'ready', 'failed'].includes(message.state)) {
@@ -148,7 +159,7 @@ export function OverviewMap(props: Props) {
 
   return <div className="overview-map">
     {state !== 'ready' && <FallbackMap {...props} />}
-    {url && state !== 'offline' && <iframe key={url.href} ref={frame} src={url.href}
+    {url && mapState !== 'offline' && <iframe key={url.href} ref={frame} src={url.href}
       title="Neverrie · городская 3D-карта и модель снега" className={state === 'ready' ? 'city-frame is-ready' : 'city-frame'}
       tabIndex={state === 'ready' ? 0 : -1} aria-hidden={state !== 'ready'} />}
   </div>;

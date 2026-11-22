@@ -13,6 +13,9 @@
   padding: clamp(15px, 2.6vw, 35px) clamp(12px, 2.7vw, 40px) 3rem;
 }
 .section-workspace a { color: #a5dbf5; }
+.section-workspace .bus-demo-link { display: inline-flex; align-items: center; gap: .4rem; min-height: 38px; padding: .35rem .6rem; border: 1px solid #77c8b6; border-radius: 9px; background: #284c50; color: #eafff7; font-size: .85rem; text-decoration: none; }
+.section-workspace .bus-demo-link svg { flex: none; }
+.section-workspace .bus-demo-link:hover { background: #345e60; }
 .section-workspace .workspace-head {
   align-items: end; min-height: clamp(145px, 17vw, 208px); padding: clamp(14px, 2.4vw, 28px);
   border: 1px solid var(--line); border-radius: 19px; margin-bottom: 15px;

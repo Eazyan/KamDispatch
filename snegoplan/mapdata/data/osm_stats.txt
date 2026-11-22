@@ -1,0 +1,37 @@
+elements total: 11787  (ways=10333, nodes=1360, relations=94)
+ways with highway=*: 9163
+nodes with highway=*: 969
+ways tagged lanes: 559
+ways tagged lanes:forward: 305
+ways tagged lanes:backward: 302
+ways tagged turn:lanes: 41
+ways tagged turn:lanes:forward: 94
+ways tagged turn:lanes:backward: 88
+ways tagged width: 57
+ways tagged maxspeed: 594
+ways tagged surface: 2432
+ways tagged oneway: 232
+ways tagged name: 1193
+ways tagged ref: 81
+ways tagged bus: 8
+ways tagged lit: 557
+ways tagged incline: 275
+ways tagged bridge: 36
+ways tagged tunnel: 5
+ways tagged parking:lane: 1
+ways tagged parking:lane:both: 1
+ways tagged parking:lane:left: 0
+ways tagged parking:lane:right: 0
+nodes tagged highway: 969
+nodes tagged traffic_signals: 26
+nodes tagged traffic_signals:direction: 34
+nodes tagged crossing: 279
+nodes tagged stop: 0
+nodes tagged give_way: 0
+nodes tagged bus_stop: 0
+nodes tagged public_transport: 372
+nodes tagged barrier: 341
+traffic_signals:direction values: {'backward': 18, 'both': 1, 'forward': 15}
+highway classes: {'service': 4694, 'footway': 928, 'track': 870, 'residential': 869, 'path': 449, 'steps': 429, 'unclassified': 303, 'primary': 215, 'secondary': 200, 'tertiary': 108, 'living_street': 59, 'pedestrian': 16, 'bus_stop': 5, 'tertiary_link': 4, 'raceway': 4, 'secondary_link': 3, 'primary_link': 3, 'cycleway': 2, 'construction': 1, 'road': 1}
+route relations: {'bus': 94} (total relations: 94)
+amenity=parking objects: 360

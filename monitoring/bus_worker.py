@@ -78,7 +78,9 @@ def parse_positions(data, received_at):
                 and BOUNDS["RightBottomLatitude"] <= lat <= BOUNDS["TopLeftLatitude"]):
             continue
         pseudonym = sha256(f"rnis:{vehicle}".encode()).hexdigest()
-        point = Position(pseudonym, lon, lat, measured_at, received_at)
+        route = item.get("RouteNumber")
+        route = (route.strip()[:24] or None) if isinstance(route, str) else None
+        point = Position(pseudonym, lon, lat, measured_at, received_at, route)
         if usable_position(point):
             positions.append(point)
     return positions
@@ -163,8 +165,8 @@ def save_snapshot(conn, run_id, now, state, rows):
 def collect(conn, run_id, sections, geometry, now, positions, state):
     with conn.cursor() as cursor:
         cursor.executemany(
-            """INSERT INTO bus_positions (run_id,vehicle,measured_at,received_at,lon,lat)
-               VALUES (%(run_id)s,%(vehicle)s,%(measured_at)s,%(received_at)s,%(lon)s,%(lat)s)
+            """INSERT INTO bus_positions (run_id,vehicle,measured_at,received_at,lon,lat,route)
+               VALUES (%(run_id)s,%(vehicle)s,%(measured_at)s,%(received_at)s,%(lon)s,%(lat)s,%(route)s)
                ON CONFLICT DO NOTHING""",
             [{"run_id": run_id, **asdict(point)} for point in positions],
         )
@@ -251,7 +253,7 @@ def run_collection(stop, settings, run_id, sections):
 
 
 def dashboard_rnis(conn, settings, run_id, now):
-    if not settings.bus_rnis_enabled or run_id not in ("preview", "live"):
+    if not settings.collect_buses or run_id not in ("preview", "live"):
         return None
     period = "day" if 6 <= now.astimezone(LOCAL_TIME).hour < 22 else "night"
     try:
@@ -276,6 +278,30 @@ def dashboard_rnis(conn, settings, run_id, now):
                 row.update(status="insufficient", reason=None, last_seen=None, observed_seconds=None,
                            vehicle_count=0, valid_until=None)
     return {"source": "rnis", "state": state, "as_of": snapshot["observed_at"] if fresh else None, "rows": rows}
+
+
+def map_rnis(conn, settings, run_id, now):
+    if not settings.collect_buses or run_id not in ("preview", "live"):
+        return None
+    rows = conn.execute(
+        """SELECT id,lon,lat,measured_at,route FROM (
+               SELECT DISTINCT ON (vehicle) vehicle AS id, lon, lat, measured_at, route FROM bus_positions
+               WHERE run_id=%s AND measured_at > %s AND received_at <= %s
+               ORDER BY vehicle, measured_at DESC
+           ) latest WHERE lon BETWEEN 158.48 AND 158.80 AND lat BETWEEN 52.91 AND 53.16""",
+        (run_id, now - MAX_SOURCE_AGE, now),
+    ).fetchall()
+    snapshot = conn.execute(
+        "SELECT state,observed_at FROM bus_snapshots WHERE run_id=%s", (run_id,),
+    ).fetchone()
+    state = "waiting"
+    if snapshot:
+        state = "unavailable" if now - snapshot["observed_at"] > MAX_SOURCE_AGE else snapshot["state"]
+    if state in ("waiting", "unavailable"):
+        rows = []
+    else:
+        state = "ready" if rows else "insufficient"
+    return {"source": "rnis", "state": state, "positions": rows}
 
 
 def coverage(conn, run_id, sections, scan=False):

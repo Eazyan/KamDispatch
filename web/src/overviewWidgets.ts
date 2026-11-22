@@ -1,4 +1,4 @@
-import type { Camera, Dashboard, DispatchGroup, DispatchTask, RoadPoint, SnowSegment, Warning } from './types';
+import type { BusObservation, Camera, Dashboard, DispatchGroup, DispatchTask, RoadPoint, SnowSegment, Warning } from './types';
 
 export const taskStages: Record<DispatchTask['stage'], string> = {
   draft: 'Ожидает назначения', sent: 'Выдано', accepted: 'Принято бригадой',
@@ -11,9 +11,10 @@ export type Widget =
   | WidgetBase & { type: 'dispatch'; row: DispatchGroup; segment?: SnowSegment; title: string }
   | WidgetBase & { type: 'model'; segment: SnowSegment; title: string }
   | WidgetBase & { type: 'forecast'; warning: Warning; title: string }
-  | WidgetBase & { type: 'camera'; camera: Camera; title: string };
+  | WidgetBase & { type: 'camera'; camera: Camera; title: string }
+  | WidgetBase & { type: 'bus'; observation: BusObservation; title: string };
 
-const score = { urgent: 100, overdue: 90, review: 80, assign: 70, report: 65, camera: 60, work: 45, forecast: 35, model: 25 };
+const score = { urgent: 100, overdue: 90, review: 80, assign: 70, report: 65, bus: 64, camera: 60, work: 45, forecast: 35, model: 25 };
 const normalized = (value: string) => value.toLowerCase().replace(/ё/g, 'е').trim();
 const distance = (a: RoadPoint, b: RoadPoint) => Math.hypot((a[0] - b[0]) * 67_000, (a[1] - b[1]) * 111_000);
 function near(a: RoadPoint[], b: RoadPoint[], limit: number) {
@@ -43,6 +44,13 @@ export function overviewWidgets(data: Dashboard, segments: SnowSegment[], now: n
       (b.excess_cm ?? 0) - (a.excess_cm ?? 0) || a.id.localeCompare(b.id)) : [];
   const claimed = new Set<string>();
   const widgets: Widget[] = [];
+  const busDemo = data.bus_observations?.source === 'simulation' ? data.bus_observations.scenarios[0] : undefined;
+  for (const observation of busDemo?.rows ?? []) {
+    if (observation.status !== 'check') continue;
+    widgets.push({ type: 'bus', id: 'bus-delay:' + observation.section_id + ':' + observation.direction,
+      priority: score.bus, title: observation.name, at: observation.last_seen ?? busDemo?.as_of ?? '',
+      coordinates: observation.coordinates, observation });
+  }
   const featuredFrames = new Set<string>();
   for (const row of data.dispatch_queue) {
     if (!row.task && !row.reports.some(item => item.active) && !row.signals.some(item => item.active)) continue;
@@ -90,6 +98,6 @@ export function overviewWidgets(data: Dashboard, segments: SnowSegment[], now: n
 }
 
 export function actionRequired(widget: Widget) {
-  return widget.type === 'dispatch' && (widget.priority >= score.report ||
+  return widget.type === 'bus' || widget.type === 'dispatch' && (widget.priority >= score.report ||
     (!widget.row.task && widget.row.signals.some(signal => signal.active && !signal.linked)));
 }
