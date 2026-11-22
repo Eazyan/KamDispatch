@@ -1,12 +1,12 @@
 {
   "provenance": {
-    "solver": "OpenFOAM-v2512-simpleFoam",
-    "iterations": 360,
-    "source_sha256": {
-      "sources/quarter.json": "6e9a31d85d0ce7a683e47c52ebe479e3dea4f873aa30a6b65320441bdbb17ff1",
-      "results/dec-snow-coarse/wind.npz": "5c072611b56341de9b29638fefa2a03c20091bf36d0ba1c589c1535b361c20f3",
-      "results/dec-snow-coarse/summary.json": "b31a9a7bbe18fa2e38c87a0f75acba98449592079c96191d9adb3d665980966e"
-    },
+    "version": "drift-scene-1",
+    "shape": [
+      49,
+      48
+    ],
+    "dx_m": 7.963923850048218,
+    "dy_m": 7.966856244904164,
     "coordinates": "local spherical east/north metres; not UTM",
     "origin_wgs84": [
       158.641,
@@ -23,11 +23,12 @@
       389.7793684085784
     ],
     "axes": "columns east, rows south; Ux east, -Uy south; m/s",
-    "sampling": "first terrain-following cell centre; variable height AGL, no roof fallback",
-    "height_agl_range_m": [
-      0.778296844986285,
-      1.1503563176153275
-    ],
+    "datum_egm2008_m": 89.66326645879992,
+    "measured_dtm": null,
+    "observations": [],
+    "snow_density_kg_m3": 200.0,
+    "solver": "OpenFOAM-v2512-simpleFoam",
+    "iterations": 360,
     "weather": {
       "gust_ms": 15.7,
       "precipitation_mm": 4.5,
@@ -45,7 +46,28 @@
       "weather_url": "https://archive-api.open-meteo.com/v1/archive?latitude=53.110%2C53.076%2C53.034%2C52.958%2C52.982%2C53.045&longitude=158.639%2C158.663%2C158.644%2C158.677%2C158.658%2C158.617&hourly=snowfall%2Cprecipitation%2Csnow_depth%2Cwind_speed_10m%2Cwind_direction_10m%2Cwind_gusts_10m%2Ctemperature_2m&models=ecmwf_ifs&wind_speed_unit=ms&timezone=Asia%2FKamchatka&start_date=2025-12-07&end_date=2025-12-15",
       "distance_to_source_m": 8380
     },
-    "static": true
+    "static": true,
+    "sampling": "first terrain-following cell centre; variable height AGL, no roof fallback",
+    "height_agl_range_m": [
+      0.778296844986285,
+      1.1503563176153275
+    ],
+    "source_sha256": {
+      "sources/quarter.json": "6e9a31d85d0ce7a683e47c52ebe479e3dea4f873aa30a6b65320441bdbb17ff1",
+      "sources/ground.npz": "938f93f5f860782776e6a02ffc06f09ec0b7af229f3f076efb33f4511c63afce",
+      "results/dec-snow-coarse/wind.npz": "5c072611b56341de9b29638fefa2a03c20091bf36d0ba1c589c1535b361c20f3",
+      "results/dec-snow-coarse/summary.json": "b31a9a7bbe18fa2e38c87a0f75acba98449592079c96191d9adb3d665980966e"
+    },
+    "layer_status": {
+      "ground": "DSM footprint-mask fill and smoothing; estimated, not surveyed DTM",
+      "dsm": "saved source interpolated for reference only; not added to buildings",
+      "buildings": "same voxel roof mask as saved RANS; heights partly estimated",
+      "snow": "scenario inventory, not observation; no roof snow",
+      "observations": "unknown"
+    },
+    "source_licenses": "See docs/drift-engine/DATA_SOURCES.md; no new data fetched",
+    "evidence": "research_unvalidated",
+    "scene_sha256": "b5237a92e4695c7de892cb96cb688beb36886db4fc20843bba0b920f5cdc36f1"
   },
   "difference_l1_kg": 11625.978875216066,
   "turning_difference_l1_kg": 4765.961566729824,
@@ -76,7 +98,7 @@
     "coupled": {
       "solver": "drift-engine-reduced-0.2",
       "wind_solver": "OpenFOAM-v2512-simpleFoam",
-      "input_sha256": "52c0949af1c238793c1ba7a0e62605f2d4bfad3618a5c2dfc96c61990bbf4660",
+      "input_sha256": "553c2a2ed2a67b363cd8895f91a801b2eede87a456a5e489bfce706223df7511",
       "shape": [
         49,
         48
@@ -99,7 +121,7 @@
     "aligned_control": {
       "solver": "drift-engine-reduced-0.2",
       "wind_solver": "OpenFOAM-v2512-simpleFoam",
-      "input_sha256": "65399dccaaf316b3d20fc4d5a34b88b69c8fb946664ffc4d2a50aec2c18569ab",
+      "input_sha256": "2e277637995f67bdf84ab013f8c237ad0b1126f69380345c1996f237fe06bc8c",
       "shape": [
         49,
         48

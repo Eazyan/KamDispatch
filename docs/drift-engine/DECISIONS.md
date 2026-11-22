@@ -24,3 +24,5 @@ HTTP другой bbox/CRS без согласования сцены нельз
 от slope default; повторного платного сбора погоды и повторного CFD запуска нет.
 Ограничение: surface saltation с log-law u*, без взвеси и feedback на воздух.
 Следующий этап — единая сцена и CFD снежная фаза с полным интегральным ledger.
+
+22.11.2026 · ФАКТ/РАСЧЁТ: общая сцена квартала drift-scene-1 (49×48) экспортирована и подключена к cfd_wind. DSM, estimated ground, здания, снег и static RANS разделены; measured DTM и наблюдения unknown. Hash b5237a92e4695c7de892cb96cb688beb36886db4fc20843bba0b920f5cdc36f1. Начальный запас 646529.377514 kg; это initialization-only, не CFD snow budget. 91 city_sim + 5 core OK, пять целевых tests OK; прежний coupling результат сохранён. Источник/контракт: docs/drift-engine/SCENE.md, cfd/scene-v1. Следующий шаг DRIFT-003: Kamchatka driftScalar case с ограничением эрозии запасом и bed/air/boundary ledger; upstream stationary TEqn не содержит ddt. Новый CFD runtime не запускался. Вход: HEAD 421169a, main d9893ed, PR #3 draft/open, CI 45005772558 success; checkout был чист.

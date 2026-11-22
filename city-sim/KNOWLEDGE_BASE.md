@@ -280,3 +280,5 @@ python -m snowops validate out/pkc-first/base_snowfall/scenario.json out/pkc-fir
 22.11.2026 → выполненное/остаток Drift Engine разделены в [NEXT_CHAT](https://github.com/Eazyan/KamDispatch/blob/feature/kamchatka-drift-engine/docs/drift-engine/NEXT_CHAT.md); источник — код 10911ed, журналы и CI 45004450310 success, проверено API. DRIFT-004/005 done; DRIFT-003 in_progress; следующий шаг — настоящее поле ветра.
 
 22.11.2026 · ФАКТ/РАСЧЁТ · static RANS → surface saltation проверен offline (89 city_sim + 5 core); источник: KamDispatch docs/drift-engine/ARCHITECTURE.md и cfd/coupling-report.json. Масса сохраняется, полевая точность unknown; это не CFD снежная фаза.
+
+22.11.2026 · ФАКТ/РАСЧЁТ · drift-scene-1 разделяет DSM/estimated ground/здания/снег, 91 city_sim + 5 core OK; источник KamDispatch docs/drift-engine/SCENE.md. Начальный ledger не подтверждает CFD snow balance; measured DTM unknown.

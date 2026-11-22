@@ -75,3 +75,5 @@ quarter.json, wind.npz и summary.json включены в результат. �
 Воспроизведение из city-sim:
 `python -m city_sim.cfd_wind --output ../out/drift-engine/cfd-coupling.json`.
 CFD повторно не решается: используется уже проверенный результат 360 итераций v2512.
+
+22.11.2026: единая сцена квартала — [контракт](SCENE.md). cfd_wind теперь читает её; численные поля переноса сохранены. Городская сцена и CFD snow runtime ещё не согласованы.

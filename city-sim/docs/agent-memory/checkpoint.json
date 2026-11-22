@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-11-22T21:04:32.177658+12:00",
+  "updated_at": "2026-11-22T21:11:53.122348+12:00",
   "git": {
     "branch": "feature/kamchatka-drift-engine",
-    "sha": "9c7a2e3c60923a67c96e2a3b12d6789d8e5498cd"
+    "sha": "421169a16766f444369ffa5a36e36daa8bdd461a"
   },
   "files": {
     ".gitignore": [
@@ -50,8 +50,8 @@
       1795335613192173749
     ],
     "KNOWLEDGE_BASE.md": [
-      114953,
-      1795338093341338105
+      115248,
+      1795338701412521065
     ],
     "MATHEMATICAL_MODEL.md": [
       11115,
@@ -138,8 +138,8 @@
       1795335613197574564
     ],
     "city_sim/cfd_wind.py": [
-      3990,
-      1795337890543514615
+      2395,
+      1795338559327827971
     ],
     "city_sim/city_snow.py": [
       34828,
@@ -156,6 +156,10 @@
     "city_sim/drift_engine.py": [
       4706,
       1795338114968319369
+    ],
+    "city_sim/drift_scene.py": [
+      6946,
+      1795338628300006038
     ],
     "city_sim/drift_service.py": [
       2647,
@@ -503,7 +507,7 @@
     ],
     "city_sim/tests/test_cfd_wind.py": [
       3485,
-      1795337941770005955
+      1795338588845020176
     ],
     "city_sim/tests/test_city_snow.py": [
       6134,
@@ -512,6 +516,10 @@
     "city_sim/tests/test_drift_engine.py": [
       3345,
       1795336236364037312
+    ],
+    "city_sim/tests/test_drift_scene.py": [
+      2344,
+      1795338628300268619
     ],
     "city_sim/tests/test_dynamic_snow.py": [
       11334,
@@ -778,8 +786,8 @@
       1795335613284231981
     ],
     "docs/agent-memory/HANDOFF.md": [
-      8645,
-      1795338272110870732
+      7789,
+      1795338701411098848
     ],
     "docs/agent-memory/HOOKS.md": [
       3248,
@@ -790,20 +798,20 @@
       1795337669926636099
     ],
     "docs/agent-memory/LOG.md": [
-      9743,
-      1795338272111796195
+      10758,
+      1795338701412175480
     ],
     "docs/agent-memory/PROTOCOL.md": [
       3198,
       1795335613285721988
     ],
     "docs/agent-memory/STATE.md": [
-      8667,
-      1795338272110419272
+      9682,
+      1795338713061386583
     ],
     "docs/agent-memory/TASKS.md": [
-      8106,
-      1795338093340600393
+      8118,
+      1795338701411380058
     ],
     "docs/agent-memory/VALIDATION.md": [
       5965,
