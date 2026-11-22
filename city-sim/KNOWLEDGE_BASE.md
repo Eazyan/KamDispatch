@@ -271,3 +271,8 @@ python -m snowops validate out/pkc-first/base_snowfall/scenario.json out/pkc-fir
 | ChatGPT | [New chat](https://chatgpt.com/c/6b001465-7430-83ed-8c71-bb84c05d9960) | Запрос на сбор базы |
 
 Текущий чат Codex «Собери базу знаний проекта» добавил этот файл и точку входа через [AGENTS.md](AGENTS.md).
+
+
+## 22.11.2026 — новый основной репозиторий
+
+22 ноября 2026 — новое прямое ТЗ: основной репозиторий Eazyan/KamDispatch; старый SHKZhenya только источник. Проверено: аккаунт Neverrie имеет push=true; main d9893edcab8c26551cbd9bd57c3787abab207d80. Рабочий checkout /private/tmp/kamdispatch-city-sim-upload, ветка feature/kamchatka-drift-engine; исходное возобновлённое состояние d7209bd с незакоммиченными наработками прерванного чата. Свежий main объединён без потери Citizens/Monitoring; конфликт README разрешён сохранением обоих разделов. Исходная папка проекта остаётся main/unborn без remote. Новый режим drift_engine: консервативный SnowState + уклонная поправка ветра (НЕ CFD), bounded compare API и экран /drift-engine. Чистая установка и pip check успешны; 86 tests city_sim и 5 core OK; 21 offline опыт, mass error=0. Реально выполнен OpenFOAM v2512 RANS воздуха на 9501/194581 ячейках, 40/360 итераций; отдельный driftScalarDyFoam 6dd2fe9 скомпилирован, учебный runtime проверяется отдельно. Связанная CFD снежная фаза и полевая точность не подтверждены. Документы и журналы: /private/tmp/kamdispatch-city-sim-upload/docs/drift-engine. Новое поручение явно разрешает commit/push/PR в feature-ветку, запрещает самостоятельное слияние; прежние записи об отсутствии разрешения исторические. WEATHER-001 сохранена незавершённой, текущий явно выбранный пользователем трек — Drift Engine.

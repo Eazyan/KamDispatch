@@ -14,3 +14,15 @@ Updated: 2026-11-22 · Asia/Kamchatka (UTC+12)
 ## 2026-11-22 · Подготовка KamDispatch City_Sim
 
 22 ноября 2026: пользователь явно поручил загрузить проект в Eazyan/KamDispatch, существующую ветку City_Sim. Это исключение назначения из GIT_INSTRUCTIONS.md для данного поручения. Подготовлен отдельный checkout /private/tmp/kamdispatch-city-sim-upload; проект размещён в city-sim/, существующий мониторинг сохранён. Публикационный набор: код, документация, runtime-данные; исключены out, локальные состояния/БД, ZIP, research sources/artifacts/cache и winter_audit/evidence. Проверка потенциальных токенов: совпадений нет. Core: 5 тестов; dynamic snow: 12 тестов успешно. Docker и полная suite не запускались. Текущий исходный checkout по-прежнему main/unborn без remote; публикация выполняется из отдельного checkout. На момент checkpoint push ещё ожидается; итог проверять по удалённой ветке.
+
+## 2026-11-22 — KamDispatch Drift Engine, первый проверенный этап
+
+22 ноября 2026 — новое прямое ТЗ: основной репозиторий Eazyan/KamDispatch; старый SHKZhenya только источник. Проверено: аккаунт Neverrie имеет push=true; main d9893edcab8c26551cbd9bd57c3787abab207d80. Рабочий checkout /private/tmp/kamdispatch-city-sim-upload, ветка feature/kamchatka-drift-engine; исходное возобновлённое состояние d7209bd с незакоммиченными наработками прерванного чата. Свежий main объединён без потери Citizens/Monitoring; конфликт README разрешён сохранением обоих разделов. Исходная папка проекта остаётся main/unborn без remote. Новый режим drift_engine: консервативный SnowState + уклонная поправка ветра (НЕ CFD), bounded compare API и экран /drift-engine. Чистая установка и pip check успешны; 86 tests city_sim и 5 core OK; 21 offline опыт, mass error=0. Реально выполнен OpenFOAM v2512 RANS воздуха на 9501/194581 ячейках, 40/360 итераций; отдельный driftScalarDyFoam 6dd2fe9 скомпилирован, учебный runtime проверяется отдельно. Связанная CFD снежная фаза и полевая точность не подтверждены. Документы и журналы: /private/tmp/kamdispatch-city-sim-upload/docs/drift-engine. Новое поручение явно разрешает commit/push/PR в feature-ветку, запрещает самостоятельное слияние; прежние записи об отсутствии разрешения исторические. WEATHER-001 сохранена незавершённой, текущий явно выбранный пользователем трек — Drift Engine.
+
+22.11.2026 — уточнение Drift Engine: чистые 86+5 tests OK; Docker API/Web собраны,
+API runtime и nginx route проверены; driftScalarDyFoam учебный уменьшенный пример
+реально завершил две стадии 5000/10000, сохранены поля, изменённые points, GPL и журналы.
+Большая учебная сетка остановлена вручную, её промежуточные логи сохранены.
+Это execution smoke, полный CFD snow mass balance не проверен. Оба checkpoint verifier
+прошли после исправления схемы task ID (DRIFT-003) и исключения второй активной задачи
+(WEATHER-001 перенесена в todo с сохранением незавершённого следующего шага).

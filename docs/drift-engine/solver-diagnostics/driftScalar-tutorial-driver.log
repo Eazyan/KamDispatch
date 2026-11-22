@@ -1,0 +1,8 @@
+-e Preparing initial snow shape...
+Restore 0/ from 0.orig/
+Running blockMesh on /tmp/driftScalarDyFoam/tutorials/flatRoof3D
+Running moveDynamicMesh on /tmp/driftScalarDyFoam/tutorials/flatRoof3D
+-e 
+Solving snow drifting...
+rm: cannot remove '0/pointMotionU.*': No such file or directory
+Running driftScalarDyFoam on /tmp/driftScalarDyFoam/tutorials/flatRoof3D

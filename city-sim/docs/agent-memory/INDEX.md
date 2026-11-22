@@ -6,6 +6,7 @@ Updated: 2026-11-22 · Asia/Kamchatka (UTC+12)
 | Тема | Первоисточники | Статус |
 |---|---|---|
 | Погода / ночные алерты | [Атлас](../../weather_coverage/heatmaps/REPORT_HEATMAP_VIDEO_RU.md), [код и команды](../../weather_coverage/README.md), [возможности API](../../weather_coverage/API_CAPABILITIES.md), [вечерние гипотезы, §22/29](../KAMCHATKA_KNOWLEDGE_BASE.md) | 298 точек запросов; прогноз, не датчики; алерты — гипотеза |
+| Drift Engine / новый репозиторий | [Правила](../../GIT_INSTRUCTIONS.md), [код массового переноса](../../city_sim/snow_state.py) | Новый рабочий checkout /private/tmp/kamdispatch-city-sim-upload; docs/drift-engine там; связанная CFD-модель ещё не завершена |
 | Снежные наносы | [Динамический backend](../../research/dynamic-backend-2026-11-22/REPORT.md), [API](../DYNAMIC_SNOW_API.md), [полевая проверка](../../research/reality-validation-2026-11-21/REPORT.md), [адреса](../../research/address-snow-2026-11-22/REPORT.md) | Вычислительные контроли есть; полевая точность not_testable |
 | Граф / рельеф | [Граф](../../winter_audit/docs/GRAPH_AUDIT.md), [DSM](../../winter_audit/docs/RELIEF_AUDIT.md), [источники](../../winter_audit/docs/SOURCE_REGISTRY.md), [входы и фасады](../../research/mobility-backend-2026-11-22/REPORT.md) | OSM/DSM, неизвестные зимние ширины и двери |
 | Маршрутизация | [Модель](../../MATHEMATICAL_MODEL.md), [эксперименты](../../winter_audit/output/experiments/experiment_report.md), [тесты](../../tests/test_core.py) | Сценарные проходы, не допуск в эксплуатацию |

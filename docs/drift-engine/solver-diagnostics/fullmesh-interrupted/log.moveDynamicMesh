@@ -1,0 +1,71 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d2-20251219 OPENFOAM=2512 version=2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : moveDynamicMesh
+Date   : Nov 22 2026
+Time   : 08:37:45
+Host   : ec77c60e42f7
+PID    : 643
+I/O    : uncollated
+Case   : /tmp/driftScalarDyFoam/tutorials/flatRoof3D
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create dynamic mesh for time = 0
+Selecting dynamicFvMesh dynamicMotionSolverFvMesh
+Selecting motion solver: velocityLaplacian
+Using dynamicCode for patch roof.snow on field pointMotionU at line 95 in "/tmp/driftScalarDyFoam/tutorials/flatRoof3D/system/codeDict/pack"
+Could not load "/tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/platforms/linuxARM64GccDPInt32Opt/lib/libpack_99d25105621e27fc36eac921c7693c590e93a3bb.so"
+/tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/platforms/linuxARM64GccDPInt32Opt/lib/libpack_99d25105621e27fc36eac921c7693c590e93a3bb.so: cannot open shared object file: No such file or directory
+Creating new library in "dynamicCode/pack/platforms/linuxARM64GccDPInt32Opt/lib/libpack_99d25105621e27fc36eac921c7693c590e93a3bb.so"
+Invoking wmake libso /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/pack
+wmake libso /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/pack
+    ln: ./lnInclude
+    dep: fixedValuePointPatchFieldTemplate.C
+    Ctoo: fixedValuePointPatchFieldTemplate.C
+    link: /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/pack/../platforms/linuxARM64GccDPInt32Opt/lib/libpack_99d25105621e27fc36eac921c7693c590e93a3bb.so
+Selecting motion diffusion: quadratic
+Selecting motion diffusion: inverseDistance
+Selecting patchDistMethod meshWave
+
+
+PIMPLE: Operating solver in PISO mode
+
+Time = 1
+PIMPLE: iteration 1
+GAMG:  Solving for cellMotionUx, Initial residual = 0, Final residual = 0, No Iterations 0
+GAMG:  Solving for cellMotionUy, Initial residual = 0, Final residual = 0, No Iterations 0
+GAMG:  Solving for cellMotionUz, Initial residual = 1, Final residual = 6.15455091485e-18, No Iterations 1
+    Point usage OK.
+    Upper triangular ordering OK.
+    Topological cell zip-up check OK.
+    Face vertices OK.
+    Face-face connectivity OK.
+    Mesh topology OK.
+    Boundary openness (-3.87915385819e-16 -2.9846152878e-15 1.3273724713e-15) OK.
+    Max cell openness = 3.25942025164e-16 OK.
+    Max aspect ratio = 247.102067791 OK.
+    Minimum face area = 0.0260919286985. Maximum face area = 142.463692981.  Face area magnitudes OK.
+    Min volume = 0.00663551420906. Max volume = 212.745866925.  Total volume = 3977954.32256.  Cell volumes OK.
+    Mesh non-orthogonality Max: 46.6523918793 average: 1.25496766807
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.05362072056 OK.
+    Mesh geometry OK.
+Mesh OK.
+ExecutionTime = 17.38 s  ClockTime = 21 s
+
+End
+

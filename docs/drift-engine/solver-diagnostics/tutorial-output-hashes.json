@@ -1,0 +1,10 @@
+{
+  "mesh_points_sha256": {
+    "5000/polyMesh/points": "3ec886110efabd8f4a5c45ac65c3e3e0ef1c6dd897a01b7ac085d509efe1ed73",
+    "10000/polyMesh/points": "334fee4179866c3fd4413f29f068ac833851a231d60de87791bfaa2e289e6a6d",
+    "constant/polyMesh/points": "14cf30b18e824c00060fef5f273bab9ee67a948c26c277097970fbde6e893216"
+  },
+  "status": "execution_smoke_only",
+  "mass_balance": "not_checked",
+  "field_validation": "not_checked"
+}

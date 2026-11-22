@@ -1,0 +1,40 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/city-sim/.codex/hooks/memory_hook.py\" SessionStart",
+            "timeout": 10,
+            "additionalContextLimit": 3000
+          }
+        ],
+        "matcher": "^(startup|resume|compact)$"
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/city-sim/.codex/hooks/memory_hook.py\" PreCompact",
+            "timeout": 10
+          }
+        ],
+        "matcher": "^(manual|auto)$"
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/city-sim/.codex/hooks/memory_hook.py\" Stop",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
