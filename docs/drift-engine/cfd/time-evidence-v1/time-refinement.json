@@ -1,0 +1,83 @@
+{
+  "status": "fixed_mesh_temporal_refinement_NOT_spatial_or_field_validation",
+  "duration_s": 60.0,
+  "comparisons": {
+    "dt_020_vs_010": {
+      "air_L1_kg": 0.004463126675756548,
+      "bed_L1_kg": 0.08078195811573674,
+      "fine_air_kg": 15.897382999618873,
+      "air_relative_L1": 0.00028074599925431427
+    },
+    "dt_010_vs_005": {
+      "air_L1_kg": 0.002264333417618665,
+      "bed_L1_kg": 0.04039325928977312,
+      "fine_air_kg": 15.897327842474894,
+      "air_relative_L1": 0.00014243484439999783
+    }
+  },
+  "observed_air_L1_order": 0.9789683476401204,
+  "differences_decrease": true,
+  "cases": {
+    "dt-020": {
+      "dt_s": 0.2,
+      "steps": 300,
+      "final": {
+        "time_s": 60.00000000000031,
+        "bed_initial_kg": 646529.3775141186,
+        "air_initial_kg": 0.0,
+        "bed_final_kg": 646512.8495095352,
+        "air_final_kg": 15.897496391409573,
+        "boundary_in_kg": 0.0,
+        "boundary_out_kg": 0.6305082012022385,
+        "explicit_loss_kg": 0.0,
+        "eroded_kg": 140.08834385115313,
+        "deposited_kg": 123.56033925848783,
+        "residual_kg": 9.313225746154785e-09,
+        "min_C_kg_m3": 8.699277382549121e-102,
+        "min_bed_kg": 0.0
+      },
+      "max_abs_residual_kg": 1.6298145055770874e-08
+    },
+    "dt-010": {
+      "dt_s": 0.1,
+      "steps": 600,
+      "final": {
+        "time_s": 60.00000000000058,
+        "bed_initial_kg": 646529.3775141186,
+        "air_initial_kg": 0.0,
+        "bed_final_kg": 646512.8560074688,
+        "air_final_kg": 15.897382999617358,
+        "boundary_in_kg": 0.0,
+        "boundary_out_kg": 0.6241236622702461,
+        "explicit_loss_kg": 0.0,
+        "eroded_kg": 140.09387191343257,
+        "deposited_kg": 123.57236525148038,
+        "residual_kg": 1.210719347000122e-08,
+        "min_C_kg_m3": 8.823909097148598e-102,
+        "min_bed_kg": 0.0
+      },
+      "max_abs_residual_kg": 1.5366822481155396e-08
+    },
+    "dt-005": {
+      "dt_s": 0.05,
+      "steps": 1200,
+      "final": {
+        "time_s": 59.99999999999873,
+        "bed_initial_kg": 646529.3775141186,
+        "air_initial_kg": 0.0,
+        "bed_final_kg": 646512.8592549368,
+        "air_final_kg": 15.897327842473928,
+        "boundary_in_kg": 0.0,
+        "boundary_out_kg": 0.6209313526123688,
+        "explicit_loss_kg": 0.0,
+        "eroded_kg": 140.09665051372215,
+        "deposited_kg": 123.5783913184614,
+        "residual_kg": 1.3271346688270569e-08,
+        "min_C_kg_m3": 8.890693968985167e-102,
+        "min_bed_kg": 0.0
+      },
+      "max_abs_residual_kg": 1.664739102125168e-08
+    }
+  },
+  "runner_sha256": "f5eba74ef216d3024bb6da77a74ca62376dfd1a28f88f1dc9d11774b621db605"
+}

@@ -1,0 +1,20 @@
+{
+  "dt-005/final-masses.npz": "bc16cd971e3f934df4cdbd5593ea1a6a33bb806ce6316b0c8b510b16bf07bef3",
+  "dt-005/postProcess.log": "687f07a8a371d49526716dfad5e920e46a6a60651d609e09893a2f784130b24d",
+  "dt-005/snow-ledger.csv": "cede419e4cecee3b0187ec834317ba9eb70adcbfb8190c7762ad66d96051a2ef",
+  "dt-005/solver.log": "89ca61681290e812f3389acd338f5b69ca4fa2889b8f073da5575a824c63c35d",
+  "dt-005/summary.json": "db024df53b01752c662b87d8d986f44d076d03407333f09bd53a99032ec73cca",
+  "dt-010/final-masses.npz": "711e9a24ce54aaa7d9636df1579d4b570db9552897b20b8799ab5e1bdea8dc60",
+  "dt-010/postProcess.log": "d5ccc2ed4252d7e6f1f8f22da29718f36ad1a2819fd64d8d45d80c227d3c4667",
+  "dt-010/snow-ledger.csv": "a07cad8c049e8e4f303f8ca747b62b1cfaa9902ebec2ce9af92dafe55addd601",
+  "dt-010/solver.log": "1f407b989fbb9bdb5f4a37566bd0dee5e2eeda41bc4bd45a17e360ed0b9c0671",
+  "dt-010/summary.json": "45837c528701a277eedf678198c3b821dc0edc778e03bcccce6ac4d43e8bbbff",
+  "dt-020/final-masses.npz": "ff207893b369ed6f04becff09cff9c29eca2962f48459babe715343082d79309",
+  "dt-020/postProcess.log": "aa7a2bf13fad460cabad6110fbd8274efbb7674845cae62d847189ecceeeba71",
+  "dt-020/snow-ledger.csv": "22508fda74851837d21b451a7119df55338202b5eab9e2ef147fb827d1e04709",
+  "dt-020/solver.log": "7d5d611f9df2460626f92e14353b663936eee55572d34348a41e0df4c92c3897",
+  "dt-020/summary.json": "84cd769779d43c6404c17fe3f8eeee161e78339296b4ee8f8cc4b5b4024bc682",
+  "time-refinement.json": "d5890db6074532c2be6aaf7daeb96346df187895b303f87886e7e5c09f314528",
+  "time-refinement.png": "fd5692d57ae700e3cfc7d9c9393ed0160f2290991aa9c5ebe7089a06d090a8aa",
+  "wind-provenance.json": "001d5fe3518efa7b28cfe553aaba5af8ef1fd83df17449cfd9f9d744cc64a793"
+}
