@@ -4,6 +4,8 @@
 
 ## Быстрый запуск
 
+[API обращений жителей](docs/CITIZENS_API.md) · [Журнал разработки](docs/CITIZENS_LOG.md)
+
 Нужны запущенный Docker Engine с Compose, Python 3 и Bash. На чистой копии из папки компонента выполните:
 
 ```bash
