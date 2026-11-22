@@ -1,0 +1,18 @@
+{
+  "n_nodes": 6,
+  "classes": {
+    "plow": {"matrix": [[0,10,20,30,40,50],[10,0,10,20,30,40],[20,10,0,10,20,30],[30,20,10,0,10,20],[40,30,20,10,0,10],[50,40,30,20,10,0]]},
+    "loader": {"matrix": [[0,12,24,36,48,60],[12,0,12,24,36,48],[24,12,0,12,24,36],[36,24,12,0,12,24],[48,36,24,12,0,12],[60,48,36,24,12,0]]}
+  },
+  "tasks": [
+    {"id": 0, "start_node": 2, "end_node": 3, "service_time": {"plow": 120}, "weight": 10, "ready_time": 0, "deadline": 600, "deadline_weight": 100},
+    {"id": 1, "start_node": 4, "end_node": 5, "service_time": {"plow": 90, "loader": 100}, "weight": 5},
+    {"id": 2, "start_node": 1, "end_node": 2, "service_time": {"loader": 60}, "weight": 8, "ready_time": 30}
+  ],
+  "vehicles": [
+    {"id": "П-01", "class": "plow", "start_node": 0, "end_node": 1, "shift_start": 0, "shift_end": 28800},
+    {"id": "Погрузчик-1", "class": "loader", "start_node": 0, "end_node": 1, "shift_start": 0, "shift_end": 28800}
+  ],
+  "objective": {"w_latency": 1, "w_deadhead": 1, "w_wait": 0.5, "w_overtime": 1000, "w_makespan": 0},
+  "params": {"time_limit_s": 1, "seed": 1, "pop_min": 25, "pop_gen": 40, "max_iter_no_improve": 20000}
+}

@@ -1,0 +1,21 @@
+name: build-hgs
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults: { run: { working-directory: core } }
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build -A x64
+      - run: cmake --build build --config Release
+      - uses: actions/upload-artifact@v4
+        with: { name: hgs-windows, path: core/build/Release/hgs.exe }
+  linux:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: core } }
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build -j
+      - uses: actions/upload-artifact@v4
+        with: { name: hgs-linux, path: core/build/hgs }

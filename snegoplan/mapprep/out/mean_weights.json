@@ -1,0 +1,459 @@
+{
+ "formulas": {
+  "v_work": "min(20, базовая): trunk/primary/secondary 20, tertiary 15, прочее 10; service=10",
+  "v_dead": "trunk/primary/secondary 40, tertiary 30, прочее 25, min(maxspeed); service=10",
+  "note": "tl_delay_s/bus_stop/near_poi пустые: traffic_lights_match.csv, bus_stops.csv, poi.csv отсутствуют"
+ },
+ "groups": {
+  "1|primary": {
+   "zone": 1,
+   "highway": "primary",
+   "n": 58,
+   "v_work_kmh": 20.0,
+   "v_dead_kmh": 40.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 1.0
+  },
+  "1|residential": {
+   "zone": 1,
+   "highway": "residential",
+   "n": 127,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 24.53,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "1|service": {
+   "zone": 1,
+   "highway": "service",
+   "n": 690,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 10.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "1|unclassified": {
+   "zone": 1,
+   "highway": "unclassified",
+   "n": 166,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "2|primary": {
+   "zone": 2,
+   "highway": "primary",
+   "n": 86,
+   "v_work_kmh": 20.0,
+   "v_dead_kmh": 40.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 1.0
+  },
+  "2|residential": {
+   "zone": 2,
+   "highway": "residential",
+   "n": 226,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 24.96,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "2|secondary": {
+   "zone": 2,
+   "highway": "secondary",
+   "n": 22,
+   "v_work_kmh": 20.0,
+   "v_dead_kmh": 40.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "2|service": {
+   "zone": 2,
+   "highway": "service",
+   "n": 547,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 10.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "2|tertiary": {
+   "zone": 2,
+   "highway": "tertiary",
+   "n": 10,
+   "v_work_kmh": 15.0,
+   "v_dead_kmh": 30.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "2|unclassified": {
+   "zone": 2,
+   "highway": "unclassified",
+   "n": 102,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "3|residential": {
+   "zone": 3,
+   "highway": "residential",
+   "n": 6,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "3|service": {
+   "zone": 3,
+   "highway": "service",
+   "n": 252,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 10.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "3|tertiary": {
+   "zone": 3,
+   "highway": "tertiary",
+   "n": 26,
+   "v_work_kmh": 15.0,
+   "v_dead_kmh": 30.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 1.0
+  },
+  "3|unclassified": {
+   "zone": 3,
+   "highway": "unclassified",
+   "n": 32,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "4|living_street": {
+   "zone": 4,
+   "highway": "living_street",
+   "n": 24,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "4|primary": {
+   "zone": 4,
+   "highway": "primary",
+   "n": 125,
+   "v_work_kmh": 20.0,
+   "v_dead_kmh": 40.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.984
+  },
+  "4|residential": {
+   "zone": 4,
+   "highway": "residential",
+   "n": 534,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.1273
+  },
+  "4|service": {
+   "zone": 4,
+   "highway": "service",
+   "n": 1901,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 10.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "4|tertiary": {
+   "zone": 4,
+   "highway": "tertiary",
+   "n": 46,
+   "v_work_kmh": 15.0,
+   "v_dead_kmh": 30.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.913
+  },
+  "4|unclassified": {
+   "zone": 4,
+   "highway": "unclassified",
+   "n": 470,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "5|living_street": {
+   "zone": 5,
+   "highway": "living_street",
+   "n": 154,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 23.57,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "5|primary": {
+   "zone": 5,
+   "highway": "primary",
+   "n": 172,
+   "v_work_kmh": 20.0,
+   "v_dead_kmh": 40.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.9942
+  },
+  "5|residential": {
+   "zone": 5,
+   "highway": "residential",
+   "n": 1347,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 24.61,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0193
+  },
+  "5|secondary": {
+   "zone": 5,
+   "highway": "secondary",
+   "n": 421,
+   "v_work_kmh": 20.0,
+   "v_dead_kmh": 39.62,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.6651
+  },
+  "5|service": {
+   "zone": 5,
+   "highway": "service",
+   "n": 3790,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 10.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "5|tertiary": {
+   "zone": 5,
+   "highway": "tertiary",
+   "n": 185,
+   "v_work_kmh": 15.0,
+   "v_dead_kmh": 30.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.1514
+  },
+  "5|unclassified": {
+   "zone": 5,
+   "highway": "unclassified",
+   "n": 176,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "6|living_street": {
+   "zone": 6,
+   "highway": "living_street",
+   "n": 46,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "6|primary": {
+   "zone": 6,
+   "highway": "primary",
+   "n": 206,
+   "v_work_kmh": 20.0,
+   "v_dead_kmh": 40.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.9709
+  },
+  "6|residential": {
+   "zone": 6,
+   "highway": "residential",
+   "n": 1266,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 23.44,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0221
+  },
+  "6|secondary": {
+   "zone": 6,
+   "highway": "secondary",
+   "n": 292,
+   "v_work_kmh": 20.0,
+   "v_dead_kmh": 39.93,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.9829
+  },
+  "6|service": {
+   "zone": 6,
+   "highway": "service",
+   "n": 3598,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 10.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0025
+  },
+  "6|tertiary": {
+   "zone": 6,
+   "highway": "tertiary",
+   "n": 253,
+   "v_work_kmh": 15.0,
+   "v_dead_kmh": 30.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.6324
+  },
+  "6|unclassified": {
+   "zone": 6,
+   "highway": "unclassified",
+   "n": 162,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 22.78,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0123
+  },
+  "7|living_street": {
+   "zone": 7,
+   "highway": "living_street",
+   "n": 12,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "7|residential": {
+   "zone": 7,
+   "highway": "residential",
+   "n": 298,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0268
+  },
+  "7|service": {
+   "zone": 7,
+   "highway": "service",
+   "n": 1130,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 10.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "7|tertiary": {
+   "zone": 7,
+   "highway": "tertiary",
+   "n": 204,
+   "v_work_kmh": 15.0,
+   "v_dead_kmh": 30.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 1.0
+  },
+  "7|unclassified": {
+   "zone": 7,
+   "highway": "unclassified",
+   "n": 174,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0115
+  },
+  "8|living_street": {
+   "zone": 8,
+   "highway": "living_street",
+   "n": 108,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "8|primary": {
+   "zone": 8,
+   "highway": "primary",
+   "n": 11,
+   "v_work_kmh": 20.0,
+   "v_dead_kmh": 40.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 1.0
+  },
+  "8|residential": {
+   "zone": 8,
+   "highway": "residential",
+   "n": 682,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0968
+  },
+  "8|secondary": {
+   "zone": 8,
+   "highway": "secondary",
+   "n": 153,
+   "v_work_kmh": 20.0,
+   "v_dead_kmh": 40.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 1.0
+  },
+  "8|service": {
+   "zone": 8,
+   "highway": "service",
+   "n": 1779,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 10.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0022
+  },
+  "8|tertiary": {
+   "zone": 8,
+   "highway": "tertiary",
+   "n": 93,
+   "v_work_kmh": 15.0,
+   "v_dead_kmh": 30.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.7527
+  },
+  "8|unclassified": {
+   "zone": 8,
+   "highway": "unclassified",
+   "n": 338,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "9|residential": {
+   "zone": 9,
+   "highway": "residential",
+   "n": 48,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0417
+  },
+  "9|service": {
+   "zone": 9,
+   "highway": "service",
+   "n": 466,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 10.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  },
+  "9|tertiary": {
+   "zone": 9,
+   "highway": "tertiary",
+   "n": 32,
+   "v_work_kmh": 15.0,
+   "v_dead_kmh": 30.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 1.0
+  },
+  "9|unclassified": {
+   "zone": 9,
+   "highway": "unclassified",
+   "n": 126,
+   "v_work_kmh": 10.0,
+   "v_dead_kmh": 25.0,
+   "share_tl_delay": 0.0,
+   "share_bus_stop": 0.0
+  }
+ }
+}
