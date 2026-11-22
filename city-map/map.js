@@ -159,9 +159,14 @@ async function start() {
         const point = mark.coordinates[Math.floor(mark.coordinates.length / 2)];
         if (!coordinate(point)) return [];
         const button = document.createElement('button');
-        button.type = 'button'; button.className = 'city-pin';
+        button.type = 'button'; button.className = mark.kind === 'bus' ? 'city-bus-pin' : 'city-pin';
         button.setAttribute('aria-label', mark.label);
         button.style.setProperty('--pin', mark.color);
+        if (mark.kind === 'bus') {
+          if (typeof mark.badge !== 'string' || !/\d/.test(mark.badge)) return [];
+          button.textContent = mark.badge;
+          button.title = mark.label;
+        }
         button.onclick = event => { event.stopPropagation(); send('select', { id: mark.id }); };
         return new maplibregl.Marker({ element: button, pitchAlignment: 'viewport' }).setLngLat(point).addTo(map);
       });
@@ -169,7 +174,7 @@ async function start() {
     if (state.selection?.revision !== revision) {
       revision = state.selection?.revision;
       const points = state.selection?.coordinates?.filter(coordinate) ?? [];
-      map.getSource('dispatch-focus').setData({ ...empty(), features: points.length > 1 ? [line(points)] : [] });
+      map.getSource('dispatch-focus').setData({ ...empty(), features: points.length > 1 && !state.selection?.fitOnly ? [line(points)] : [] });
       if (points.length) {
         const bounds = points.reduce((box, point) => box.extend(point), new maplibregl.LngLatBounds(points[0], points[0]));
         const right = window.innerWidth > 800 ? 340 : 28;
@@ -182,7 +187,7 @@ async function start() {
     if (run === 'cleanup' && state.cleanupAt !== previousCleanupAt) syncCleanupTime(state.cleanupAt);
     else paint();
   });
-  send('ready');
+  send('ready', { busBadges: true });
 }
 
 function underlay(map) {

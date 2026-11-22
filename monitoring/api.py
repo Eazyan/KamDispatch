@@ -14,8 +14,8 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from .adapters import Media
-from .bus_demo import dashboard_demo
-from .bus_worker import dashboard_rnis
+from .bus_demo import dashboard_demo, map_demo
+from .bus_worker import dashboard_rnis, map_rnis
 from .config import ROOT, Settings
 from .db import connect, migrate
 from .districts import load_districts
@@ -224,13 +224,16 @@ def create_app(settings=None):
             snow = snow_forecast(conn, settings, run_id, datetime.now(timezone.utc))
             dispatch_rows = dispatch_queue.queue(conn, run_id, datetime.now(timezone.utc), settings.freshness)
             dispatch_locations = dispatch_queue.locations(conn, run_id)
-            buses = dashboard_demo() if run_id == "demo" else dashboard_rnis(conn, settings, run_id, datetime.now(timezone.utc))
+            now = datetime.now(timezone.utc)
+            buses = dashboard_demo() if run_id == "demo" else dashboard_rnis(conn, settings, run_id, now)
+            bus_map = map_demo() if run_id == "demo" else map_rnis(conn, settings, run_id, now)
         mode = run_id if run_id in {"live", "preview", "demo"} else "replay"
         return {"mode": mode, "run_id": run_id, "role": user[1], "cameras": camera_rows, "events": events,
                 "forecasts": forecasts, "warnings": warnings, "summaries": summaries, "checks": checks, "deliveries": deliveries, "queue": queue,
                 "inspection_queue": inspection_queue(events), "feedback_counts": {row["verdict"]: row["count"] for row in feedback},
                 "dispatch_queue": dispatch_rows, "dispatch_locations": dispatch_locations,
                 "bus_observations": buses,
+                "bus_map": bus_map,
                 "dispatch_assignees": sorted(set(settings.crew_subjects.values())) if user[1] == "operator" else [],
                 "snow_forecast": snow,
                 "city_map_url": settings.city_map_url if settings.city_map_url.startswith(("http://", "https://")) else None}

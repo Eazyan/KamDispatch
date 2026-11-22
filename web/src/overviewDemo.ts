@@ -1,4 +1,4 @@
-import type { Camera, Dashboard, DispatchGroup, DispatchTask, RoadPoint, SnowSegment } from './types';
+import type { BusObservation, Camera, Dashboard, DispatchGroup, DispatchTask, RoadPoint, SnowSegment } from './types';
 
 export const demoScenarios = {
   calm: 'Спокойная смена',
@@ -72,6 +72,34 @@ const report = (id: string, address: string, description: string, coordinates: R
   id, address, description, map_section: { coordinates }, linked, active: true,
   last_seen: time, reference: id, channel: 'Телефон',
 });
+
+function demoBusData(scenario: DemoScenario, phase: CleanupPhase, clock: string): Pick<Dashboard, 'bus_observations' | 'bus_map'> {
+  const lastSeen = new Date(Date.parse(clock) - 60_000).toISOString();
+  const earlier = scenario === 'response' && phase === 'assess';
+  const quiet = scenario === 'calm' || (scenario === 'response' && phase === 'review');
+  const telmanCheck = scenario === 'snowfall';
+  const quarryCheck = scenario === 'response' && !quiet;
+  const rows: BusObservation[] = [
+    { section_id: 'telman', name: 'улица Тельмана', direction: 'forward', direction_label: 'На юго-восток',
+      coordinates: telman, usual_seconds: 120, observed_seconds: telmanCheck ? 240 : 123, vehicle_count: 2,
+      status: telmanCheck ? 'check' : 'observed', reason: telmanCheck ? 'buses' : null, last_seen: lastSeen },
+    { section_id: 'quarry', name: 'Карьерная улица', direction: 'forward', direction_label: 'На север',
+      coordinates: quarry, usual_seconds: 118, observed_seconds: quiet ? 121 : 240,
+      vehicle_count: earlier || telmanCheck ? 1 : 2, status: quarryCheck ? 'check' : telmanCheck ? 'insufficient' : 'observed',
+      reason: quarryCheck ? earlier ? 'report' : 'buses' : null, last_seen: lastSeen },
+  ];
+  return {
+    bus_observations: { source: 'simulation', scenarios: [
+      { id: scenario + '-' + phase, title: demoScenarios[scenario], as_of: clock, rows },
+    ] },
+    bus_map: { source: 'simulation', state: 'ready', positions: rows.flatMap((row, index) => {
+      const road = index === 0 ? telman : quarry;
+      return road.slice(-row.vehicle_count).map(([lon, lat], bus) => ({
+        id: row.section_id + '-' + bus, lon, lat, route: 'Д' + (index + 1), measured_at: lastSeen,
+      }));
+    }) },
+  };
+}
 
 export function demoDashboard(scenario: DemoScenario, phase: CleanupPhase = 'work'): Dashboard {
   const calm = scenario === 'calm';
@@ -161,6 +189,7 @@ export function demoDashboard(scenario: DemoScenario, phase: CleanupPhase = 'wor
     stage: 'queued', attempts: 0, error: null, created_at: event.opened_at,
   }] : [])];
   return {
+    ...demoBusData(scenario, phase, clock),
     mode: 'demo', run_id: 'design-demo', role: 'viewer', cameras: [camera, {
       ...camera, id: 'lake', name: 'Култучное озеро', coordinates: lake, road: false, section_name: null,
       status: response ? 'stale' : 'waiting', last_frame: null,

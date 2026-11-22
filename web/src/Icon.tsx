@@ -15,6 +15,7 @@ const paths = {
   chevron: 'm9 18 6-6-6-6',
   map: 'm3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15m6-12v15',
   clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-14v5l3 2',
+  bus: 'M5 16V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10M5 16h14v3H5zM7 19v2m10-2v2M5 11h14M8 16h.1m7.9 0h.1',
 } satisfies Record<string, string>;
 
 export type IconName = keyof typeof paths;
