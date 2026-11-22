@@ -3,10 +3,12 @@ import json
 from pathlib import Path
 import re
 
+from shapely import prepare
 from shapely.errors import ShapelyError
 from shapely.geometry import MultiPolygon, Point, Polygon, shape
 
 
+DEFAULT_DISTRICTS = Path(__file__).with_name("kamchatka_districts.geojson")
 UNASSIGNED = "unassigned"
 DISTRICT_ID_PATTERN = r"^[a-z0-9][a-z0-9-]{0,63}$"
 
@@ -19,8 +21,7 @@ class District:
 
 
 def load_districts(path: Path | None) -> tuple[District, ...]:
-    if path is None:
-        return ()
+    path = DEFAULT_DISTRICTS if path is None else path
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
         if data["type"] != "FeatureCollection" or not isinstance(data["features"], list) or not data["features"]:
@@ -39,6 +40,7 @@ def load_districts(path: Path | None) -> tuple[District, ...]:
             west, south, east, north = boundary.bounds
             if not (-180 <= west <= east <= 180 and -90 <= south <= north <= 90):
                 raise ValueError(f"{district_id}: expected WGS84 longitude and latitude")
+            prepare(boundary)
             districts[district_id] = District(district_id, name, boundary)
         return tuple(districts.values())
     except (OSError, ValueError, TypeError, AttributeError, KeyError, ShapelyError) as exc:

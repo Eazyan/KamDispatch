@@ -7,3 +7,4 @@ PyJWT[crypto]==2.10.1
 boto3==1.39.3
 python-multipart==0.0.22
 shapely==2.1.2
+python-telegram-bot==22.8

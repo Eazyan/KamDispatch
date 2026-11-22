@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from dataclasses import replace
 from datetime import datetime, timezone, timedelta
 import hmac
+import re
 from typing import Literal
 from uuid import UUID
 
@@ -54,6 +55,7 @@ def create_app(settings=None):
         settings.validate()
         app.state.citizen_districts = load_districts(settings.citizen_districts_path)
         migrate(settings)
+        citizens.reclassify_unassigned(settings, app.state.citizen_districts)
         app.state.media = Media(settings)
         app.state.demo_media = Media(replace(settings, s3_bucket=""))
         app.state.jwks = jwt.PyJWKClient(settings.oidc_jwks, timeout=5) if settings.mode == "live" else None
@@ -68,6 +70,13 @@ def create_app(settings=None):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "same-origin"
         response.headers["X-Frame-Options"] = "DENY"
+        if request.url.path.startswith("/citizens/"):
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self'; script-src 'self' https://unpkg.com; "
+                "style-src 'self' https://unpkg.com; "
+                "img-src 'self' blob: data: https://tile.openstreetmap.org; "
+                "connect-src 'self' https://photon.komoot.io; frame-ancestors 'none'; base-uri 'none'"
+            )
         if request.url.path.startswith("/api/"):
             response.headers["Cache-Control"] = "private, no-store"
         return response
@@ -96,12 +105,34 @@ def create_app(settings=None):
             return actor, "viewer"
         raise HTTPException(403, "Нет доступа к мониторингу")
 
-    def citizen_identity(request: Request, authorization: str = Header(default="")):
+    def citizen_identity(
+        request: Request, authorization: str = Header(default=""),
+        x_citizen_bot_key: str = Header(default=""), x_telegram_user: str = Header(default=""),
+    ):
+        if x_citizen_bot_key or x_telegram_user:
+            if (not settings.citizen_bot_api_key
+                or not hmac.compare_digest(x_citizen_bot_key.encode(), settings.citizen_bot_api_key.encode())
+                or not re.fullmatch(r"[1-9][0-9]{0,18}", x_telegram_user)):
+                raise HTTPException(401, "Недействительные данные бота")
+            return f"telegram:{x_telegram_user}"
         if settings.mode == "live":
-            return oidc_actor(request, authorization)
+            actor = oidc_actor(request, authorization)
+            if actor.startswith("telegram:") or actor == "legacy-web":
+                raise HTTPException(403, "Недопустимый идентификатор")
+            return actor
         return "local-demo"
 
     app.include_router(citizens.router(settings, citizen_identity, identity))
+
+    @app.get("/api/v1/citizens/form-config")
+    def citizen_form_config():
+        return {"requires_token": settings.mode == "live"}
+
+    @app.get("/citizens", include_in_schema=False)
+    def citizen_form_redirect():
+        return Response(status_code=307, headers={"Location": "/citizens/"})
+
+    app.mount("/citizens", StaticFiles(directory=ROOT / "resident_site", html=True), name="citizen-site")
 
     def selected_run(conn, requested):
         if settings.mode == "live":

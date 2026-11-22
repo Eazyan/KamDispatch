@@ -5,7 +5,7 @@ x-application: &application
   env_file:
     - path: .env
       required: false
-  environment:
+  environment: &application-environment
     DATABASE_URL: "host=db port=5432 dbname=monitor user=monitor password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
     MEDIA_DIR: /app/runtime/media
   volumes:
@@ -39,6 +39,10 @@ services:
   api:
     <<: *application
     build: .
+    environment:
+      <<: *application-environment
+      BOT_TOKEN: ${BOT_TOKEN:-}
+      CITIZEN_BOT_API_KEY: ${CITIZEN_BOT_API_KEY:-}
     ports:
       - "127.0.0.1:${MONITOR_PORT:-8080}:8080"
     healthcheck:
@@ -47,6 +51,20 @@ services:
       timeout: 5s
       retries: 6
     restart: unless-stopped
+
+  bot:
+    image: kamchatka-monitoring:${APP_VERSION:-dev}
+    command: [python, -m, monitoring.citizen_bot]
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN:-}
+      CITIZEN_BOT_API_KEY: ${CITIZEN_BOT_API_KEY:-}
+      CITIZEN_API_URL: http://api:8080
+    depends_on:
+      api:
+        condition: service_healthy
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    restart: 'on-failure:5'
 
   worker:
     <<: *application

@@ -1,17 +1,24 @@
+import asyncio
 from dataclasses import replace
 from io import BytesIO
 import json
 import os
+import sqlite3
+from types import SimpleNamespace
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
+import httpx
 from fastapi.testclient import TestClient
 from PIL import Image
 import pytest
 
-from monitoring import api
+from monitoring import api, citizen_import
+from monitoring.citizen_bot import Bot, Draft, compact_id
 from monitoring.citizens import MAX_PHOTO_BYTES, MAX_UPLOAD_BYTES
 from monitoring.config import Settings
 from monitoring.db import connect
+from monitoring.districts import load_districts, locate_district
 
 
 REPORTS = "/api/v1/citizens/reports"
@@ -31,6 +38,7 @@ def post(client, photo=None, **fields):
 
 def test_rejects_invalid_citizen_reports(monkeypatch, tmp_path):
     monkeypatch.setattr(api, "migrate", lambda settings: None)
+    monkeypatch.setattr(api.citizens, "reclassify_unassigned", lambda settings, districts: None)
     settings = Settings(database="unused", mode="demo", media_dir=tmp_path)
     with TestClient(api.create_app(settings)) as client:
         assert post(client, description="   ").status_code == 422
@@ -68,7 +76,7 @@ def test_persists_photo_and_filters_reports(tmp_path):
         assert first["description"] == "Сугроб у перехода"
         assert (first["latitude"], first["longitude"]) == (53.02, 158.65)
         assert first["tags"] == ["снег", "сугроб"]
-        assert first["suggested_tags"] == []
+        assert first["suggested_tags"] == ["уборка_снега"]
         assert first["district_id"] == district_id  # The point is on the boundary.
         assert first["district"] == "Северный район"
 
@@ -90,7 +98,19 @@ def test_persists_photo_and_filters_reports(tmp_path):
         assert [item["id"] for item in page["items"]] == [first["id"]]
         assert page["next_offset"] is None
 
+        latest = client.get(REPORTS, params={"limit": 1, "start": "2026-11-22T00:00:00+12:00"}).json()
+        assert [item["id"] for item in latest["items"]] == [outside["id"]]
+        assert latest["next_offset"] == 1
+        selected = client.get(REPORTS, params={"id": other["id"]}).json()
+        assert [item["id"] for item in selected["items"]] == [other["id"]]
+
+        with connect(settings) as conn:
+            conn.execute("UPDATE citizen_reports SET district_id='unassigned', district=NULL WHERE id=%s",
+                         (first["id"],))
+
     with TestClient(api.create_app(settings)) as client:
+        assert client.get(REPORTS, params={"id": first["id"]}).json()["items"][0]["district_id"] == district_id
+        assert client.get(REPORTS, params={"id": other["id"]}).json()["items"][0]["district_id"] == "unassigned"
         photo = client.get(first["photo_url"])
         assert photo.status_code == 200
         assert photo.headers["content-type"] == "image/jpeg"
@@ -100,3 +120,140 @@ def test_persists_photo_and_filters_reports(tmp_path):
     with TestClient(api.create_app(replace(settings, mode="demo"))) as client:
         assert client.get(first["photo_url"]).status_code == 404
         assert client.get(REPORTS, params=params).json() == {"items": [], "next_offset": None}
+
+
+def test_citizen_clients_share_storage_and_telegram_history_is_private(tmp_path):
+    database = os.getenv("TEST_DATABASE_URL")
+    if not database:
+        pytest.skip("Set TEST_DATABASE_URL to a temporary PostgreSQL database")
+    settings = Settings(database=database, mode="demo", media_dir=tmp_path, citizen_bot_api_key="test-key")
+    actor = str(uuid4().int % 10**18 + 1)
+    headers = {"X-Citizen-Bot-Key": "test-key", "X-Telegram-User": actor}
+    stranger = {**headers, "X-Telegram-User": str(int(actor) + 1)}
+    request_id = str(uuid4())
+    body = {"description": "Гололёд у дома", "latitude": -32.001, "longitude": 180,
+            "request_id": request_id, "address": "Тестовый адрес"}
+
+    with TestClient(api.create_app(settings)) as client:
+        assert client.get("/citizens/").status_code == 200
+        assert client.get("/citizens/app.js").status_code == 200
+        assert client.get("/api/v1/citizens/form-config").json() == {"requires_token": False}
+
+        def send(auth):
+            return client.post(REPORTS, headers=auth, data=body, files={"photo": ("photo.png", png())})
+
+        assert send({"X-Telegram-User": actor}).status_code == 401
+        saved = send(headers)
+        assert saved.status_code == 201, saved.text
+        report = saved.json()
+        assert report["address"] == body["address"]
+        assert report["suggested_tags"] == ["гололёд"]
+        assert send(headers).json()["id"] == report["id"]
+        assert send({}).json()["id"] != report["id"]
+
+        assert client.get(REPORTS + "/mine", headers=headers).json() == [report]
+        assert client.get(REPORTS + "/mine", headers=stranger).json() == []
+        assert client.get(REPORTS + "/mine", headers=headers, params={"before": report["id"]}).json() == []
+        assert client.get(REPORTS + "/mine").status_code == 403
+        assert client.get(f'{REPORTS}/{report["id"]}', headers=headers).json() == report
+        assert client.get(f'{REPORTS}/{report["id"]}', headers=stranger).status_code == 404
+        assert client.get(report["photo_url"], headers=stranger).status_code == 404
+        assert client.get(report["photo_url"]).status_code == 200
+        assert client.get(report["photo_url"], headers=headers).headers["content-type"] == "image/jpeg"
+        zones = client.get(REPORTS + "/zones", params={"minimum": 2}).json()
+        assert any(zone["latitude_cell"] == -3201 and zone["longitude_cell"] == 17999
+                   and zone["count"] >= 2 for zone in zones)
+
+
+
+def test_legacy_import_is_atomic_and_idempotent(tmp_path, monkeypatch):
+    database = os.getenv("TEST_DATABASE_URL")
+    if not database:
+        pytest.skip("Set TEST_DATABASE_URL to a temporary PostgreSQL database")
+    settings = Settings(database=database, mode="preview", media_dir=tmp_path)
+    source = tmp_path / "old.sqlite3"
+    message_id = uuid4().int % 10**18
+    with sqlite3.connect(source) as conn:
+        conn.executescript("""
+            CREATE TABLE reports (id, user_id, message_id, photo_id, description, latitude, longitude, created_at);
+            CREATE TABLE web_photos (report_id, content);
+            CREATE TABLE web_addresses (report_id, address);
+        """)
+        conn.executemany("INSERT INTO reports VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [
+            (1, 0, message_id, "web", "Гололёд", 53.02, 158.65, "2025-01-01 10:00:00"),
+            (2, message_id, 1, "telegram-photo", "Сугроб", 53.02, 158.65, "2025-01-01 10:05:00"),
+        ])
+        conn.execute("INSERT INTO web_photos VALUES (1, ?)", (png(),))
+        conn.execute("INSERT INTO web_addresses VALUES (1, 'Тестовый адрес')")
+
+    with pytest.raises(RuntimeError, match="№2"):
+        citizen_import.import_reports(settings, source, "")
+    monkeypatch.setattr(citizen_import, "telegram_photo",
+                        lambda *_: citizen_import.photo_jpeg(BytesIO(png())))
+    assert citizen_import.import_reports(settings, source, "test-token") == (2, 0)
+    assert citizen_import.import_reports(settings, source, "test-token") == (0, 2)
+    with connect(settings) as conn:
+        row = conn.execute(
+            "SELECT created_at, address, photo_jpeg FROM citizen_reports WHERE mode=%s AND submitted_by=%s",
+            (settings.mode, f"telegram:{message_id}"),
+        ).fetchone()
+    assert row["created_at"].isoformat() == "2025-01-01T10:05:00+00:00"
+    assert row["photo_jpeg"].startswith(b"\xff\xd8")
+
+
+def test_bot_submits_telegram_photo_through_api_and_reads_it_back():
+    report_id = str(uuid4())
+    report = {"id": report_id, "description": "Гололёд", "latitude": 53.02, "longitude": 158.65,
+              "created_at": "2025-01-01T10:00:00Z", "tags": [], "suggested_tags": ["гололёд"]}
+    image = png()
+
+    async def transport(request):
+        assert request.headers["X-Telegram-User"] == "123"
+        assert request.headers["X-Citizen-Bot-Key"] == "test-key"
+        if request.method == "POST":
+            assert request.url.path == REPORTS
+            assert request.headers["Content-Type"].startswith("multipart/form-data")
+            assert image in await request.aread()
+            return httpx.Response(201, json=report)
+        if request.url.path.endswith("/photo"):
+            return httpx.Response(200, content=image)
+        assert request.url.path == f"{REPORTS}/{report_id}"
+        return httpx.Response(200, json=report)
+
+    async def exercise():
+        file = SimpleNamespace(file_size=len(image), download_as_bytearray=AsyncMock(return_value=bytearray(image)))
+        telegram = SimpleNamespace(get_file=AsyncMock(return_value=file))
+        message = SimpleNamespace(
+            from_user=SimpleNamespace(id=123), text="", message_id=10, photo=(),
+            location=SimpleNamespace(latitude=53.02, longitude=158.65),
+            get_bot=lambda: telegram, reply_text=AsyncMock(), reply_photo=AsyncMock(),
+        )
+        async with httpx.AsyncClient(base_url="http://api", transport=httpx.MockTransport(transport)) as client:
+            bot = Bot(client, "test-key")
+            bot.drafts[123] = Draft(photo_id="telegram-photo", description=report["description"])
+            update = SimpleNamespace(message=message)
+            await bot.handle(update, None)
+            telegram.get_file.assert_awaited_once_with("telegram-photo")
+            assert 123 not in bot.drafts
+            assert report_id in message.reply_text.await_args.args[0]
+            message.text = "/r_" + compact_id(report_id)
+            await bot.handle(update, None)
+            assert message.reply_photo.await_args.args[0] == image
+
+    asyncio.run(exercise())
+
+
+
+@pytest.mark.parametrize(("latitude", "longitude", "expected"), [
+    (53.0196, 158.6478, "petropavlovsk-kamchatsky"),
+    (53.1873, 158.3804, "yelizovsky"),
+    (52.9304, 158.4047, "vilyuchinsky"),
+    (59.0838, 159.9511, "palana"),
+    (55.197, 165.984, "aleutsky"),
+    (55.75, 37.62, None),
+])
+def test_bundled_kamchatka_districts(latitude, longitude, expected):
+    districts = load_districts(None)
+    assert len(districts) == 14
+    district = locate_district(districts, latitude, longitude)
+    assert (district.id if district else None) == expected

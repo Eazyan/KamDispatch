@@ -22,15 +22,31 @@ docker info >/dev/null
 python3 - "$mode" <<'PY'
 import os
 from pathlib import Path
+import re
 import secrets
 import sys
+from tempfile import NamedTemporaryFile
 
 path = Path(".env")
 if path.exists():
     print("Using existing .env")
+    config = path.read_text(encoding="utf-8")
+    entry = re.compile(r"^(?:export[ \t]+)?CITIZEN_BOT_API_KEY[ \t]*=[ \t]*(.*)$", re.MULTILINE)
+    matches = list(entry.finditer(config))
+    match = matches[-1] if matches else None
+    if match is None or match[1].split("#", 1)[0].strip() in {"", '""', "''"}:
+        value = f"CITIZEN_BOT_API_KEY={secrets.token_hex(32)}"
+        if match is None:
+            updated = config + ("\n" if config and not config.endswith("\n") else "") + value + "\n"
+        else:
+            updated = config[:match.start()] + value + config[match.end():]
+        with NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent, delete=False) as target:
+            target.write(updated)
+        Path(target.name).replace(path)
 else:
     config = Path(".env.example").read_text(encoding="utf-8")
     config = config.replace("MONITOR_MODE=demo\n", f"MONITOR_MODE={sys.argv[1]}\n", 1)
+    config = config.replace("CITIZEN_BOT_API_KEY=\n", f"CITIZEN_BOT_API_KEY={secrets.token_hex(32)}\n", 1)
     config = config.replace("POSTGRES_PASSWORD=\n", f"POSTGRES_PASSWORD={secrets.token_hex(24)}\n", 1)
     with os.fdopen(os.open(path, os.O_CREAT | os.O_WRONLY | os.O_EXCL, 0o600), "w", encoding="utf-8") as target:
         target.write(config)
@@ -56,6 +72,7 @@ while monotonic() < deadline:
         with urlopen(url + "/healthz", timeout=3) as response:
             if json.load(response).get("status") == "ready":
                 print(f"Dashboard: {url}")
+                print(f"Citizen reports: {url}/citizens/")
                 break
     except (OSError, ValueError):
         sleep(1)
