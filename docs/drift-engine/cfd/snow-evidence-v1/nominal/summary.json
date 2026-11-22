@@ -1,0 +1,70 @@
+{
+  "status": "fixed_mesh_transient_CFD_scenario_NOT_field_validation",
+  "dt_s": 0.1,
+  "steps": 50,
+  "scene_sha256": "b5237a92e4695c7de892cb96cb688beb36886db4fc20843bba0b920f5cdc36f1",
+  "final": {
+    "time_s": 4.999999999999998,
+    "bed_initial_kg": 646529.3775141186,
+    "air_initial_kg": 0.0,
+    "bed_final_kg": 646522.4146821081,
+    "air_final_kg": 6.962832020079285,
+    "boundary_in_kg": 0.0,
+    "boundary_out_kg": 8.338308856970377e-13,
+    "explicit_loss_kg": 0.0,
+    "eroded_kg": 11.571523230844706,
+    "deposited_kg": 4.608691210764103,
+    "residual_kg": 9.66247171163559e-09,
+    "min_C_kg_m3": 8.780439899326844e-133,
+    "min_bed_kg": 0.0
+  },
+  "max_abs_residual_kg": 1.4319084584712982e-08,
+  "written_field_air_kg": 6.962832020079945,
+  "written_field_bed_kg": 646522.414682111,
+  "erosion_coefficient_kg_s_m4": 0.001,
+  "initial_air_pulse_kg_m3": 0.0,
+  "wind_provenance": {
+    "scene_sha256": "b5237a92e4695c7de892cb96cb688beb36886db4fc20843bba0b920f5cdc36f1",
+    "source_sha256": {
+      "sources/quarter.json": "6e9a31d85d0ce7a683e47c52ebe479e3dea4f873aa30a6b65320441bdbb17ff1",
+      "sources/ground.npz": "938f93f5f860782776e6a02ffc06f09ec0b7af229f3f076efb33f4511c63afce",
+      "run_cfd.py": "9f0112bdfccf01b63472f92e40796cb9fe1fa2bae5f3c3bc334590017eb60771"
+    },
+    "fields": {
+      "U": "0de59afb1c5b687f3b3d04ea0394f475436afb8d87852579a56a3d12ef891311",
+      "nut": "66e10b805cf237c74219507fb2f45b23a33eaa514f1a7a50f9ebf94be1ccc56f",
+      "phi": "14548f162cc1f3be15e146e0d005f09c7b25c063147e74ff2ab1dda8ae4bf1a9"
+    },
+    "mesh": {
+      "boundary": "dc9418d03027b5f45d6781b21968ffd2eae435a420e8ff9b464905789d4be53f",
+      "cellZones": "7492c853093852aca1649ee727a9820a3d51d6b46af5e949c2b204e1f4528b9b",
+      "faceZones": "cab5017850e5e8489a0ba951996b5b5f2da3abec0bf2a36dadb48978b7e0a657",
+      "faces": "2844b1930df017d6cc91e20460da0da1b9f4b807a574066a829889ebdd95c628",
+      "neighbour": "9968a071cce2e9c2c656a79cace02308105fc6920916cbbe063951047c77cf1d",
+      "owner": "fb79020a6e21905198d1056f786db7a2f2f5ae1b07e4ec293b2b1d84c6b72192",
+      "pointZones": "8ffdbad415c7b456d93007f19889360bbacc3a99ea0ee211ef08b8501120a93f",
+      "points": "a78d55ae83db19266fea6fb9e31dc8c1c8c34077a58404fced06081899bac1e0"
+    }
+  },
+  "cells": 194581,
+  "frozen_wind_sha256": {
+    "U": "0de59afb1c5b687f3b3d04ea0394f475436afb8d87852579a56a3d12ef891311",
+    "nut": "66e10b805cf237c74219507fb2f45b23a33eaa514f1a7a50f9ebf94be1ccc56f",
+    "phi": "14548f162cc1f3be15e146e0d005f09c7b25c063147e74ff2ab1dda8ae4bf1a9"
+  },
+  "mesh_sha256": {
+    "boundary": "dc9418d03027b5f45d6781b21968ffd2eae435a420e8ff9b464905789d4be53f",
+    "cellZones": "7492c853093852aca1649ee727a9820a3d51d6b46af5e949c2b204e1f4528b9b",
+    "faceZones": "cab5017850e5e8489a0ba951996b5b5f2da3abec0bf2a36dadb48978b7e0a657",
+    "faces": "2844b1930df017d6cc91e20460da0da1b9f4b807a574066a829889ebdd95c628",
+    "neighbour": "9968a071cce2e9c2c656a79cace02308105fc6920916cbbe063951047c77cf1d",
+    "owner": "fb79020a6e21905198d1056f786db7a2f2f5ae1b07e4ec293b2b1d84c6b72192",
+    "pointZones": "8ffdbad415c7b456d93007f19889360bbacc3a99ea0ee211ef08b8501120a93f",
+    "points": "a78d55ae83db19266fea6fb9e31dc8c1c8c34077a58404fced06081899bac1e0"
+  },
+  "solver_sha256": "8a4f9dd7c40a72a48385914a6b32c2c8a2989521496006f6a371fcfab1fc0da1",
+  "source_sha256": {
+    "snowSolver/kamchatkaSnowFoam.C": "667bd2a696fc77f03131f1d236f0ae97276617e57303110c79ecd497ea6d8c24",
+    "run_snow_case.py": "f573980e3eec40b2fd9e145bd6f42c9ca46e6fcf43449ec9ee37769d4b0b42b5"
+  }
+}
