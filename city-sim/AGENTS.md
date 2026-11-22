@@ -1,6 +1,6 @@
 # Алгоритмы Камчатки
 
-Перед первой содержательной задачей прочитай [правила Git](GIT_INSTRUCTIONS.md). Назначение изменений — публичный `SHKZhenya/algorithms-kamchatka`, `main`; commit/push/PR выполняй в границах поручения, без отдельного разрешения не публикуй.
+Перед первой содержательной задачей прочитай [правила Git](GIT_INSTRUCTIONS.md). Назначение изменений — публичный `Eazyan/KamDispatch`, PR в `main` из `feature/kamchatka-drift-engine`; публикация ветки и создание PR разрешены ТЗ 22.11.2026, самостоятельное слияние запрещено. Старый репозиторий — только источник.
 
 Вход в новую сессию: [STATE](docs/agent-memory/STATE.md), [HANDOFF](docs/agent-memory/HANDOFF.md), [TASKS](docs/agent-memory/TASKS.md), затем нужная строка [INDEX](docs/agent-memory/INDEX.md) и её первоисточники. [База знаний](KNOWLEDGE_BASE.md) — содержательный навигатор; большие отчёты читать по треку, не всю историю сразу.
 

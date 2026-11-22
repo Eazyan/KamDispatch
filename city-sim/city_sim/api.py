@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import AwareDatetime, ValidationError
 from starlette.concurrency import run_in_threadpool
 
+from .drift_service import DriftRequest, compare as compare_drift
 from .city_snow import CitySnow, CitySnowRequest
 from .geodata import BOUNDS, DATA, PILOT, ROOT, CityData
 from .live_weather import ForecastRevisionError
@@ -75,6 +76,19 @@ def make_app(db_path=None, building_path=None, graph_path=None, solver=None, wea
             model_ready = False
         return {"status": "ok", "solver_connected": not isinstance(api.state.wind_solver, UnavailableWindSolver),
                 "terrain_loaded": bool(city.terrain.metadata), "snow_solver_connected": model_ready}
+
+    @api.post("/api/v1/drift-engine/compare")
+    def drift_compare(payload: DriftRequest):
+        try:
+            return compare_drift(payload)
+        except FileNotFoundError as error:
+            raise HTTPException(503, "Saved geometry unavailable") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+
+    @api.get("/drift-engine", include_in_schema=False)
+    def drift_page():
+        return FileResponse(Path(__file__).parent / "web" / "drift.html")
 
     @api.get("/api/v1/operations/weather")
     def operation_weather(period: Literal["evening", "night"] = "evening"):

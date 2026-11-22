@@ -1,0 +1,32 @@
+name: Drift engine offline checks
+on:
+  push:
+    branches: [feature/kamchatka-drift-engine]
+  pull_request:
+    paths: ['city-sim/**', 'docs/drift-engine/**', '.github/workflows/drift-engine.yml']
+  workflow_dispatch:
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: city-sim
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r requirements-core.txt -r requirements-city-sim.txt
+      - name: Install pinned legacy model
+        run: |
+          git init city_sim/.state/danil
+          git -C city_sim/.state/danil fetch --depth=1 https://github.com/NDaVS/kamcha-snow-sim.git 087118ff9119eaa211fa19e89251b73f232406da
+          git -C city_sim/.state/danil checkout --detach FETCH_HEAD
+      - run: python -m pip check
+      - run: python -m unittest discover -s city_sim/tests -v
+      - run: python -m unittest discover -s tests -p test_core.py -v
+      - run: python -m city_sim.reproduce_drift_engine --output ../out/drift-engine
+      - uses: actions/upload-artifact@v4
+        with:
+          name: drift-engine-results
+          path: out/drift-engine
