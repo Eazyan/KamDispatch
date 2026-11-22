@@ -1,0 +1,263 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d2-20251219 OPENFOAM=2512 version=2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : driftScalarDyFoam
+Date   : Nov 22 2026
+Time   : 08:38:06
+Host   : ec77c60e42f7
+PID    : 827
+I/O    : uncollated
+Case   : /tmp/driftScalarDyFoam/tutorials/flatRoof3D
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create dynamic mesh for time = 0
+Selecting dynamicFvMesh dynamicMotionSolverFvMesh
+Selecting motion solver: velocityLaplacian
+Using dynamicCode for patch roof.snow on field pointMotionU at line 151 in "/tmp/driftScalarDyFoam/tutorials/flatRoof3D/system/codeDict/erosionDeposition"
+Could not load "/tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/platforms/linuxARM64GccDPInt32Opt/lib/liberosionDeposition_99190d5c2c9b9dc2c7db6ad78e8f23cff6ec7c15.so"
+/tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/platforms/linuxARM64GccDPInt32Opt/lib/liberosionDeposition_99190d5c2c9b9dc2c7db6ad78e8f23cff6ec7c15.so: cannot open shared object file: No such file or directory
+Creating new library in "dynamicCode/erosionDeposition/platforms/linuxARM64GccDPInt32Opt/lib/liberosionDeposition_99190d5c2c9b9dc2c7db6ad78e8f23cff6ec7c15.so"
+Invoking wmake libso /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/erosionDeposition
+wmake libso /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/erosionDeposition
+    ln: ./lnInclude
+    dep: fixedValuePointPatchFieldTemplate.C
+    Ctoo: fixedValuePointPatchFieldTemplate.C
+    link: /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/erosionDeposition/../platforms/linuxARM64GccDPInt32Opt/lib/liberosionDeposition_99190d5c2c9b9dc2c7db6ad78e8f23cff6ec7c15.so
+Selecting motion diffusion: quadratic
+Selecting motion diffusion: inverseDistance
+Selecting patchDistMethod meshWave
+
+
+SIMPLE: no convergence criteria found. Calculations will run for 10000 steps.
+
+Reading field T
+
+Using dynamicCode for patch roof.snow on field T at line 22 in "/tmp/driftScalarDyFoam/tutorials/flatRoof3D/system/codeDict/erosionFlux"
+Could not load "/tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/platforms/linuxARM64GccDPInt32Opt/lib/liberosionFlux_b0b5c1038bfd1146b363da8c5fdc8d05ab042593.so"
+/tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/platforms/linuxARM64GccDPInt32Opt/lib/liberosionFlux_b0b5c1038bfd1146b363da8c5fdc8d05ab042593.so: cannot open shared object file: No such file or directory
+Creating new library in "dynamicCode/erosionFlux/platforms/linuxARM64GccDPInt32Opt/lib/liberosionFlux_b0b5c1038bfd1146b363da8c5fdc8d05ab042593.so"
+Invoking wmake libso /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/erosionFlux
+wmake libso /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/erosionFlux
+    ln: ./lnInclude
+    dep: fixedValueFvPatchFieldTemplate.C
+    Ctoo: fixedValueFvPatchFieldTemplate.C
+    link: /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/erosionFlux/../platforms/linuxARM64GccDPInt32Opt/lib/liberosionFlux_b0b5c1038bfd1146b363da8c5fdc8d05ab042593.so
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Reading transportProperties
+
+Reading erosionDepositionProperties
+
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kEpsilon
+RAS
+{
+    RASModel        kEpsilon;
+    turbulence      on;
+    printCoeffs     on;
+    Cmu             0.09;
+    C1              1.44;
+    C2              1.92;
+    C3              0;
+    sigmak          1;
+    sigmaEps        1.3;
+    twoLayerTreatment false;
+    ReyStar         200;
+    ReyFactor       0.05;
+}
+
+No MRF models present
+
+No finite volume options present
+
+Calculating scalar transport
+
+Recognized snow surface: "roof.snow".
+wallShearStress wallShearStress1:
+    processing (1) wall patches:
+        roof.snow
+
+Using dynamicCode for functionObject writeZArea at line 41 in "/tmp/driftScalarDyFoam/tutorials/flatRoof3D/system/controlDict/functions/writeZArea"
+Could not load "/tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/platforms/linuxARM64GccDPInt32Opt/lib/libwriteZArea_aae06c6ef76ad3309a985230af357259554eee1a.so"
+/tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/platforms/linuxARM64GccDPInt32Opt/lib/libwriteZArea_aae06c6ef76ad3309a985230af357259554eee1a.so: cannot open shared object file: No such file or directory
+Creating new library in "dynamicCode/writeZArea/platforms/linuxARM64GccDPInt32Opt/lib/libwriteZArea_aae06c6ef76ad3309a985230af357259554eee1a.so"
+Invoking wmake libso /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/writeZArea
+wmake libso /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/writeZArea
+    ln: ./lnInclude
+    dep: functionObjectTemplate.C
+    Ctoo: functionObjectTemplate.C
+    link: /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/writeZArea/../platforms/linuxARM64GccDPInt32Opt/lib/libwriteZArea_aae06c6ef76ad3309a985230af357259554eee1a.so
+Using dynamicCode for functionObject writeCellCentreZ at line 76 in "/tmp/driftScalarDyFoam/tutorials/flatRoof3D/system/controlDict/functions/writeCellCentreZ"
+Could not load "/tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/platforms/linuxARM64GccDPInt32Opt/lib/libwriteCellCentreZ_9dc2048aab51067d8583cde77fd4f7209285b83d.so"
+/tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/platforms/linuxARM64GccDPInt32Opt/lib/libwriteCellCentreZ_9dc2048aab51067d8583cde77fd4f7209285b83d.so: cannot open shared object file: No such file or directory
+Creating new library in "dynamicCode/writeCellCentreZ/platforms/linuxARM64GccDPInt32Opt/lib/libwriteCellCentreZ_9dc2048aab51067d8583cde77fd4f7209285b83d.so"
+Invoking wmake libso /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/writeCellCentreZ
+wmake libso /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/writeCellCentreZ
+    ln: ./lnInclude
+    dep: functionObjectTemplate.C
+    Ctoo: functionObjectTemplate.C
+    link: /tmp/driftScalarDyFoam/tutorials/flatRoof3D/dynamicCode/writeCellCentreZ/../platforms/linuxARM64GccDPInt32Opt/lib/libwriteCellCentreZ_9dc2048aab51067d8583cde77fd4f7209285b83d.so
+
+-----------------------
+Stage = 0
+Physical Time = 5000
+-----------------------
+
+Update Mesh
+
+Successfully interpolate 2501 points.
+Local points number = 2501
+GAMG:  Solving for cellMotionUx, Initial residual = 0, Final residual = 0, No Iterations 0
+GAMG:  Solving for cellMotionUy, Initial residual = 0, Final residual = 0, No Iterations 0
+GAMG:  Solving for cellMotionUz, Initial residual = 0, Final residual = 0, No Iterations 0
+
+Stage 0 | p U subCycles(1/20)
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 1, Final residual = 0.00494043417964, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0, Final residual = 0, No Iterations 0
+GAMG:  Solving for p, Initial residual = 1, Final residual = 0.00943974384402, No Iterations 66
+time step continuity errors : sum local = 0.0154501678935, global = -0.00239914440358, cumulative = -0.00239914440358
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.253577995857, Final residual = 0.00234962326401, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 1, Final residual = 0.00507587702081, No Iterations 2
+ExecutionTime = 30.92 s  ClockTime = 51 s
+
+
+Stage 0 | p U subCycles(2/20)
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.447548456945, Final residual = 0.00228614944205, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.331833322493, Final residual = 0.00190630417047, No Iterations 2
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.324488306937, Final residual = 0.00161382446364, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.036459894891, Final residual = 0.000323437441477, No Iterations 68
+time step continuity errors : sum local = 0.0362504794826, global = 0.00454427656977, cumulative = 0.00214513216618
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.122126439202, Final residual = 0.000749984212328, No Iterations 1
+bounding epsilon, min: -0.00475109788481 max: 15.4288188881 average: 0.316080464873
+DILUPBiCGStab:  Solving for k, Initial residual = 0.645028096773, Final residual = 0.00311347396871, No Iterations 2
+ExecutionTime = 54.73 s  ClockTime = 74 s
+
+
+Stage 0 | p U subCycles(3/20)
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.202338410116, Final residual = 0.00113874883831, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.158160772325, Final residual = 0.000758492106897, No Iterations 3
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.206748268786, Final residual = 0.00129520643828, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.0383163684762, Final residual = 0.000368930246568, No Iterations 62
+time step continuity errors : sum local = 0.0205783899796, global = 0.00281785418118, cumulative = 0.00496298634737
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0964585522268, Final residual = 0.000524859654709, No Iterations 2
+bounding epsilon, min: -0.0208664372766 max: 25.5925466358 average: 0.295261985656
+DILUPBiCGStab:  Solving for k, Initial residual = 0.351295163807, Final residual = 0.00144063633441, No Iterations 2
+bounding k, min: -0.034705358689 max: 15.0483678768 average: 1.77621207782
+ExecutionTime = 77.55 s  ClockTime = 97 s
+
+
+Stage 0 | p U subCycles(4/20)
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.156386710762, Final residual = 0.00147565328033, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.12704949817, Final residual = 0.000795047279164, No Iterations 3
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.124088516366, Final residual = 0.000912632688111, No Iterations 3
+GAMG:  Solving for p, Initial residual = 0.0773346003122, Final residual = 0.000723954963165, No Iterations 42
+time step continuity errors : sum local = 0.0218188475026, global = 0.0029692376683, cumulative = 0.00793222401566
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.15880897865, Final residual = 0.0010406672569, No Iterations 1
+bounding epsilon, min: -0.12050803275 max: 327.15442154 average: 1.83375407
+DILUPBiCGStab:  Solving for k, Initial residual = 0.301824686132, Final residual = 0.00215455968639, No Iterations 2
+bounding k, min: -0.0570761437373 max: 15.25424729 average: 1.86683923998
+ExecutionTime = 93.91 s  ClockTime = 113 s
+
+
+Stage 0 | p U subCycles(5/20)
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.0581924882404, Final residual = 0.000355398407075, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.0784389790182, Final residual = 0.000294424846639, No Iterations 3
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.0965939746216, Final residual = 0.000790107692545, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.122753695781, Final residual = 0.00118126172577, No Iterations 36
+time step continuity errors : sum local = 0.0411056956787, global = 0.00554178835703, cumulative = 0.0134740123727
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.600664903925, Final residual = 0.000408711966292, No Iterations 1
+bounding epsilon, min: -0.00218563907875 max: 292.995415425 average: 1.13073603414
+DILUPBiCGStab:  Solving for k, Initial residual = 0.126273421946, Final residual = 0.000556896217121, No Iterations 2
+ExecutionTime = 108.46 s  ClockTime = 128 s
+
+
+Stage 0 | p U subCycles(6/20)
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.0380089686432, Final residual = 0.000257674533019, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.0655257352328, Final residual = 0.000235112953987, No Iterations 3
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.0797373695529, Final residual = 0.000706776705236, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.147829003243, Final residual = 0.00140410679974, No Iterations 24
+time step continuity errors : sum local = 0.0353071096158, global = 0.00472515169776, cumulative = 0.0181991640705
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0916437064546, Final residual = 0.000195048481963, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0985097363723, Final residual = 0.000433045812443, No Iterations 2
+ExecutionTime = 119.36 s  ClockTime = 139 s
+
+
+Stage 0 | p U subCycles(7/20)
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.0294362336825, Final residual = 0.00019996335905, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.0569672636306, Final residual = 0.000528509697627, No Iterations 2
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.0703705714455, Final residual = 0.000639479256622, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.103092249784, Final residual = 0.00101974037569, No Iterations 18
+time step continuity errors : sum local = 0.0227476243003, global = 0.00303585365794, cumulative = 0.0212350177284
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0239580335442, Final residual = 7.72883978796e-05, No Iterations 2
+bounding epsilon, min: -0.000248287416819 max: 268.987269771 average: 0.978918740843
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0786384348494, Final residual = 0.000347397117886, No Iterations 2
+ExecutionTime = 128.51 s  ClockTime = 148 s
+
+
+Stage 0 | p U subCycles(8/20)
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.0267593858752, Final residual = 0.000130393079504, No Iterations 3
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.0525240692305, Final residual = 0.000404565514785, No Iterations 3
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.0607350434616, Final residual = 0.000445398168924, No Iterations 3
+GAMG:  Solving for p, Initial residual = 0.101131632297, Final residual = 0.000924482207188, No Iterations 16
+time step continuity errors : sum local = 0.0138167606015, global = 0.0017886548588, cumulative = 0.0230236725872
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0145793766805, Final residual = 9.2256668685e-05, No Iterations 2
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0668080652756, Final residual = 0.000301762848931, No Iterations 2
+ExecutionTime = 137.15 s  ClockTime = 157 s
+
+
+Stage 0 | p U subCycles(9/20)
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.0238329976783, Final residual = 0.000146497267857, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.0467275752781, Final residual = 0.000374718236788, No Iterations 2
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.0538381056101, Final residual = 0.00044546883823, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.0821077436946, Final residual = 0.000752227956466, No Iterations 18
+time step continuity errors : sum local = 0.0093472256246, global = 0.00138980755713, cumulative = 0.0244134801443
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0176593856139, Final residual = 0.000134562001407, No Iterations 2
+DILUPBiCGStab:  Solving for k, Initial residual = 0.059824745309, Final residual = 0.000236348653663, No Iterations 2
+ExecutionTime = 146.26 s  ClockTime = 166 s
+
+
+Stage 0 | p U subCycles(10/20)
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.0219903107989, Final residual = 0.000130532787389, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.0426853857431, Final residual = 0.000329404306163, No Iterations 2
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.047213841328, Final residual = 0.000366466376296, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.0719896087698, Final residual = 0.000639205366421, No Iterations 22
+time step continuity errors : sum local = 0.00682299082746, global = 0.00101345968836, cumulative = 0.0254269398327
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0200030791323, Final residual = 0.000138664694076, No Iterations 2
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0541276458711, Final residual = 0.000206914184439, No Iterations 2
+ExecutionTime = 156.51 s  ClockTime = 176 s
+
+
+Stage 0 | p U subCycles(11/20)
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.0201608457933, Final residual = 0.000117389328314, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.039462424863, Final residual = 0.000290178346401, No Iterations 2
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.0427513326276, Final residual = 0.000314582775207, No Iterations 2

@@ -1,0 +1,39 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d2-20251219 OPENFOAM=2512 version=2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : subsetMesh fluid -patch building -overwrite -case /tmp/quarter-of-rs9m7s0v
+Date   : Nov 22 2026
+Time   : 08:28:59
+Host   : 6b5fd925d373
+PID    : 658
+I/O    : uncollated
+Case   : /tmp/quarter-of-rs9m7s0v
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+Adding exposed internal faces to existing patch: building
+
+Using cellSet fluid
+
+Subset 9501 of 9744 cells
+
+Subsetting volScalarField (Cx Cy Cz epsilon k nut p)
+Subsetting volVectorField (C U)
+Writing subsetted mesh and fields to time 0
+
+End
+

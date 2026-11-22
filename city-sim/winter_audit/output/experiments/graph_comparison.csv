@@ -1,0 +1,6 @@
+variant,graph_version,directed_available_research,directed_deployable_confirmed,fixed_tasks,tasks_on_closed_edges,tasks_unknown_winter,status,dsm_annotation_applied
+G0,osm-1143744836afc553-demo-v1,10567,0,24,0,24,executed,False
+G1,osm-1143744836afc553-demo-v1,10567,0,24,0,24,executed,False
+G2,osm-1143744836afc553-demo-v1,10567,0,24,0,24,executed,True
+W,osm-1143744836afc553-demo-v1,10566,0,24,0,24,scenario_only,True
+G3,osm-1143744836afc553-demo-v1,10567,0,24,,24,blocked_no_confirmed_current_service_scope,

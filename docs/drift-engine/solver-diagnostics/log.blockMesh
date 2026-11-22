@@ -1,0 +1,159 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d2-20251219 OPENFOAM=2512 version=2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : blockMesh
+Date   : Nov 22 2026
+Time   : 08:43:35
+Host   : 171097f43b25
+PID    : 643
+I/O    : uncollated
+Case   : /tmp/driftScalarDyFoam/tutorials/flatRoof3D
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Creating block mesh from "system/blockMeshDict"
+Creating block edges
+No non-planar block faces defined
+Creating topology blocks
+
+Creating topology patches - from boundary section
+
+Creating block mesh topology
+
+Check topology
+
+	Basic statistics
+		Number of internal faces : 28
+		Number of boundary faces : 46
+		Number of defined boundary faces : 46
+		Number of undefined boundary faces : 0
+	Checking patch -> block consistency
+
+Creating block offsets
+Creating merge list (topological search)...
+
+Creating polyMesh from blockMesh
+Creating points with scale (1 1 1)
+    Block 0 cell size :
+        i : 32 .. 2.02292382634
+        j : 25.2093312216 .. 2.52093312216
+        k : 1.6 .. 1.6
+
+    Block 1 cell size :
+        i : 1.31763254808 .. 1.31763254808
+        j : 25.2093312216 .. 2.52093312216
+        k : 1.6 .. 1.6
+
+    Block 2 cell size :
+        i : 2.02292382634 .. 120
+        j : 25.2093312216 .. 2.52093312216
+        k : 1.6 .. 1.6
+
+    Block 3 cell size :
+        i : 32 .. 2.02292382634
+        j : 25.2093312216 .. 2.52093312216
+        k : 2.10821207692 .. 11.2
+
+    Block 4 cell size :
+        i : 1.31763254808 .. 1.31763254808
+        j : 25.2093312216 .. 2.52093312216
+        k : 2.10821207692 .. 11.2
+
+    Block 5 cell size :
+        i : 2.02292382634 .. 120
+        j : 25.2093312216 .. 2.52093312216
+        k : 2.10821207692 .. 11.2
+
+    Block 6 cell size :
+        i : 32 .. 2.02292382634
+        j : 1.14285714286 .. 1.14285714286
+        k : 1.6 .. 1.6
+
+    Block 7 cell size :
+        i : 2.02292382634 .. 120
+        j : 1.14285714286 .. 1.14285714286
+        k : 1.6 .. 1.6
+
+    Block 8 cell size :
+        i : 32 .. 2.02292382634
+        j : 1.14285714286 .. 1.14285714286
+        k : 2.10821207692 .. 11.2
+
+    Block 9 cell size :
+        i : 1.31763254808 .. 1.31763254808
+        j : 1.14285714286 .. 1.14285714286
+        k : 2.10821207692 .. 11.2
+
+    Block 10 cell size :
+        i : 2.02292382634 .. 120
+        j : 1.14285714286 .. 1.14285714286
+        k : 2.10821207692 .. 11.2
+
+    Block 11 cell size :
+        i : 32 .. 2.02292382634
+        j : 2.52093312216 .. 25.2093312216
+        k : 1.6 .. 1.6
+
+    Block 12 cell size :
+        i : 1.31763254808 .. 1.31763254808
+        j : 2.52093312216 .. 25.2093312216
+        k : 1.6 .. 1.6
+
+    Block 13 cell size :
+        i : 2.02292382634 .. 120
+        j : 2.52093312216 .. 25.2093312216
+        k : 1.6 .. 1.6
+
+    Block 14 cell size :
+        i : 32 .. 2.02292382634
+        j : 2.52093312216 .. 25.2093312216
+        k : 2.10821207692 .. 11.2
+
+    Block 15 cell size :
+        i : 1.31763254808 .. 1.31763254808
+        j : 2.52093312216 .. 25.2093312216
+        k : 2.10821207692 .. 11.2
+
+    Block 16 cell size :
+        i : 2.02292382634 .. 120
+        j : 2.52093312216 .. 25.2093312216
+        k : 2.10821207692 .. 11.2
+
+Creating cells
+Creating patches
+No patch pairs to merge
+
+Writing polyMesh with 0 cellZones
+----------------
+Mesh Information
+----------------
+  boundingBox: (0 0 0) (384 144 72)
+  nPoints: 6035
+  nCells: 4992
+  nFaces: 15968
+  nInternalFaces: 13984
+----------------
+Patches
+----------------
+  patch 0 (start: 13984 size: 48) name: roof.snow
+  patch 1 (start: 14032 size: 112) name: cube
+  patch 2 (start: 14144 size: 432) name: top
+  patch 3 (start: 14576 size: 384) name: bottom
+  patch 4 (start: 14960 size: 576) name: sides
+  patch 5 (start: 15536 size: 216) name: inlet
+  patch 6 (start: 15752 size: 216) name: outlet
+
+End
+

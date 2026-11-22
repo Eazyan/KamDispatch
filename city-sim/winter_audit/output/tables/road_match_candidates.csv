@@ -1,0 +1,1185 @@
+physical_road_id,road_reference_id,source_id,graph_version,match_method,verification_status,legal_scope_confirmed
+osm:100516359:1161941805:1161941818,30-401 ОП МГ 13,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:100516359:1161941805:2002442583,30-401 ОП МГ 13,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:100516359:1161941818:2002442582,30-401 ОП МГ 13,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:100516359:1161941911:1161942096,30-401 ОП МГ 13,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:100516359:1161942025:2002442579,30-401 ОП МГ 13,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:100516359:1161942025:2002442582,30-401 ОП МГ 13,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:100516359:1161942040:12056414650,30-401 ОП МГ 13,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:100516359:1161942040:2002442583,30-401 ОП МГ 13,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:100516359:1161942096:2002442588,30-401 ОП МГ 13,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:100516359:2002442579:2056934618,30-401 ОП МГ 13,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:100516359:2002442588:12056414650,30-401 ОП МГ 13,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:100516359:346948934:2056934618,30-401 ОП МГ 13,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:10301972333:10301972334,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:1170907966:10301972335,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:1170907966:9007578940,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:1170908043:10301972333,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:1170908043:9007578965,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:1170908593:9913724440,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:1170908593:9913724441,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:1170911130:10301972335,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:1170911130:9913724440,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:1170911342:10301972334,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:1170911507:10301972336,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:1170911507:3907682879,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:1275719017:1297996862,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:1297996862:11095431572,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:3907682879:9963359264,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:3907682928:11095431572,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:3907682928:9963359264,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:9007578940:10301972336,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:101397004:9007578965:9913724441,30-401 ОП МГ 03,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1186352411:1186353522,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1186352411:4343698490,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1186352503:1186352748,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1186352503:3223243288,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1186352621:1999942331,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1186352748:3223243290,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1186352922:1186353027,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1186352922:1186353565,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1186353027:3223243288,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1186353565:4343698490,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1417731441:1999942342,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1417731441:4343697088,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1417731443:4052170089,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1417731443:6005714727,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1998532938:14228246021,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1998532938:6064784073,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1999794367:4052169130,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1999794367:6005714732,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:1999942331:1999942342,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:2209644352:14228246023,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:2209644352:8459537781,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:3223243290:6374730579,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:3223243293:14228246021,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:4001549415:14228246020,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:4001549415:6005714732,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:4001549416:5517266275,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:4052169130:5517246872,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:4052170089:10660819068,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:4052170239:6005714727,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:4343697088:14228246023,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:4343698491:14228246020,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:4343698491:5517266275,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:4544634970:5517246872,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:6064784073:14228246022,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:6374730579:14228246022,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:8459537781:8459537785,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718075:8459537785:10660819068,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718135:1186352771:13001962426,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718135:1319105817:5517266251,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718135:4052178725:13377753282,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718135:4052178725:4052180296,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718135:4052180296:4440013906,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718135:4052181015:7662954047,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718135:4052181015:7662954048,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718135:4440013906:7662954048,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718135:5517266251:13377753282,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:102718135:7662954047:13001962426,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1054994356:10168912448:10168912450,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:10168912448:10168912451,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:10168912449:10168912450,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:10168912452:10168912453,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:10168912453:10168912454,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:10168912455:10168912456,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:10168912455:10168912457,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:1186353344:10168912459,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:1186353344:9695606436,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:2692178183:9695606437,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:2692178186:10168912457,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:2692178186:10168912458,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:305384072:10168912451,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:305384072:10168912452,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:458899796:10168912446,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:458899796:10168912447,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:458899797:10168912447,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:458899797:2692178183,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:9695606436:10168912458,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:9695606437:9695606438,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:9695606438:10168912461,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:9695606439:10168912454,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:9695606439:10168912456,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:9695606440:10168912459,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:9695606440:10168912460,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:9695606441:10168912460,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1054994356:9695606441:10168912461,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1055139730:3223243266:9694380717,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1055139730:9694356059:9695606427,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1055139730:9694356059:9695606435,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1055139730:9694380717:9695606425,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1055139730:9694380720:9695606435,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1055139730:9695606425:9695606426,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1055139730:9695606426:9695606427,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1081647601:9913556268:9913556269,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081647601:9913556269:9913556270,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081647601:9913556270:9913556271,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081647602:9913556270:9913556272,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081662395:9704417414:9913700201,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081662395:9913700201:9913700202,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081662395:9913700202:9913700203,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081662395:9913700203:9913700204,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081662395:9913700204:9913700205,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081662395:9913700205:14314481101,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081662395:9913700206:14314481101,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081662395:9913700206:9913700207,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081662395:9913700207:9913700208,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081663651:1184658059:9913716221,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081663651:9913716221:9913716223,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081663651:9913716222:9913716236,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081663651:9913716223:9913716236,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1081663656:1184657968:9913716236,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1082248697:1098451982:2198928989,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1082248697:1098451982:9918499897,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1082248698:1098451990:1098452189,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1082248698:1098452189:1190569942,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1082248698:1190569873:1190569942,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1082248698:1190569873:12233678872,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1082248698:12233678872:12237119171,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1082248698:12237119171:12237119174,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1082248698:9918499897:12237119174,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:112539129:2025931204:13891285954,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:112539129:2025931215:13891285954,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:112539129:2025931215:2025931224,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:112539129:2025931224:2025931238,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:112539129:2025931238:2025931242,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:112539129:2025931242:14274702161,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:112539129:2025931249:14274702161,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:112539129:2025931249:2025931254,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1195455012:1228136692:4728898235,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1195455012:1228136692:4848509898,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1195455012:1228136822:4848509898,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1195455012:1228137262:1228138102,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1195455012:1228138102:4417401901,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1195455012:1228138407:4728898235,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1195455012:1228138407:5299760650,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1195455012:4417401901:5299760650,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218085888:2651643448:12056274953,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218085888:2651643448:12056274953,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218085888:2651643448:4576684535,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218085888:2651643448:4576684535,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218085888:346948900:1184931671,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218085888:346948900:1184931671,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218085888:346948900:346948903,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218085888:346948900:346948903,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218085888:346948903:12056274953,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218085888:346948903:12056274953,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218350340:1319105817:1443483524,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218350340:1443483524:11291133479,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218457531:346952070:346952074,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218457537:346952074:3597288329,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218457537:3597288329:11290360499,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1218546445:1186352231:2692178185,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546445:1186352231:2692178187,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546445:2692178182:9695606434,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546445:2692178182:9695606449,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546445:2692178184:9695606451,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546445:2692178184:9695606452,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546445:2692178185:9695606452,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546445:830943571:9695606449,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546445:830943571:9695606450,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546445:830943577:9694380720,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546445:830943577:9695606434,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546445:9694356058:9695606450,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546445:9694356058:9695606451,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912439:10168912504,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912439:10168912513,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912440:10168912506,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912440:10168912509,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912441:10168912503,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912441:10168912504,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912442:10168912507,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912442:10168912508,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912443:10168912510,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912500:10168912501,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912500:10168912502,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912505:10168912512,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912505:10168912513,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912514:10168912515,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:10168912514:10168912516,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:1186353408:10168912506,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:1186353408:10168912507,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:2692178179:10168912501,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:2692178179:10168912503,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:2692178181:10168912510,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:2692178181:10168912511,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:3223243265:10168912508,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:3223243265:10168912512,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:3223243266:10168912516,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:3223243267:10168912443,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:3223243267:10168912509,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:3223243268:10168912511,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:9694356060:10168912502,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1218546446:9694356060:10168912515,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:128006841:1096883017:7866639434,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128006841:3628100545:3628100546,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128006841:3628100545:7866639434,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128006841:3628100546:4290735207,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10577228066:10577228067,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10577228067:10577228068,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10577228070:10577228071,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10577228073:10577228075,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10577228073:10577228076,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10577228074:10577228075,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10577228077:10577228078,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10577228078:10577228079,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802601688:10802601689,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802601688:10802657079,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802601689:10802601690,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802601690:10802601691,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802601691:10802601692,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802601692:10802601693,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802657068:10802657069,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802657069:10802657070,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802657070:10802657071,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802657071:10802657072,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802657072:10802657073,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802657073:10802657074,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802657074:10802657075,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802657075:10802657076,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802657076:10802657077,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802657077:10802657078,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:10802657078:10802657079,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1096883008:10577228081,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1096883008:1417835193,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1096883017:1417835191,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1415558273:10577228076,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1415558273:10577228077,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1415558275:1417835193,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1415558275:7866639428,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1417835191:7866639428,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1615059340:10577228080,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1615059340:10577228081,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1619637967:10577228074,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1619637967:1619637985,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1619637969:10577228069,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1619637969:10577228070,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1619637971:10577228068,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1619637971:1619637986,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1619637973:10577228066,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1619637973:10577228069,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1619637985:10577228072,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1619637986:10802657068,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1619637987:10577228071,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:1619637987:10577228072,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:2209618494:10577228079,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128262988:2209618494:10577228080,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182389588:4467896798,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182389588:4467896799,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182389622:1182389681,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182389622:4467896787,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182389681:4467896794,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182389785:1182390292,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182389788:1182390054,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182389788:1182390073,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182389819:1182389962,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182389819:1182390054,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182389851:13380425534,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182389851:13380425547,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182389962:4467896787,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182390004:13380425534,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182390004:2174203671,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182390073:11290805006,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182390187:4467896794,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182390187:4467896797,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1182390292:4467896800,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:1183776266:4467896747,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:2174203671:11290805006,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:4467896747:13380425547,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:4467896797:4467896798,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128364233:4467896799:4467896800,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128463539:2002442577:12070191963,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128463539:2002442577:2002442580,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128463539:2002442580:2002442592,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128463640:1432534420:2229701751,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128463640:2229701742:2229701751,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128463640:442858809:2229701742,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128463712:1194633258:2672643163,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128463712:1297992934:2025931315,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128463712:1297992934:2672643163,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128464748:346948972:1391627309,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128465382:1391627283:12070208744,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128465383:1391627283:12070191949,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128465383:1423596360:12070191949,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128465383:1423596360:7131908551,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128465383:7131908550:7131908551,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128465383:960104381:7131908550,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128467135:1137636351:2159371476,30-401 ОП МГ 24,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128467135:2159371476:7866639573,30-401 ОП МГ 24,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128467135:346949026:7866639573,30-401 ОП МГ 24,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128851138:346948896:1422773141,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128851138:346948896:1422773141,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128851140:346948896:3952991296,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:128851140:346948896:3952991296,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1303314061:12070208744:12070208745,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1303314061:2934994589:12070208745,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1303314061:346948972:2934994589,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:11539374540:11539374541,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:11539374540:11539374542,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:1391827115:7686675435,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:1391841391:3835142982,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:1448474585:3835142982,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:1448474585:3835143033,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:2531875499:13891285921,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:2531875499:7686675435,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:346952123:11539374544,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:346952123:1391827115,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:346952127:11539374542,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:346952127:11539374543,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:346952131:3835143033,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:346952131:3991333570,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:3991333570:11539374541,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:3991333575:11539374543,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:3991333575:11539374544,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:130583487:830943574:13891285921,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:131628471:2651643428:2930729169,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:131628471:2651643428:2930729169,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:131628471:442858812:2930729169,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:131628471:442858812:2930729169,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:131628471:458899780:2651643428,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:131628471:458899780:2651643428,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1332760693:2303355685:2303355686,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1332760693:2303355685:5299760419,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1228136822:11095431560,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1228137376:1478761781,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1228137376:4614639243,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1228137443:4614639243,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1228137443:4728898226,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:14228261368:14274832325,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1478761781:14228247180,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1478761803:3223243258,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1478761803:7398122786,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1478761805:3223243258,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1478761805:6007271279,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1478761807:14228261368,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1478761807:6007271279,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1866789047:14228247180,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1866789047:1866789060,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:1866789060:5160403599,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:3975159560:5160403599,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:3975159560:7398122786,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:4728898226:4728898230,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:4728898230:11095431560,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:6007271280:14228247178,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:6007271280:14228261369,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:6374730590:14228247178,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:134496620:6374730590:14274832325,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1410357957:346948934:12070191963,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1563215940:4440013909:5941920095,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1563215942:2692178188:10168912449,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1563215942:458899798:2692178188,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1563215943:830943567:2692178187,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1563215944:10168912446:14228246010,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1563215944:3223243268:14228246010,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1567417235:458899741:14274670474,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:1567422887:1186352621:14274832319,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1567422887:1999942322:14274832319,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1567422887:1999942322:1999942326,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1567422887:1999942326:1999942330,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1567422887:1999942330:1999942335,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:1567422887:1999942335:1999942341,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:192027806:2025931345:8041242043,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:192027806:2531897326:6005520584,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:192027806:2531897326:8041242043,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:195222073:12056464863:12056464864,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:195222073:346948934:12070191964,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:195222073:346948937:12056464863,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:195222073:346948937:12070191964,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:195222073:346948942:12056464864,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:195222073:346948942:12056464865,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:195222073:459043235:12056464865,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:195579347:1098452407:2198929019,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:10223790156:10223790158,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:10223790156:10223790161,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:10223790157:10223790160,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:10223790159:10223790161,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:10223790188:10223790189,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:10223790189:13610178811,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:10223790190:10223790191,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:10223790190:13610178811,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:1137635941:10223790157,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:1137635941:10223790192,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:1137636148:10223790159,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:1137636148:10223790160,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:1137636351:7187426883,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:1137636728:7302216671,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:7187426883:7866639389,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:7302216671:10223790188,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:7302216672:10223790191,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:7302216672:10223790192,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:7302216673:10223790158,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201238547:7302216673:7866639389,30-401 ОП МГ 12,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:1419810217:7131908528,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:1419810218:1419810219,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:1419810218:7131908529,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:1419810219:7131908530,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:1419810220:7131908532,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:1419810220:7131908533,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:1419810221:7131908534,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:1419810221:7131908535,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:1419810222:7131908535,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:1419810224:7131908536,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:1419810224:7131908537,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:458893203:1419810216,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:458893203:7131908528,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:458893206:7131908530,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:458893206:7131908531,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:458893207:7131908533,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:458893207:7131908534,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:458893209:1419810222,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:458893209:7131908536,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:458893211:7131908537,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317499:7131908531:7131908532,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:201317512:1186353138:9695606443,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:201317512:1186353138:9695606448,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:201317512:2692178189:9695606447,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:201317512:2692178189:9695606448,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:201317512:2692178190:9695606444,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:201317512:3223243269:3223243270,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:201317512:3223243269:9695606445,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:201317512:3223243270:9695606447,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:201317512:458899798:2692178190,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:201317512:830943567:9695606446,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:201317512:9695606442:9695606443,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:201317512:9695606442:9695606444,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:201317512:9695606445:9695606446,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359758:346954085:2186606176,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:2186606182:12048395429,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:2186606183:2186606184,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:2186606185:2186606186,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:2186606187:2186606188,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:305384085:2186606180,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:305384085:2186606181,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:305384086:2186606184,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:305384086:2186606185,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:305384087:2186606188,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:305384087:2186606189,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:305384088:2186606191,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:305384088:458918328,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:305384089:458918332,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:305384089:458918334,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:458918319:12048395429,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:458918319:2186606181,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:458918321:2186606182,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:458918321:2186606183,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:458918322:2186606186,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:458918322:2186606187,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:458918324:2186606189,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:458918324:2186606190,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:458918326:2186606190,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:458918326:2186606191,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:458918328:458918332,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:458918334:458918336,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359761:458918336:458918338,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359764:305384077:1417731447,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359764:305384077:458918282,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359764:458918281:1417731447,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359764:458918282:2186606174,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359765:10168912462:10168912463,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359765:2389087360:10168912462,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359765:2389087361:2389087362,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359765:2389087362:2389087364,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359765:3223243272:10168912463,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359765:458899798:3223243272,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359765:458899799:2389087360,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:208359765:458899799:2389087361,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:209694115:1098451964:1098452110,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:1098451964:6146655350,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:1098451985:2198928923,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:1098451985:7686673079,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:1098452110:7686673068,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:1098452313:12056518822,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:1098452313:6146655349,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:1098452319:14274702158,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:1098452319:2198929017,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:1275719016:10250088574,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:1275719016:1999887247,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:1999887247:6146655349,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:1999887250:10250088574,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:1999887250:14274664194,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:2002442604:12056518822,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:2198928923:7686673068,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:2198928997:2198929017,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:2198928997:7686673084,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:2198929019:14274702158,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:6146655350:14274664194,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694115:7686673079:7686673084,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694122:2198929019:10250088551,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694124:2002442592:2002442594,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694124:2002442594:12070191967,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694124:2002442597:12070191967,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694124:2002442597:2002442604,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694130:1098452410:2025931164,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:1098452351:1190569868,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:1190569799:2002442620,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:1190569799:5901031309,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:1190569868:12056464842,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:12056464839:12056464840,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:12056464839:12056464841,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:1478770160:2002442612,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:2002442612:2002442613,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:2002442613:12056464840,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:2002442614:12056464841,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:2002442614:2002442615,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:2002442615:5901031309,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:2002442622:12056464844,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:2002442623:12056464843,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:2002442623:12056464844,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:2002442624:12056464842,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:2002442624:12056464843,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:346948923:2002442620,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694131:346948923:2002442622,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694134:1098452410:13891285974,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694134:346948912:10250088551,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694134:346948912:13891285974,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694136:12056490604:12070254274,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694136:12070191965:12070254274,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694136:2002442599:12056490604,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694136:2002442607:12070191965,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694137:1478770160:2198928894,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694139:12070255973:12070255974,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694139:2002442607:12070254273,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694139:2198928894:12070255973,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694139:442858797:12070254273,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694139:442858797:12070255974,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694140:2002442592:2002442595,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694140:2002442595:2002442596,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694140:2002442596:2002442599,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694188:1098452407:7686675208,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694188:2198929018:4880009206,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694188:4880009206:14274702157,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694188:7686675208:14274702157,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1098451990:1170907663,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1098451990:9891853225,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1098452081:9891853236,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1098452081:9891853251,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1098452292:10825874689,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1098452292:1170908684,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1098452380:9891853230,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1098452380:9891853241,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1098452413:1170910774,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1098452413:2198929018,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170907550:1170909036,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170907550:9891853224,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170907663:1170910774,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170907924:1170911032,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170907924:9891853224,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170908684:9891853223,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170908832:9891853277,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170908832:9891853279,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170909036:1170909303,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170909303:10825874689,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170909910:1184657944,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170909910:4346762517,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170911032:9891853246,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170911342:5091064467,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1170911342:9891853222,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1184657887:6004164381,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1184657887:9891853273,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:1184657944:9891853274,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:4346762517:9913700208,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:4346762518:6004164381,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:4346762518:9891853275,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:4346762519:12829246563,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:4346762519:9891853280,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:459043717:12829246563,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:4614637195:9891853248,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:4614637195:9891853249,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:5091064467:9891853223,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:5564818580:9891853278,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:5564818580:9891853280,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853221:9891853222,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853221:9913700208,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853225:9891853228,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853227:9891853242,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853227:9891853243,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853228:9891853229,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853229:9891853230,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853231:9891853232,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853231:9891853243,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853232:9891853238,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853233:9891853236,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853233:9891853252,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853234:9891853249,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853234:9891853250,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853235:9891853250,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853235:9891853251,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853237:9891853238,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853237:9891853239,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853239:9891853252,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853240:9891853241,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853240:9891853242,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853246:9891853247,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853247:9891853248,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853273:9891853274,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853275:9891853276,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853276:9891853277,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694191:9891853278:9891853279,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694192:1098451982:1098452413,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694192:1098451982:2198928964,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694192:1190569963:2198928902,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694192:1190569963:3888491294,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694192:2198928964:3888491325,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694192:3888491294:3888491321,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:209694192:3888491321:3888491325,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:1184657944:1184657968,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:1184657968:9891853257,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:1184658059:9891853253,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:9891853253:9891853265,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:9891853254:9891853263,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:9891853254:9891853266,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:9891853255:9891853258,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:9891853255:9891853262,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:9891853256:9891853257,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:9891853256:9891853258,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:9891853259:9891853261,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:9891853259:9891853263,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:9891853260:9891853261,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:9891853260:9891853262,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:9891853264:9891853265,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:213233934:9891853264:9891853266,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:216410244:1278847188:1278847233,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:216410244:1278847188:5459489078,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:216410244:2025931341:2025931345,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:216410244:2025931345:2025931367,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:216410244:2025931367:5459489078,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:216413679:2229701738:2229701747,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:216413679:2229701738:2229701747,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:216413679:2229701738:3897583234,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:216413679:2229701738:3897583234,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:216413679:3897583234:3897583236,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:216413679:3897583234:3897583236,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:216413679:442858809:2229701747,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:216413679:442858809:2229701747,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:217748808:10168909965:10168909969,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:217748808:10168909965:10168909970,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:217748808:10168909966:10168909967,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:217748808:10168909966:10168909968,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:217748808:3223243260:3223243261,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:217748808:3223243261:10168909971,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:217748808:3223243263:10168909967,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:217748808:3223243263:10168909969,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:217748808:3223243264:10168909968,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:217748808:3223243264:3223243268,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:217748808:458899794:3223243260,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:217748808:458899794:4879339611,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:217748808:458899795:10168909970,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:217748808:458899795:10168909971,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:221299353:1228137262:1432463139,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:1228137262:2515864455,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:1282230228:2363803996,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:1282230228:5299760639,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:2303355390:2515864211,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:2362813992:2362830228,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:2362813992:5299760647,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:2362830228:5299760643,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:2363803996:5299760643,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:2363805914:2363807407,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:2363805914:5299760656,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:2363805916:5299760655,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:2363805916:5299760656,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:2515864211:5299760639,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:2515864455:5299760655,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:458899781:1432463139,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:458899781:5299760647,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299353:458899782:2363807407,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299376:1228137443:6507433567,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299376:2616863215:11095431559,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299376:2616863215:6507433567,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299376:5299760409:11095431559,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299376:5299760409:13137096533,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221299376:5299760419:13137096533,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:1098452351:2025931082,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:1190569936:6056508016,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:1190569936:7686673056,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:1190569978:10250088554,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:1190569978:2025931164,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:2025931082:2025931083,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:2025931083:6056508016,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:2198929004:10250088556,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:2198929004:7686673059,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:2198929013:10250088555,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:2198929013:7686673059,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:346948915:10250088554,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:346948915:10250088555,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:459051157:10250088556,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300257:459051157:7686673056,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300293:10250088549:13891285952,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300293:2025931204:13891285952,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300293:2198929023:10250088549,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300293:2198929023:10250088550,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:221300293:346948909:10250088550,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:233183448:1184657943:1391841312,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:233183449:1391841312:14274702162,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:233183449:2229701719:2515865907,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:233183449:2515865907:14274702162,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:236345035:1432534441:3897581387,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:236345035:2531875538:13891285936,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:236345035:2531875538:2935007925,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:236345035:3897581387:13891285936,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:236345036:1432534420:3897581379,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:236345036:1432534441:3897581379,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:244246361:2025931204:2515866279,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:244246361:2025931261:2515866279,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:246448851:1417731436:7131908504,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:246448851:1417731436:7131908515,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:246448851:346952085:2534917821,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:246448851:346952085:7131908504,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:246448851:459043203:7131908515,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:246448852:459043204:7131908512,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:1096962404:7613276868,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:1098379067:2162542718,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:1423596379:3604257475,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:1423596379:5524344464,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:2934994590:4065064617,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:2934994590:4065064618,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:2934994591:4065064618,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:2934994591:4065064641,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:2934994592:5524344464,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:346948962:3604257475,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:3696226814:6835987876,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:4065064641:4065069664,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:4065064656:5524344476,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:4065069664:5524344476,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:459044129:1098379067,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:459044129:5835430818,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:459044131:2162542718,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:459044131:6837141632,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:459044134:1096962404,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:459044134:4065064617,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:459044137:2934994592,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:459044137:4065064656,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:5835430818:6835987876,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289965967:6837141632:7613276868,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289967077:1391841391:3897581413,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289967077:2534917813:2935007925,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:289967077:2534917813:3897581413,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:297833340:10168912464:10168912465,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:10168912465:10168912470,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:10168912466:10168912470,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:10168912466:10168912471,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:10168912467:10168912469,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:10168912467:10168912471,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:2270493847:10168912472,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:2270493847:2389087359,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:2270493848:2389087365,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:2389087359:3223243273,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:2389087363:11166759584,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:2389087363:3223243276,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:2389087365:11166759584,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:3223243271:10168912468,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:3223243271:10168912469,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:3223243273:10168912464,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:3223243276:10168912472,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:297833340:830943567:10168912468,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:339478974:1184931671:4576684527,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:339478974:1184931671:4576684527,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:339478974:2515864636:2651643452,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:339478974:2515864636:2651643452,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:339478974:2515864636:4576684527,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:339478974:2515864636:4576684527,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:339675196:1422773141:1422773143,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:339675196:1422773141:1422773143,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:339675196:1422773143:2303356539,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:339675196:1422773143:2303356539,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:339675196:2209620590:2303356539,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:339675196:2209620590:2303356539,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:350699312:346952085:7131908513,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:350699312:3564658884:3564658885,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:350699312:3564658884:7131908503,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:350699312:7131908503:7131908514,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:350699312:7131908513:7131908514,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:357316925:1194601972:7131908544,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:357316925:1194601972:7131908546,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:357316925:1194602018:7131908547,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:357316925:458893215:1194601989,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:357316925:458893215:7131908543,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:357316925:458893217:12056548691,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:357316925:458893217:7131908547,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:357316925:7131908543:7131908544,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:357316925:7131908545:12056548691,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:357316925:7131908545:7131908546,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:38716421:10202888692:10202888700,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:38716421:10202888692:10202888702,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:38716421:10202888698:10202888699,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:38716421:458899733:10202888698,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:38716421:458899733:10202888700,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:38716421:458899734:10202888702,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:38723237:346948962:458899734,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392014444:2651643452:11035025618,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392014444:2651643452:11035025618,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392014444:3952991296:11035025618,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392014444:3952991296:11035025618,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:1422749538:2930729155,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:1422749538:2930729155,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:1422749538:6681550851,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:1422749538:6681550851,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:2515865711:3897583236,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:2515865711:3897583236,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:2515865711:4425974953,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:2515865711:4425974953,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:3965347257:6681550850,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:3965347257:6681550850,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:3965347257:6681550851,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:3965347257:6681550851,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:4425974953:5742306594,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:4425974953:5742306594,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:442858812:2930729155,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:442858812:2930729155,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:5742306594:6681550850,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524486:5742306594:6681550850,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524684:1184657943:7691257813,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524684:3907682990:7691257819,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392524684:7691257813:7691257819,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:392525126:2025931261:2025931315,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:400062402:1137636351:6040822147,30-401 ОП МГ 24,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:400064062:1194633258:13891285938,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:400064062:1275719017:2672643164,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:400064062:2672643164:9665084162,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:400064062:9665084162:13891285938,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:428878510:2217968733:4279953275,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878511:2217968733:2270493826,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878511:2270493826:2270493827,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878512:2270493825:4279953274,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878512:458899744:2270493825,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878513:4279953274:8570779408,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878513:458899786:8570779408,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878514:1186353187:2270493843,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878514:2270493843:4279953276,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878515:1186353187:2270493838,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878515:2270493837:2270493838,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878515:2270493837:2363809297,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878515:2363809294:2363809297,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878515:458899792:2363809294,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878516:2270493821:14274670475,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878516:2270493821:7131880682,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878516:2270493824:14274670475,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878516:2270493824:8570779407,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878516:4279953275:8570779407,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878516:458899748:7131880684,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878516:7131880682:7131880683,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878516:7131880683:7131880684,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878517:2270493846:9695606430,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878517:3223243262:10168912519,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878517:3223243262:9695606428,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878517:3223243266:9695606429,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878517:830943581:2270493846,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878517:830943581:4279961312,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878517:9695606428:9695606429,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878517:9695606430:10168912517,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878517:9695606431:10168912517,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878517:9695606431:10168912518,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878517:9695606432:10168912518,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878517:9695606432:10168912519,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878518:2270493829:4428773581,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878518:458899786:458899787,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878518:458899787:458899788,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878518:458899788:458899789,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878518:458899789:4428773581,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878518:458899790:2270493829,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878518:458899790:458899791,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428878518:458899791:458899792,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428879831:2270493839:2270493840,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428879831:2270493840:4279961311,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428879832:305384070:4279953276,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428879832:305384070:4879339611,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428879833:2270493844:2270493845,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428879833:2270493844:4279961311,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428879833:2270493845:4279961312,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880793:2270493849:12284998074,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880793:4279969477:12284998074,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880794:2270493850:4279969477,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880795:2270493849:4279969476,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880796:2270493848:4279969476,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880797:2270493852:3017389033,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880798:2186606164:2389087374,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880798:2389087374:3017389033,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880799:2270493852:11166759589,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880799:2389087367:11166759589,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880799:458899801:2389087367,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880800:11166759587:14228246018,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880800:2270493850:14228246018,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880800:2270493851:11166759587,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880800:2270493851:2389087368,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880800:305384074:2389087368,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880802:2186606164:14228246019,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880802:305384074:14228246019,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880803:2389087364:11166759588,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880803:2389087366:11166759588,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880803:2389087366:5517266259,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428880803:458899801:5517266259,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881512:2186606164:2186606165,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881512:2186606167:2186606168,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881512:2186606169:2186606170,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881512:305384075:2186606165,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881512:305384075:2186606166,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881512:458918274:2186606166,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881512:458918274:2186606167,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881512:458918277:2186606168,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881512:458918277:2186606169,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881513:458918284:2186606174,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881513:458918284:458918289,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881514:458918286:458918289,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881514:458918286:458918290,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881515:458918279:2186606173,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881515:458918281:2186606173,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881516:2186606171:2186606172,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881516:305384076:2186606170,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881516:305384076:2186606171,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881517:305384078:1417731455,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881517:305384078:458918290,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881517:458918292:1417731455,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881517:458918292:1417731457,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428881517:458918293:1417731457,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428882755:458918279:2186606172,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886970:346954085:2186606179,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886971:458918317:2186606179,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886972:458918317:2186606180,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886973:305384083:14274826422,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886973:3696223511:14274826422,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886974:2186606176:14274826432,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886974:305384084:14274826432,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886975:305384084:3696223511,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886976:2186606175:7686675300,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886976:305384079:2186606175,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886976:305384079:4280011861,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886976:458918291:458918293,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886976:458918291:458918295,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886976:458918294:458918295,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:428886976:458918294:7686675300,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:429868991:2672402376:4065085774,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868991:4065085774:4065085775,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:12049991506:12049991507,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:12049991506:12049991508,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:12049991509:12049991515,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:12049991509:12049991516,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:12049991510:12049991512,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:12049991510:12049991514,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:12049991511:12049991512,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:12049991513:12049991514,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:12049991513:12049991515,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:1430585364:12049991505,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:1430585364:12049991507,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:2672402373:12049991508,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:2672402373:2672402375,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:2672402375:12049991511,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:2672402376:12049991516,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:346948984:12049991505,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429868992:346948984:458899707,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429871273:1194601995:12056548692,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429871273:1194601995:12056548693,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429871273:1194602018:1419810227,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429871273:1419810227:12056548692,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429871273:1419810228:12056548694,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429871273:1419810228:12070191950,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429871273:7131908548:12056548693,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429871273:7131908548:12056548694,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429871273:960104381:12070191950,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429871274:1391627289:1889039904,30-401 ОП МГ 14,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:429871274:458893219:1889039904,30-401 ОП МГ 14,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:430132461:305384074:3017389033,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:430132544:1186352157:14228261369,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:430132544:1186352157:5160403619,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:430132544:1186352621:5160403619,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:431585852:1194601989:12056548690,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:431585852:458893211:7131908538,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:431585852:458893213:7131908539,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:431585852:458893213:7131908541,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:431585852:7131908538:7131908539,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:431585852:7131908540:7131908541,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:431585852:7131908540:7131908542,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:431585852:7131908542:12056548690,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436480612:305384074:4001549416,30-401 ОП МГ 28,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436481288:1391627309:4343706877,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436813904:4346762519:4346762520,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:10833673028:10833673030,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:10833673028:10833673031,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:10833673029:10833673030,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:1430585383:10833673027,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:1430585383:6843770019,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:1430585394:6843770019,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:3696226814:6836073270,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:4346772994:10833673026,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:459044114:10833673026,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:459044114:1430585394,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:459044116:10833673027,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:459044116:10833673031,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:459044118:10833673029,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:459044118:6040822175,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:436815535:6040822175:6836073270,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:438913842:1391627289:1889039923,30-401 ОП МГ 14,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:438913842:1889039923:3567193884,30-401 ОП МГ 14,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:444342831:3628096913:7257151293,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:444342831:458893202:7257151293,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:446762540:1186352771:13001962430,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:446762540:3844402164:5941920095,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:446762540:3844402164:5941920097,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:446762540:4440013907:13001962430,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:446762540:4440013907:5941920087,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:446762540:5941920087:5941920097,30-401 ОП МГ 29,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:446762831:2229701719:14274702163,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:446762831:2229701727:2229701735,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:446762831:2229701735:14274702163,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:446762831:442858809:2229701727,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:462255684:4576684535:14228260301,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:462255684:4576684535:14228260301,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:462255684:458899780:14228260301,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:462255684:458899780:14228260301,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:466722632:4614639242:4614639244,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:466722632:4614639243:6507433559,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:466722632:4614639244:6507433565,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:466722632:6507433559:6507433565,30-401 ОП МГ 32,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:548601181:1186352942:1856452313,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:548601181:1186352942:5299760637,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:548601181:1856452313:5299760635,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:548601181:2303355390:5301247375,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:548601181:3882720003:5301247374,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:548601181:5299760635:5301247375,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:548601181:5299760637:5301247374,30-401 ОП МГ 26,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:561754897:1182389785:12237119185,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:561754897:1182389785:1417731435,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:561754897:1417731431:1417731432,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:561754897:1417731431:4467896785,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:561754897:2534917821:12237119185,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:561754897:346952078:11290360499,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:561754897:346952078:4467896780,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:561754897:346952082:1417731432,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:561754897:346952082:1417731435,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:561754897:4467896780:4467896785,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:58873666:11526578718:11526578719,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:58873666:11526578718:14274670474,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:58873666:2270493820:11526578719,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:58873666:458899744:2270493820,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:62150329:346948909:10250088551,30-401 ОП МГ 07,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150330:346948966:4343706877,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:10833673016:10833673019,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:10833673017:10833673018,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:10833673021:10833673022,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:1430585395:10833673023,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:1430585395:10833673024,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:1430585396:10833673025,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:4346772994:10833673025,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:459044097:10833673017,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:459044100:10833673016,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:459044100:10833673018,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:459044104:10833673019,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:459044104:10833673020,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:459044106:10833673020,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:459044106:459044109,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:459044109:10833673023,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:459044110:10833673022,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:459044110:10833673024,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:459044113:10833673021,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62150331:459044113:1430585396,30-401 ОП МГ 17,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151453:1275719017:9007578947,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151453:13891285937:13891286436,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151453:3907682990:13891285937,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151453:9007578947:13891286436,30-401 ОП МГ 06,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:2596461183:5059845209,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:2596461183:5059845209,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:346948893:2363807408,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:346948893:2363807408,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:346948893:2596461183,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:346948893:2596461183,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:458899782:2363807408,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:458899782:2363807408,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:458899783:2209620590,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:458899783:2209620590,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:458899783:6585868128,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:458899783:6585868128,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:5059845209:6585868128,30-401 ОП МГ 05,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:62151454:5059845209:6585868128,30-401 ОП МГ 31,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:69343540:7131880678:9686316036,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:69343540:7131880678:9686316037,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:69343540:7131880679:9686316037,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:69343540:830943569:9686316035,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:69343540:830943569:9686316036,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:69343540:830943574:9686316035,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:69343540:830943587:7131880679,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:69343542:346952113:7131880677,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:69343542:346952118:7131880677,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:69343542:346952118:9686316034,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:69343542:830943574:9686316033,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:69343542:9686316033:9686316034,30-401 ОП МГ 04,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:69343551:305384080:4280011861,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343551:305384080:458918296,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343551:305384081:458918303,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343551:305384081:458918306,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343551:305384082:2531834524,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343551:305384082:458918308,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343551:305384083:458918310,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343551:458918296:458918299,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343551:458918299:458918301,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343551:458918301:458918303,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343551:458918304:458918306,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343551:458918304:458918308,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343551:458918310:458918312,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343551:458918312:2531834524,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343553:12303212359:14228219475,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343553:2270493827:4428773575,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343553:2270493828:2270493830,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343553:2270493828:4428773580,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343553:2270493830:2270493831,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343553:2270493831:2270493832,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343553:2270493832:14228219475,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343553:2270493836:12303212359,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343553:2270493836:2270493839,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:69343553:4428773575:4428773580,federal:A-401,federal_666,osm-1143744836afc553-demo-v1,osm_ref,derived,False
+osm:763222020:2534917821:7131908512,30-401 ОП МГ 25,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:763222023:1419810216:7866639411,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:763222023:3628096913:7131908525,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:763222023:7131908525:7131908526,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:763222023:7131908526:7866639411,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277611:346948972:3567190015,30-401 ОП МГ 10,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:12049991546:12049991547,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:12049991546:12049991548,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:12049991561:12049991562,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:1228137143:12049999371,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:1228137143:2934994588,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:1419810226:2162542710,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:2162542710:12049991561,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:2934994586:3840353245,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:2934994586:5030490343,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:2934994587:2934994588,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:2934994587:5835433486,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:346948972:12049999371,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:3840353245:5835433486,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:4065085775:4065085777,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:4065085777:4065085778,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:4065085778:12049991547,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:458899709:12049991548,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:458899709:1419810226,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:5030490339:12049991562,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:5030490339:6843770035,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:765277612:5030490343:6843770035,30-401 ОП МГ 09,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:769907706:6040822144:6040822147,30-401 ОП МГ 24,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:769907706:6040822144:7866639459,30-401 ОП МГ 24,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:771051011:458893195:13925756394,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:771051011:458893195:7866639292,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:771051011:458893197:1096883017,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:771051011:458893197:7866639559,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:771051011:6040822148:7866639294,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:771051011:6040822148:7866639559,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:771051011:7866639292:7866639294,30-401 ОП МГ 11,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94421350:12070227892:14274653842,30-401 ОП МГ 14,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94421350:458893219:7131908549,30-401 ОП МГ 14,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94421350:7131908549:12070227892,30-401 ОП МГ 14,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94421350:960104381:14274653842,30-401 ОП МГ 14,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577828:1098451985:2198928956,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577828:1098452200:2198928902,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577828:1098452200:2198928912,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577828:2198928912:2198928919,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577828:2198928919:2198928929,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577828:2198928929:2198928956,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577856:346948909:1098452407,30-401 ОП МГ 02,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577871:1098452319:1098452410,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577871:1098452319:9918499896,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577871:1190569776:1190569901,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577871:1190569776:2198928993,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577871:1190569901:2198928989,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577871:2198928993:2198929002,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577871:2198929002:2198929010,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577871:2198929010:2198929014,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577871:2198929014:2198929016,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577871:2198929016:7686675192,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
+osm:94577871:7686675192:9918499896,30-401 ОП МГ 08,municipal_447,osm-1143744836afc553-demo-v1,normalized_exact_name,derived,False
