@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Icon, type IconName } from './Icon';
 import { OverviewMap, type MapMarker } from './OverviewMap';
 import { cleanupPhases, demoScenarios, scenarioClock, type CleanupPhase, type DemoScenario } from './overviewDemo';
@@ -16,6 +16,7 @@ type Props = {
   data: Dashboard; error: string; updatedAt: string; scenario: DemoScenario | null;
   onScenario: (scenario: DemoScenario | null) => void; phase: CleanupPhase; onPhase: (phase: CleanupPhase) => void; frameUrl: (id: string) => string;
   onDispatch: (row: DispatchGroup) => void; onSignal: (id: string, trigger: HTMLButtonElement) => void;
+  recentCitizens?: ReactNode;
   onCamera: (id: string) => void; onRefresh: () => void;
   loadRoads: (at: string, signal: AbortSignal) => Promise<SnowSegment[]>;
 };
@@ -110,7 +111,7 @@ function WidgetCard({ widget, selected, onSelect, onDispatch, onSignal, onCamera
   </article>;
 }
 
-export function Overview({ data, error, updatedAt, scenario, onScenario, phase, onPhase, frameUrl, onDispatch, onSignal, onCamera, onRefresh, loadRoads }: Props) {
+export function Overview({ data, error, updatedAt, scenario, onScenario, phase, onPhase, frameUrl, onDispatch, onSignal, onCamera, onRefresh, loadRoads, recentCitizens }: Props) {
   const roads = useRoads(data, loadRoads);
   const cleanup = scenario === 'response';
   const clock = scenarioClock(scenario, phase);
@@ -218,6 +219,7 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
           <button type="button" aria-pressed={onlyActions} onClick={() => setOnlyActions(true)}>К решению <span>{required}</span></button>
         </div>
         <div className="ops-cards">
+          {!onlyActions && recentCitizens}
           {visible.map(widget => <div key={widget.id} ref={node => { if (node) cards.current.set(widget.id, node); else cards.current.delete(widget.id); }}>
             <WidgetCard widget={widget} selected={selected === widget.id} onSelect={() => select(widget)}
               {...{ onDispatch, onSignal, onCamera, frameUrl, scenario }} />

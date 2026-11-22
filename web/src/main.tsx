@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } 
 import { createRoot } from 'react-dom/client';
 import { CameraMap } from './Map';
 import { Overview } from './Overview';
+import { CitizenReports, RecentCitizenReports } from './CitizenReports';
 import { deliveryBucket, upcomingForecast } from './sectionViews';
 import { demoDashboard, demoFrameUrl, demoScenarios, parseCleanupPhase, parseScenario, scenarioClock, type CleanupPhase, type DemoScenario } from './overviewDemo';
 import { dispatchKey } from './overviewWidgets';
@@ -39,6 +40,7 @@ const transitions: Record<string, string[]> = {
 const sections = [
   { id: 'overview', title: 'Обстановка', icon: 'overview' },
   { id: 'dispatch', title: 'Диспетчерская', icon: 'dispatch' },
+  { id: 'citizens', title: 'Обращения жителей', icon: 'bell' },
   { id: 'cameras', title: 'Камеры', icon: 'camera' },
   { id: 'forecast', title: 'Прогноз', icon: 'forecast' },
   { id: 'reports', title: 'Сводки и доставка', icon: 'reports' },
@@ -508,6 +510,8 @@ function App() {
   const [cameraSearch, setCameraSearch] = useState('');
   const [cameraFilter, setCameraFilter] = useState<'all' | 'snow' | 'attention'>('all');
   const [tab, setTab] = useState<Tab>(currentTab);
+  const [citizenToken, setCitizenToken] = useState('');
+  const [citizenReport, setCitizenReport] = useState<string>();
   const [cameraId, setCameraId] = useState<string>();
   const [eventId, setEventId] = useState(params.get('event'));
   const [error, setError] = useState('');
@@ -571,6 +575,7 @@ function App() {
   const page = {
     overview: ['Дорожная обстановка', 'Текущие сигналы и состояние камер'],
     dispatch: ['Диспетчерская', 'Сигналы камер, обращения жителей и задания на проверку или уборку'],
+    citizens: ['Обращения жителей', 'Поступившие сообщения с сайта и из Telegram'],
     cameras: ['Камеры', 'Последние кадры и оценки по каждому ракурсу'],
     forecast: ['Прогноз', 'Ожидаемые осадки, температура и ветер'],
     reports: ['Сводки и доставка', 'Журнал погодных предупреждений и действий'],
@@ -613,6 +618,10 @@ function App() {
   }
 
   const showOverview = tab === 'overview';
+  const showCitizens = tab === 'citizens';
+  const recentCitizens = !scenario && run !== 'demo' ? <RecentCitizenReports token={citizenToken} onOpen={id => {
+    setCitizenReport(id); window.scrollTo(0, 0);
+  }} /> : null;
   const signals = data?.events.filter(item => !onlyActiveSignals || item.state !== 'resolved') ?? [];
   return <div className="app-shell app-monitor">
     <a className="skip-link" href="#main-content" onClick={e => {
@@ -626,7 +635,7 @@ function App() {
       </a>
       <nav aria-label="Разделы">{sections.map(section =>
         <a key={section.id} title={section.title} aria-label={section.title} href={'#' + section.id} aria-current={section.id === tab ? 'page' : undefined}
-          onClick={() => { setDispatchTarget(undefined); if (section.id !== tab) window.scrollTo(0, 0); }}>
+          onClick={() => { setDispatchTarget(undefined); if (section.id === 'citizens') setCitizenReport(undefined); if (section.id !== tab) window.scrollTo(0, 0); }}>
           <Icon name={section.icon} /><span>{section.title}</span></a>
       )}</nav>
       <div className="sidebar-bottom">
@@ -639,7 +648,7 @@ function App() {
     <main className={showOverview ? "workspace overview-workspace" : "workspace section-workspace"} id="main-content" tabIndex={-1}>
       {!showOverview && <header className="workspace-head">
         <div><div className="section-place"><span className="small-dot" />Алгоритмы Камчатки</div><h1>{page[0]}</h1><p>{page[1]}</p></div>
-        <div className="page-tools">
+        {!showCitizens && <div className="page-tools">
           {scenario ? <label className="section-demo-select"><span>Демосценарий</span>
             <select value={scenario} onChange={e => changeScenario(parseScenario(e.currentTarget.value))}>
               <option value="">Данные сервиса</option>
@@ -651,11 +660,11 @@ function App() {
             </div>
             <button className="quiet icon-button" onClick={refresh} title="Обновить данные" aria-label="Обновить данные"><Icon name="refresh" /></button>
           </>}
-        </div>
+        </div>}
       </header>}
-      {!showOverview && error && !scenario && <p className="error" role="alert">{error}</p>}
-      {!showOverview && !data && !error && <p className="muted" role="status">Загружаем данные мониторинга…</p>}
-      {data && !real && !showOverview && !scenario && <p className="demo-note">{data.mode === 'demo' ? 'Демонстрационный сценарий. Кадры и события взяты из контрольного прогона.'
+      {!showOverview && !showCitizens && error && !scenario && <p className="error" role="alert">{error}</p>}
+      {!showOverview && !showCitizens && !data && !error && <p className="muted" role="status">Загружаем данные мониторинга…</p>}
+      {data && !real && !showOverview && !showCitizens && !scenario && <p className="demo-note">{data.mode === 'demo' ? 'Демонстрационный сценарий. Кадры и события взяты из контрольного прогона.'
         : 'Воспроизведение сохранённых наблюдений.'}</p>}
       {linkError && <p className={showOverview ? 'overview-link-error' : 'error'} role="alert">{linkError}</p>}
       {data && !scenario && event && showOverview && <SignalDialog key={event.id} event={event} close={closeEvent}>
@@ -680,13 +689,15 @@ function App() {
       {showOverview && (data ? <Overview key={scenario ?? data.run_id} data={data} error={scenario && scenario !== 'response' ? '' : error} updatedAt={refreshAt}
         scenario={scenario} onScenario={changeScenario} phase={phase} onPhase={changeCleanupPhase} frameUrl={frameUrl} onDispatch={openDispatch}
         onSignal={(id, trigger) => { eventTrigger.current = trigger; setEventId(id); }}
-        onCamera={openCamera} onRefresh={refresh} loadRoads={loadSnowRoads} />
+        onCamera={openCamera} onRefresh={refresh} loadRoads={loadSnowRoads} recentCitizens={recentCitizens} />
         : <section className="overview-start">
           <h1>Дорожная обстановка</h1>
           <p role={error ? 'alert' : 'status'}>{error || 'Подключаем данные мониторинга…'}</p>
           <div><button type="button" onClick={() => changeScenario('snowfall')}>Открыть демо</button>
             {error && <button type="button" onClick={refresh}>Повторить подключение</button>}</div>
+          {recentCitizens}
         </section>)}
+      {showCitizens && <CitizenReports key={citizenReport} token={citizenToken} onToken={setCitizenToken} selected={citizenReport} />}
       {data && tab === 'cameras' && <div className="page-stack">
         <div className="camera-console">
           <section className="panel camera-index" aria-labelledby="camera-index-heading">
