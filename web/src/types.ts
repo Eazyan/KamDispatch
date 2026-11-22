@@ -72,6 +72,7 @@ export type DispatchGroup = DispatchLocation & {
 };
 export type BusObservation = {
   section_id: string; name: string; direction: 'forward' | 'reverse'; direction_label: string;
+  coordinates?: RoadPoint[];
   status: 'check' | 'observed' | 'insufficient'; reason: 'buses' | 'camera' | 'report' | null;
   usual_seconds: number | null; observed_seconds: number | null; vehicle_count: number; last_seen: string | null;
 };
@@ -79,6 +80,10 @@ export type BusObservations = {
   source: 'simulation';
   scenarios: { id: string; title: string; as_of: string; rows: BusObservation[] }[];
 } | { source: 'rnis'; state: 'ready' | 'insufficient' | 'unavailable'; as_of: string | null; rows: BusObservation[] };
+export type BusMap = {
+  source: 'rnis' | 'simulation'; state: 'ready' | 'waiting' | 'insufficient' | 'unavailable';
+  positions: { id: string; lon: number; lat: number; route: string | null; measured_at: string }[];
+};
 export type ActionItem = { request_id: string; actor: string; state: string; note: string; created_at: string };
 export type Period = {
   at: string; horizon: 'daily' | 'hourly' | 'three_hourly'; probability: number | null; snow_mm: number | null; snow_cm?: number;
@@ -118,6 +123,7 @@ export type Dashboard = {
   inspection_queue: Inspection[];
   dispatch_queue: DispatchGroup[]; dispatch_locations: DispatchLocation[]; dispatch_assignees: string[];
   bus_observations?: BusObservations | null;
+  bus_map?: BusMap | null;
   feedback_counts: Partial<Record<FeedbackVerdict, number>>;
   queue: { pending: number; oldest: string | null };
   snow_forecast?: SnowForecast | null;

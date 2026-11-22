@@ -150,6 +150,18 @@ def dashboard_demo():
     return {"source": "simulation", "scenarios": snapshots}
 
 
+@lru_cache(maxsize=1)
+def map_demo():
+    at = START + timedelta(minutes=4)
+    positions = []
+    for index, section in enumerate(demo_sections(), 1):
+        for fraction, direction in ((.32, 1), (.73, 2)):
+            lon, lat = location(section, section.length * fraction)
+            positions.append({"id": f"demo-{index}-{direction}", "lon": lon, "lat": lat,
+                              "route": f"Д{index}", "measured_at": at})
+    return {"source": "simulation", "state": "ready", "positions": positions}
+
+
 def evaluate_demo():
     sections = demo_sections()
     reference, scenarios, truth = demo_inputs(sections)
