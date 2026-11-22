@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#162b61">
+  <title>Мой район · Камчатка</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="shell top-inner">
+      <a class="brand" href="/citizens/" aria-label="Мой район, главная">
+        <span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>Мой район<small>Камчатский край</small></span>
+      </a>
+      <nav aria-label="Основная навигация">
+        <a href="#report" class="active">Подать обращение</a>
+        <a href="#help">Как это работает</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="shell hero-inner">
+        <div class="region"><span class="flag" aria-hidden="true"></span> Камчатский край</div>
+        <h1>Сообщите<br>о проблеме</h1>
+        <p>Гололёд, снежные заносы или холодные батареи? Расскажите, что случилось и где нужна помощь.</p>
+      </div>
+    </section>
+    <div class="shell layout">
+      <section id="report" class="card">
+        <h2>Новое обращение</h2>
+        <p class="muted intro">Добавьте фото, опишите проблему и укажите её местоположение.</p>
+        <form id="report-form">
+          <div class="field">
+            <label for="photo">Фотография</label>
+            <label class="drop-zone" id="drop-zone" for="photo">
+              <input id="photo" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" required aria-describedby="photo-hint">
+              <span class="upload-icon" aria-hidden="true">↑</span>
+              <span><strong id="photo-name">Выберите фото или перетащите сюда</strong><small id="photo-hint">JPG или PNG, до 5 МиБ</small></span>
+              <img id="preview" alt="Предпросмотр фото" hidden>
+            </label>
+          </div>
+          <div class="field">
+            <label for="description">Описание проблемы</label>
+            <textarea id="description" rows="4" maxlength="880" required placeholder="Например, на тротуаре у дома 12 гололёд и сугробы. Проходить опасно." aria-describedby="count"></textarea>
+            <small class="counter" id="count">0 / 880</small>
+          </div>
+          <fieldset class="field location">
+            <legend>Местоположение</legend>
+            <div class="coordinates">
+              <label for="latitude">Широта<input id="latitude" type="text" inputmode="decimal" autocomplete="off" required placeholder="53.0196"></label>
+              <label for="longitude">Долгота<input id="longitude" type="text" inputmode="decimal" autocomplete="off" required placeholder="158.6478"></label>
+            </div>
+            <label class="address-label" for="address">Адрес <span>(необязательно)</span>
+              <input id="address" type="text" maxlength="240" autocomplete="off" placeholder="Улица и номер дома">
+            </label>
+            <div class="location-actions">
+              <button type="button" class="locate map-open" id="open-map" aria-haspopup="dialog">Выбрать на карте</button>
+              <button type="button" class="locate" id="locate">◎ Моя геопозиция</button>
+            </div>
+            <p class="location-status muted" id="location-status" aria-live="polite"></p>
+          </fieldset>
+          <div class="field" id="access-field" hidden>
+            <label for="access-token">Токен доступа OIDC</label>
+            <input id="access-token" type="password" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="form-footer">
+            <button type="submit" class="submit">Отправить обращение</button>
+            <p id="form-status" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </section>
+      <aside id="help" class="sidebar">
+        <section class="card help">
+          <h2>Как это работает</h2>
+          <div class="help-item"><span aria-hidden="true">▣</span><div><h3>Покажите проблему</h3><p>На фото должно быть видно, что произошло.</p></div></div>
+          <div class="help-item"><span aria-hidden="true">≡</span><div><h3>Расскажите подробнее</h3><p>Бот и сайт используют один словарь для определения тегов.</p></div></div>
+          <div class="help-item"><span aria-hidden="true">⌖</span><div><h3>Укажите точку</h3><p>Найдите адрес, поставьте отметку на карте или используйте свою геопозицию.</p></div></div>
+        </section>
+        <section class="card examples">
+          <h2>Зимние проблемы</h2>
+          <ul><li>Гололёд</li><li>Уборка снега</li><li>Сосульки</li><li>Отопление</li></ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <dialog id="location-dialog" aria-labelledby="location-title">
+    <div class="dialog-header">
+      <h2 id="location-title">Где находится проблема?</h2>
+      <button type="button" class="close-map" id="close-map" aria-label="Закрыть">×</button>
+    </div>
+    <form id="address-search" class="address-search" role="search">
+      <label for="address-query">Поиск по адресу</label>
+      <div class="search-controls">
+        <input id="address-query" type="search" required maxlength="240" autocomplete="off"
+               placeholder="Город, улица, номер дома">
+        <button class="locate" type="submit">Найти</button>
+      </div>
+    </form>
+    <p id="search-status" class="muted" role="status"></p>
+    <ul id="address-results" hidden></ul>
+    <div id="map" aria-label="Карта местоположения"></div>
+    <p class="muted map-error" id="map-error" role="status"></p>
+    <div class="map-details">
+      <p id="selected-place" class="muted" aria-live="polite"></p>
+      <button class="locate" type="button" id="select-center">Выбрать центр карты</button>
+    </div>
+    <div class="dialog-footer">
+      <button class="locate" type="button" id="cancel-map">Отмена</button>
+      <button class="submit" type="button" id="confirm-place" disabled>Подтвердить место</button>
+    </div>
+  </dialog>
+  <footer><div class="shell">Мой район <span>Обращения жителей Камчатского края</span></div></footer>
+</body>
+</html>
