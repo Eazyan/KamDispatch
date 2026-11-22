@@ -54,3 +54,5 @@ RANS -1.164e-10 kg (relative 1.801e-16); минимум неотрицателе
 Итог локальной регрессии reduced 0.2: 89 city_sim tests OK, 5 core OK,
 21 baseline опыт mass error=0, saved solver evidence verifier OK.
 CI 6b601f3 run 45005028332 success; новый head проверяется после push.
+
+22.11.2026 · ПУБЛИКАЦИЯ ПРОВЕРЕНА: код 9c7a2e3c60923a67c96e2a3b12d6789d8e5498cd опубликован в Eazyan/KamDispatch feature/kamchatka-drift-engine. PR #3 draft/open, не merged; main d9893ed не изменён. GitHub Actions run 45005587147 success, включая 89 tests, core, baseline и новый static RANS coupling. Memory checkpoint/verify выполнены на этом кодовом SHA; финальный документационный коммит будет его потомком (снимок — проверенная историческая точка, не самоссылочный SHA). Далее единая сцена и CFD снежная фаза; DRIFT-003 остаётся in_progress.
