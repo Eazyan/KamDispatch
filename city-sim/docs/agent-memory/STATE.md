@@ -2,6 +2,8 @@
 Updated: 2026-11-22 · Asia/Kamchatka (UTC+12)
 branch: feature/kamchatka-drift-engine
 
+23.11.2026 · DRIFT-003 · ФАКТ: в KamDispatch коммитом 955f048 поверх eb23cbc добавлены city_sim/cfd_snow_budget.py и пять tests: общий донор, ограничение запасом, bed/air обмен и внешний ledger. 96 city_sim tests OK; 5 новых повторно OK после финальной проверки неотрицательности. Это подготовительный контракт, НЕ CFD snow runtime. Далее transient CFD адаптер с физическими объёмами/гранями и интеграцией потоков. Свежий fetch: main 123927c; PR #6 draft/open на eb23cbc до публикации. В checkout есть параллельные изменения snegoplan, не включать в Drift commit. Источник: docs/drift-engine/CFD_SNOW_BUDGET.md в KamDispatch.
+
 22.11.2026 · Внешнее изменение: PR #3 merged (09:10:03Z), не этим агентом. Main 123927c с внешними PR #4/#5 включён merge без конфликтов; изменения коллег сохранены. Код сцены 208075c, проверенный merge HEAD 819d2cf17d16ca32a06b58fcf0e5a282380562be. Продолжение: draft PR #6 https://github.com/Eazyan/KamDispatch/pull/6, не сливать. После merge 10 целевых tests OK; 91 city_sim + 5 core до merge. Документальный checkpoint — потомок проверенного SHA, CI нового head проверить отдельно. Далее Kamchatka CFD snow case, ограничение эрозии запасом и bed/air/boundary ledger.
 
 22.11.2026 · ФАКТ/РАСЧЁТ: общая сцена квартала drift-scene-1 (49×48) экспортирована и подключена к cfd_wind. DSM, estimated ground, здания, снег и static RANS разделены; measured DTM и наблюдения unknown. Hash b5237a92e4695c7de892cb96cb688beb36886db4fc20843bba0b920f5cdc36f1. Начальный запас 646529.377514 kg; это initialization-only, не CFD snow budget. 91 city_sim + 5 core OK, пять целевых tests OK; прежний coupling результат сохранён. Источник/контракт: docs/drift-engine/SCENE.md, cfd/scene-v1. Следующий шаг DRIFT-003: Kamchatka driftScalar case с ограничением эрозии запасом и bed/air/boundary ledger; upstream stationary TEqn не содержит ddt. Новый CFD runtime не запускался. Вход: HEAD 421169a, main d9893ed, PR #3 draft/open, CI 45005772558 success; checkout был чист.
@@ -16,7 +18,7 @@ branch: feature/kamchatka-drift-engine
 
 22 ноября 2026: пользователь явно поручил загрузить проект в Eazyan/KamDispatch, существующую ветку City_Sim. Это исключение назначения из GIT_INSTRUCTIONS.md для данного поручения. Подготовлен отдельный checkout /private/tmp/kamdispatch-city-sim-upload; проект размещён в city-sim/, существующий мониторинг сохранён. Публикационный набор: код, документация, runtime-данные; исключены out, локальные состояния/БД, ZIP, research sources/artifacts/cache и winter_audit/evidence. Проверка потенциальных токенов: совпадений нет. Core: 5 тестов; dynamic snow: 12 тестов успешно. Docker и полная suite не запускались. Текущий исходный checkout по-прежнему main/unborn без remote; публикация выполняется из отдельного checkout. На момент checkpoint push ещё ожидается; итог проверять по удалённой ветке.
 
-sha: 819d2cf17d16ca32a06b58fcf0e5a282380562be
+sha: 955f048f8389a9082360ebec5e3e74dd2f401f34
 
 Git: нет коммитов, remotes и отслеживаемых файлов (`git ls-files` пуст). Накопленные исходники untracked до этой задачи. Git не менялся. Отдельная публикационная ветка из старой базы здесь не подтверждена; audit по указанному там пути отсутствует. PR #2 в SHKZhenya merged — проверен connector 22 ноября, это не публикация текущих файлов.
 

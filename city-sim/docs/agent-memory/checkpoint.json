@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-11-22T21:14:22.740514+12:00",
+  "updated_at": "2026-11-23T01:04:17.974071+12:00",
   "git": {
     "branch": "feature/kamchatka-drift-engine",
-    "sha": "819d2cf17d16ca32a06b58fcf0e5a282380562be"
+    "sha": "955f048f8389a9082360ebec5e3e74dd2f401f34"
   },
   "files": {
     ".gitignore": [
@@ -136,6 +136,10 @@
     "city_sim/building_evidence.py": [
       6604,
       1795335613197574564
+    ],
+    "city_sim/cfd_snow_budget.py": [
+      4630,
+      1795352587146003516
     ],
     "city_sim/cfd_wind.py": [
       2395,
@@ -505,6 +509,10 @@
       4899,
       1795335613234024139
     ],
+    "city_sim/tests/test_cfd_snow_budget.py": [
+      3170,
+      1795352553481519796
+    ],
     "city_sim/tests/test_cfd_wind.py": [
       3485,
       1795338588845020176
@@ -786,8 +794,8 @@
       1795335613284231981
     ],
     "docs/agent-memory/HANDOFF.md": [
-      8585,
-      1795338862695194890
+      9493,
+      1795352657928622178
     ],
     "docs/agent-memory/HOOKS.md": [
       3248,
@@ -798,20 +806,20 @@
       1795337669926636099
     ],
     "docs/agent-memory/LOG.md": [
-      11554,
-      1795338862695782893
+      12462,
+      1795352657928780804
     ],
     "docs/agent-memory/PROTOCOL.md": [
       3198,
       1795335613285721988
     ],
     "docs/agent-memory/STATE.md": [
-      10478,
-      1795338862697758362
+      11386,
+      1795352657928449177
     ],
     "docs/agent-memory/TASKS.md": [
-      8107,
-      1795338862695712226
+      8130,
+      1795352627587063322
     ],
     "docs/agent-memory/VALIDATION.md": [
       5965,

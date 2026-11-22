@@ -46,3 +46,9 @@ GitHub Actions проверяются после push.
 22.11.2026 · ФАКТ/РАСЧЁТ: общая сцена квартала drift-scene-1 (49×48) экспортирована и подключена к cfd_wind. DSM, estimated ground, здания, снег и static RANS разделены; measured DTM и наблюдения unknown. Hash b5237a92e4695c7de892cb96cb688beb36886db4fc20843bba0b920f5cdc36f1. Начальный запас 646529.377514 kg; это initialization-only, не CFD snow budget. 91 city_sim + 5 core OK, пять целевых tests OK; прежний coupling результат сохранён. Источник/контракт: docs/drift-engine/SCENE.md, cfd/scene-v1. Следующий шаг DRIFT-003: Kamchatka driftScalar case с ограничением эрозии запасом и bed/air/boundary ledger; upstream stationary TEqn не содержит ddt. Новый CFD runtime не запускался. Вход: HEAD 421169a, main d9893ed, PR #3 draft/open, CI 45005772558 success; checkout был чист.
 
 22.11.2026 · Внешнее изменение: PR #3 merged (09:10:03Z), не этим агентом. Main 123927c с внешними PR #4/#5 включён merge без конфликтов; изменения коллег сохранены. Код сцены 208075c, проверенный merge HEAD 819d2cf17d16ca32a06b58fcf0e5a282380562be. Продолжение: draft PR #6 https://github.com/Eazyan/KamDispatch/pull/6, не сливать. После merge 10 целевых tests OK; 91 city_sim + 5 core до merge. Документальный checkpoint — потомок проверенного SHA, CI нового head проверить отдельно. Далее Kamchatka CFD snow case, ограничение эрозии запасом и bed/air/boundary ledger.
+
+23.11.2026 · ФАКТ: добавлен консервативный контракт bed/air обмена и полного
+бюджета (`city_sim.cfd_snow_budget`), пять новых tests; полная suite 96 OK.
+Общие доноры ограничены начальным запасом; пропущенный граничный поток обнаруживается.
+Это подготовка адаптера, не CFD snow runtime. Далее transient уравнение, mapping
+реальных объёмов/граней и интегральные boundary fluxes. [Контракт](CFD_SNOW_BUDGET.md).
