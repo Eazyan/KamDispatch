@@ -4,6 +4,7 @@ import math
 import pytest
 
 pytest.importorskip("numpy", reason="Install requirements-traffic.txt for the optional traffic experiment")
+pytest.importorskip("cv2", reason="Install requirements-traffic.txt for line extraction")
 
 from PIL import Image, ImageDraw
 

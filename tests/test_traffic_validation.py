@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw
 import pytest
 
 pytest.importorskip("numpy", reason="Install requirements-traffic.txt for the optional traffic experiment")
+pytest.importorskip("cv2", reason="Install requirements-traffic.txt for line extraction")
 
 from monitoring.traffic_image import analyze_roads, calibration
 
@@ -98,14 +99,14 @@ def test_capture_analysis_rejects_modified_screenshot(tmp_path):
     assert not (tmp_path / "roads.geojson").exists()
 
 
-def test_thin_label_stroke_and_short_colored_icon_do_not_prove_traffic():
+def test_thin_continuous_ribbon_is_evidence_but_text_is_not():
     before, capture, road = scene()
     after = before.copy()
     ImageDraw.Draw(after).line((30, 80, 170, 80), fill=(240, 185, 55), width=1)
-    assert analyze_roads(before, after, capture, [road])["features"][0]["properties"]["traffic_status"] == "unknown"
-    short = {"id": "short", "coordinates": [road["coordinates"][0], [158.005, road["coordinates"][0][1]]]}
-    ImageDraw.Draw(after).line((30, 80, 50, 80), fill=(240, 185, 55), width=5)
-    assert analyze_roads(before, after, capture, [short])["features"][0]["properties"]["traffic_status"] == "unknown"
+    assert analyze_roads(before, after, capture, [road])["features"][0]["properties"]["traffic_status"] == "slow"
+    text = before.copy()
+    ImageDraw.Draw(text).text((60, 75), "Cafe", fill=(240, 185, 55))
+    assert analyze_roads(before, text, capture, [road])["features"][0]["properties"]["traffic_status"] == "unknown"
 
 
 def test_device_pixel_screenshots_cannot_use_css_control_points():

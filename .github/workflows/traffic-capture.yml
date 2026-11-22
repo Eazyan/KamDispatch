@@ -5,6 +5,8 @@ on:
     paths:
       - 'monitoring/traffic_image.py'
       - 'scripts/capture_traffic.py'
+      - 'scripts/evaluate_traffic.py'
+      - 'tests/fixtures/traffic_annotations.json'
       - 'tests/test_traffic*.py'
       - 'requirements-traffic.txt'
       - '.github/workflows/traffic-capture.yml'
@@ -24,4 +26,4 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-traffic.txt
       - run: python -m pip install -r requirements-traffic.txt pytest==8.4.1
-      - run: python -m pytest tests/test_traffic_image.py tests/test_traffic_validation.py -q
+      - run: python -m pytest tests/test_traffic*.py -q

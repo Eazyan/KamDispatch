@@ -135,7 +135,7 @@ REVIEW_HTML = r'''<!doctype html>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>body{margin:0;font:16px system-ui;color:#182c35}header{padding:14px 22px;background:#f2f5f6}h1{font-size:20px;margin:0 0 8px}p{margin:6px 0}#map{height:76vh}.legend{display:flex;gap:16px;flex-wrap:wrap}.swatch{display:inline-block;width:20px;height:5px;vertical-align:middle}</style>
 <header><h1>Пробки на дорожном графе OSM · учебная оценка</h1>
-<p id="capture"></p><p>Статичный снимок 2ГИС. Цвет относится к дорожному коридору; направление и скорость неизвестны. Требуется ручная проверка.</p>
+<p id="capture"></p><p>Статичный снимок. Тонкие линии — выделенные фрагменты 2ГИС, толстые — сопоставленные дороги OSM. Направление и скорость неизвестны.</p>
 <p class="legend"><span>🟢 Свободно</span><span>🟡 Замедление</span><span>🔴 Сильное замедление</span><span>⚪ Нет надёжной оценки</span></p><p id="counts"></p></header><div id="map"></div>
 <script id="data" type="application/json">__DATA__</script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -144,7 +144,7 @@ const data=JSON.parse(document.getElementById('data').textContent);
 const labels={free:'Свободно',slow:'Замедление',congested:'Сильное замедление',unknown:'Нет надёжной оценки'};
 const colors={free:'#26863c',slow:'#d29b00',congested:'#d53939',unknown:'#88939a'};
 const counts={};for(const f of data.features){const s=f.properties.traffic_status;counts[s]=(counts[s]||0)+1;}
-document.getElementById('counts').textContent=Object.entries(counts).map(([k,v])=>labels[k]+': '+v).join(' · ');
+document.getElementById('counts').textContent=Object.entries(counts).map(([k,v])=>labels[k]+': '+v).join(' · ')+' · Фрагментов 2ГИС: '+(data.traffic_lines?.features.length??0);
 document.getElementById('capture').textContent='Получено: '+data.metadata.captured_at+' · Контроль геопривязки: '+data.metadata.calibration_holdout_error_px+' px';
 const map=L.map('map').setView([53.045,158.65],16);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);
@@ -153,6 +153,8 @@ const roads=L.geoJSON(data,{style:f=>({color:colors[f.properties.traffic_status]
  box.textContent=p.name+' · '+labels[p.traffic_status]+' · Покрытие цветовым сигналом '+Math.round(p.coverage_fraction*100)+'% · '+p.reason;
  layer.bindPopup(box);
 }}).addTo(map);
+const source=L.geoJSON(data.traffic_lines??{type:'FeatureCollection',features:[]},{style:f=>({color:colors[f.properties.traffic_status],weight:2,opacity:.9}),onEachFeature:(f,layer)=>{const box=document.createElement('div');box.textContent='Выделенный фрагмент 2ГИС · '+labels[f.properties.traffic_status]+' · '+f.id;layer.bindPopup(box);}}).addTo(map);
+L.control.layers({}, {'Сопоставление OSM':roads,'Выделенные линии 2ГИС':source},{collapsed:false}).addTo(map);
 if(data.features.length)map.fitBounds(roads.getBounds(),{padding:[24,24],maxZoom:17});
 </script></html>'''
 
@@ -177,6 +179,7 @@ def analyze(output, roads_file):
                               roads_sha256=hashlib.sha256(raw).hexdigest(), image_sha256=metadata["image_sha256"],
                               analysis_region=metadata["analysis_region"])
     write_json(output / "roads.geojson", result)
+    write_json(output / "traffic-lines.geojson", result["traffic_lines"])
     encoded = json.dumps(result, ensure_ascii=False).replace("<", "\\u003c")
     (output / "review.html").write_text(REVIEW_HTML.replace("__DATA__", encoded), encoding="utf-8")
     counts = Counter(f["properties"]["traffic_status"] for f in result["features"])
