@@ -2,6 +2,8 @@
 Updated: 2026-11-22 · Asia/Kamchatka (UTC+12)
 branch: feature/kamchatka-drift-engine
 
+23.11.2026 · DRIFT-003 · ФАКТ/РАСЧЁТ: CFD горизонт расширен до 60 s, три dt=0.2/0.1/0.05 на одной сетке 194581 cells / frozen RANS. Все 2100 шагов: массы неотрицательны, max residual 1.665e-8 kg. Air L1 0.004463/0.002264 kg, наблюдаемый порядок 0.978968; relative L1 0.1→0.05 равна 0.0142435%. Это временная проверка данного сценария, пространственная сходимость и полевая точность unknown. 103 city_sim + 5 core OK; исходно missing legacy binding исправлен через CITY_SIM_DANIL. Код 5affcaf в отдельном /private/tmp/kamdispatch-cfd-snow. Источник: KamDispatch docs/drift-engine/CFD_TIME_REFINEMENT.md и cfd/time-evidence-v1 (ledger, поля ячеек, хеши, PNG). Далее согласованные пространственные сетки и консервативный перенос bed, затем feedback.
+
 23.11.2026 · DRIFT-003 · ФАКТ/РАСЧЁТ: настоящий transient CFD snow case выполнен на 194581 ячейке квартала, пять сценариев по 5 s / 300 шагов, max residual 3.074e-8 kg, массы неотрицательны. dt/2 air relative L1=0.355654%; это чувствительность, не полная сходимость. 100 city_sim и 5 core OK. Код 514f940 в отдельном /private/tmp/kamdispatch-cfd-snow, feature/kamchatka-drift-engine от cda7572. Общий checkout с дорожным 2b91d35 и локальным CFD 716351b сохранён; дорожный коммит не переносится в публикацию. Ветер и mesh статичны, полевая точность unknown. Далее длинный горизонт, dt/сетки и feedback. Источник: KamDispatch docs/drift-engine/CFD_SNOW_CASE.md и cfd/snow-evidence-v1.
 
 23.11.2026 · DRIFT-003 · ФАКТ: в KamDispatch коммитом 955f048 поверх eb23cbc добавлены city_sim/cfd_snow_budget.py и пять tests: общий донор, ограничение запасом, bed/air обмен и внешний ledger. 96 city_sim tests OK; 5 новых повторно OK после финальной проверки неотрицательности. Это подготовительный контракт, НЕ CFD snow runtime. Далее transient CFD адаптер с физическими объёмами/гранями и интеграцией потоков. Свежий fetch: main 123927c; PR #6 draft/open на eb23cbc до публикации. В checkout есть параллельные изменения snegoplan, не включать в Drift commit. Источник: docs/drift-engine/CFD_SNOW_BUDGET.md в KamDispatch.
@@ -20,7 +22,7 @@ branch: feature/kamchatka-drift-engine
 
 22 ноября 2026: пользователь явно поручил загрузить проект в Eazyan/KamDispatch, существующую ветку City_Sim. Это исключение назначения из GIT_INSTRUCTIONS.md для данного поручения. Подготовлен отдельный checkout /private/tmp/kamdispatch-city-sim-upload; проект размещён в city-sim/, существующий мониторинг сохранён. Публикационный набор: код, документация, runtime-данные; исключены out, локальные состояния/БД, ZIP, research sources/artifacts/cache и winter_audit/evidence. Проверка потенциальных токенов: совпадений нет. Core: 5 тестов; dynamic snow: 12 тестов успешно. Docker и полная suite не запускались. Текущий исходный checkout по-прежнему main/unborn без remote; публикация выполняется из отдельного checkout. На момент checkpoint push ещё ожидается; итог проверять по удалённой ветке.
 
-sha: 514f940983c1dc8854cd4e3fa45e8d52dd7ea053
+sha: 5affcafbc1741a67b1721e0176481bac11d875b0
 
 Git: нет коммитов, remotes и отслеживаемых файлов (`git ls-files` пуст). Накопленные исходники untracked до этой задачи. Git не менялся. Отдельная публикационная ветка из старой базы здесь не подтверждена; audit по указанному там пути отсутствует. PR #2 в SHKZhenya merged — проверен connector 22 ноября, это не публикация текущих файлов.
 
