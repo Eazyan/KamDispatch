@@ -8,3 +8,5 @@ web/node_modules/
 web/dist/
 /kamcha-snow-sim-main/
 /kamcha-snow-sim-Neverrie/
+
+/out/

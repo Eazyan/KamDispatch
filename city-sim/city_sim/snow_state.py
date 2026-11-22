@@ -91,14 +91,26 @@ class SnowState:
         return np.minimum(weights,self.area)
 
     def weather(self, seconds, wind_speed_m_s, wind_from_deg, snowfall_kg_m2_h=0.,
-                boundary_inflow=None, explicit_loss_kg_m2_h=0.):
+                boundary_inflow=None, explicit_loss_kg_m2_h=0., *, wind_vector=None,
+                wind_height_m=10.):
         if seconds<0 or wind_speed_m_s<0 or snowfall_kg_m2_h<0 or explicit_loss_kg_m2_h<0:
             raise ValueError('Negative weather input')
         p=self.parameters; active=self.area>0
         angle=math.radians(wind_from_deg)
         ux,uy=-math.sin(angle),math.cos(angle) # y is southward row coordinate
-        local=wind_speed_m_s*self.exposure
-        friction=.4*local/math.log(10/p['roughness_m'])
+        if wind_vector is None:
+            local=wind_speed_m_s*self.exposure
+        else:
+            vector=np.asarray(wind_vector,dtype=float)
+            if vector.shape != self.area.shape+(2,) or not np.isfinite(vector).all():
+                raise ValueError('Finite east/south wind vector matching snow grid required')
+            local=np.linalg.norm(vector,axis=-1)
+            ux=np.divide(vector[...,0],local,out=np.zeros_like(local),where=local>0)
+            uy=np.divide(vector[...,1],local,out=np.zeros_like(local),where=local>0)
+        height=np.broadcast_to(np.asarray(wind_height_m,dtype=float),self.area.shape)
+        if not np.isfinite(height).all() or (height<=p['roughness_m']).any():
+            raise ValueError('Wind sampling height must exceed roughness')
+        friction=.4*local/np.log(height/p['roughness_m'])
         threshold=p['threshold_friction_m_s']
         # A [m/s] rho_a/g (ut/u*) (u*²-ut²) = kg/(m s).
         capacity=p['saltation_constant_m_s']*p['air_density_kg_m3']/9.81*threshold/np.maximum(friction,1e-12)*np.maximum(friction**2-threshold**2,0)
@@ -119,15 +131,17 @@ class SnowState:
             aperture=np.sqrt(np.clip(self.area/(self.dx*self.dy),0,1))
             common_x=np.minimum(aperture[:,:-1],aperture[:,1:])
             common_y=np.minimum(aperture[:-1,:],aperture[1:,:])
-            if ux>=0: east[:,:-1]=q[:,:-1]*ux*self.dy*dt*common_x
-            else: west[:,1:]=q[:,1:]*(-ux)*self.dy*dt*common_x
-            if uy>=0: south[:-1,:]=q[:-1,:]*uy*self.dx*dt*common_y
-            else: north[1:,:]=q[1:,:]*(-uy)*self.dx*dt*common_y
+            qx=q*np.maximum(ux,0); qwest=q*np.maximum(-ux,0)
+            qy=q*np.maximum(uy,0); qnorth=q*np.maximum(-uy,0)
+            east[:,:-1]=qx[:,:-1]*self.dy*dt*common_x
+            west[:,1:]=qwest[:,1:]*self.dy*dt*common_x
+            south[:-1,:]=qy[:-1,:]*self.dx*dt*common_y
+            north[1:,:]=qnorth[1:,:]*self.dx*dt*common_y
             if p['boundary']=='open':
-                if ux>0: east[:,-1]=q[:,-1]*ux*self.dy*dt*aperture[:,-1]
-                if ux<0: west[:,0]=q[:,0]*(-ux)*self.dy*dt*aperture[:,0]
-                if uy>0: south[-1,:]=q[-1,:]*uy*self.dx*dt*aperture[-1,:]
-                if uy<0: north[0,:]=q[0,:]*(-uy)*self.dx*dt*aperture[0,:]
+                east[:,-1]=qx[:,-1]*self.dy*dt*aperture[:,-1]
+                west[:,0]=qwest[:,0]*self.dy*dt*aperture[:,0]
+                south[-1,:]=qy[-1,:]*self.dx*dt*aperture[-1,:]
+                north[0,:]=qnorth[0,:]*self.dx*dt*aperture[0,:]
             available=self.loose*self.area
             outgoing=east+west+south+north
             scale=np.minimum(1.,np.divide(available,outgoing,out=np.ones_like(q),where=outgoing>0))

@@ -1,6 +1,8 @@
 # Передача следующей сессии
 Updated: 2026-11-22 · Asia/Kamchatka (UTC+12)
 
+22.11.2026 · ФАКТ, проверено кодом/тестами: static RANS квартала подключён к SnowState через city_sim.cfd_wind; точная сетка 49×48, локальные east/south U и nominal AGL 0.778–1.151 m, хеши источников. 89 city_sim + 5 core OK; прежние 21 опыт mass error=0; парный RANS опыт relative mass error=1.801e-16. CI исходного 6b601f3: run 45005028332 success. Новый CI проверять после push. Рабочая ветка feature/kamchatka-drift-engine; origin/main d9893ed повторно fetch-проверен, изменений коллег при входе нет. Новый этап reduced 0.2; подробности docs/drift-engine/ARCHITECTURE.md и cfd/coupling-report.json. DRIFT-003 in_progress: дальше единая сцена и CFD снежная фаза с интегральным балансом, затем feedback. Городской HTTP остаётся slope baseline; offline ветер статичен, полевая точность unknown.
+
 ## Текущее поручение и Git
 
 Пользователь явно заменил целевой репозиторий на Eazyan/KamDispatch и поручил следовать дополнению к ТЗ Drift Engine. Старый SHKZhenya/algorithms-kamchatka теперь только источник; изменять его нельзя. Коммиты, push отдельной ветки и создание PR разрешены этим поручением; самостоятельное слияние и прямой push main запрещены. Актуальное правило сохранено в GIT_INSTRUCTIONS.md и AGENTS.md. Не следуйте прежним запретам публикации в исторических записях как действующей инструкции.

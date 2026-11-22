@@ -36,3 +36,7 @@ GitHub Actions проверяются после push.
 (PR #3 draft/open, CI 45004450310 success на 10911ed) → подтверждено → документационный
 этап поверх 10911ed → исправлена устаревшая очередь сборки/браузера/CI → следующий
 этап: настоящее поле ветра; полная CFD-модель и полевая валидация остаются открыты.
+
+22.11.2026 · ФАКТ, проверено кодом/тестами: static RANS квартала подключён к SnowState через city_sim.cfd_wind; точная сетка 49×48, локальные east/south U и nominal AGL 0.778–1.151 m, хеши источников. 89 city_sim + 5 core OK; прежние 21 опыт mass error=0; парный RANS опыт relative mass error=1.801e-16. CI исходного 6b601f3: run 45005028332 success. Новый CI проверять после push. Рабочая ветка feature/kamchatka-drift-engine; origin/main d9893ed повторно fetch-проверен, изменений коллег при входе нет. Новый этап reduced 0.2; подробности docs/drift-engine/ARCHITECTURE.md и cfd/coupling-report.json. DRIFT-003 in_progress: дальше единая сцена и CFD снежная фаза с интегральным балансом, затем feedback. Городской HTTP остаётся slope baseline; offline ветер статичен, полевая точность unknown.
+
+Первоначальный uniform-vector тест сравнивал со slope feedback и падал; исправлен тест прямой эквивалентности входов SnowState. Ошибки cwd при создании/запуске и обновлении отчёта исправлены явным рабочим каталогом. Новые Docker/browser не запускались: API/UI не менялись.
