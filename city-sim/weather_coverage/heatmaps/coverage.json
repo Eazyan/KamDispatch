@@ -1,0 +1,487 @@
+{
+  "attempts": {
+    "ok": 228
+  },
+  "planned": 298,
+  "received": 298,
+  "old_forecast": 70,
+  "by_kind": {
+    "grid": 220,
+    "road": 41,
+    "anchor": 9,
+    "transect": 8,
+    "south": 8,
+    "relief_high": 6,
+    "relief_low": 6
+  },
+  "planned_by_kind": {
+    "grid": 220,
+    "road": 41,
+    "anchor": 9,
+    "transect": 8,
+    "south": 8,
+    "relief_high": 6,
+    "relief_low": 6
+  },
+  "response_coord_count": 123,
+  "full_profile_count": 120,
+  "first_request": "2026-11-20T05:29:14+00:00",
+  "last_request": "2026-11-20T05:52:36+00:00",
+  "local_start": "2026-11-20T18:00:00+12:00",
+  "local_end": "2026-11-25T15:00:00+12:00",
+  "frame_count": 40,
+  "parameters": {
+    "temp": {
+      "native_available": 11920,
+      "times_available": 40,
+      "distinct_min": 81,
+      "distinct_max": 112,
+      "first_count": 298,
+      "first_distinct": 85,
+      "first_min": 0.05000000074505806,
+      "first_max": 4.25,
+      "first_groups": [
+        [
+          3.25,
+          14
+        ],
+        [
+          3.19,
+          14
+        ],
+        [
+          2.14,
+          11
+        ],
+        [
+          2.92,
+          10
+        ]
+      ],
+      "coverage_first_model_pixels": 6773,
+      "range": [
+        -13,
+        5
+      ]
+    },
+    "feels_like": {
+      "native_available": 11920,
+      "times_available": 40,
+      "distinct_min": 86,
+      "distinct_max": 114,
+      "first_count": 298,
+      "first_distinct": 104,
+      "first_min": -4.090000152587891,
+      "first_max": 2.700000047683716,
+      "first_groups": [
+        [
+          -1.23,
+          15
+        ],
+        [
+          -1.95,
+          11
+        ],
+        [
+          -1.32,
+          10
+        ],
+        [
+          -1.4,
+          8
+        ]
+      ],
+      "coverage_first_model_pixels": 6773,
+      "range": [
+        -20,
+        4
+      ]
+    },
+    "wind_speed": {
+      "native_available": 11920,
+      "times_available": 40,
+      "distinct_min": 26,
+      "distinct_max": 71,
+      "first_count": 298,
+      "first_distinct": 63,
+      "first_min": 1.809999942779541,
+      "first_max": 5.760000228881836,
+      "first_groups": [
+        [
+          1.81,
+          53
+        ],
+        [
+          3.82,
+          17
+        ],
+        [
+          4.31,
+          10
+        ],
+        [
+          4.58,
+          9
+        ]
+      ],
+      "coverage_first_model_pixels": 6773,
+      "range": [
+        0,
+        12
+      ]
+    },
+    "wind_gust": {
+      "native_available": 11920,
+      "times_available": 40,
+      "distinct_min": 33,
+      "distinct_max": 72,
+      "first_count": 298,
+      "first_distinct": 66,
+      "first_min": 1.8200000524520874,
+      "first_max": 9.550000190734863,
+      "first_groups": [
+        [
+          1.82,
+          53
+        ],
+        [
+          7.52,
+          20
+        ],
+        [
+          8.35,
+          10
+        ],
+        [
+          7.71,
+          9
+        ]
+      ],
+      "coverage_first_model_pixels": 6773,
+      "range": [
+        0,
+        20
+      ]
+    },
+    "wind_deg": {
+      "native_available": 11920,
+      "times_available": 40,
+      "distinct_min": 4,
+      "distinct_max": 33,
+      "first_count": 298,
+      "first_distinct": 10,
+      "first_min": 42.0,
+      "first_max": 61.0,
+      "first_groups": [
+        [
+          54.0,
+          117
+        ],
+        [
+          53.0,
+          72
+        ],
+        [
+          42.0,
+          53
+        ],
+        [
+          59.0,
+          12
+        ]
+      ],
+      "coverage_first_model_pixels": 6773,
+      "range": [
+        0,
+        360
+      ]
+    },
+    "snow": {
+      "native_available": 2758,
+      "times_available": 13,
+      "distinct_min": 0,
+      "distinct_max": 46,
+      "first_count": 298,
+      "first_distinct": 46,
+      "first_min": 2.309999942779541,
+      "first_max": 4.599999904632568,
+      "first_groups": [
+        [
+          2.31,
+          53
+        ],
+        [
+          4.1,
+          20
+        ],
+        [
+          3.25,
+          17
+        ],
+        [
+          4.07,
+          14
+        ]
+      ],
+      "coverage_first_model_pixels": 6773,
+      "range": [
+        0,
+        7
+      ]
+    },
+    "rain": {
+      "native_available": 327,
+      "times_available": 3,
+      "distinct_min": 0,
+      "distinct_max": 62,
+      "first_count": 0,
+      "first_distinct": 0,
+      "first_min": null,
+      "first_max": null,
+      "first_groups": [],
+      "coverage_first_model_pixels": 0,
+      "range": [
+        0,
+        8
+      ]
+    },
+    "visibility": {
+      "native_available": 11920,
+      "times_available": 40,
+      "distinct_min": 1,
+      "distinct_max": 75,
+      "first_count": 298,
+      "first_distinct": 63,
+      "first_min": 0.0430000014603138,
+      "first_max": 3.9000000953674316,
+      "first_groups": [
+        [
+          3.9,
+          53
+        ],
+        [
+          0.044,
+          20
+        ],
+        [
+          0.045,
+          18
+        ],
+        [
+          0.054,
+          17
+        ]
+      ],
+      "coverage_first_model_pixels": 6773,
+      "range": [
+        0,
+        10
+      ]
+    },
+    "humidity": {
+      "native_available": 11920,
+      "times_available": 40,
+      "distinct_min": 2,
+      "distinct_max": 11,
+      "first_count": 298,
+      "first_distinct": 5,
+      "first_min": 48.0,
+      "first_max": 99.0,
+      "first_groups": [
+        [
+          52.0,
+          129
+        ],
+        [
+          98.0,
+          99
+        ],
+        [
+          48.0,
+          38
+        ],
+        [
+          99.0,
+          17
+        ]
+      ],
+      "coverage_first_model_pixels": 6773,
+      "range": [
+        45,
+        100
+      ]
+    },
+    "clouds": {
+      "native_available": 11920,
+      "times_available": 40,
+      "distinct_min": 1,
+      "distinct_max": 25,
+      "first_count": 298,
+      "first_distinct": 3,
+      "first_min": 75.0,
+      "first_max": 100.0,
+      "first_groups": [
+        [
+          75.0,
+          182
+        ],
+        [
+          100.0,
+          75
+        ],
+        [
+          99.0,
+          41
+        ]
+      ],
+      "coverage_first_model_pixels": 6773,
+      "range": [
+        0,
+        100
+      ]
+    },
+    "pop": {
+      "native_available": 11920,
+      "times_available": 40,
+      "distinct_min": 1,
+      "distinct_max": 15,
+      "first_count": 298,
+      "first_distinct": 6,
+      "first_min": 92.0,
+      "first_max": 99.0,
+      "first_groups": [
+        [
+          97.0,
+          78
+        ],
+        [
+          96.0,
+          74
+        ],
+        [
+          92.0,
+          70
+        ],
+        [
+          98.0,
+          58
+        ]
+      ],
+      "coverage_first_model_pixels": 6773,
+      "range": [
+        0,
+        100
+      ]
+    },
+    "precip": {
+      "native_available": 0,
+      "times_available": 0,
+      "distinct_min": 0,
+      "distinct_max": 0,
+      "first_count": 0,
+      "first_distinct": 0,
+      "first_min": null,
+      "first_max": null,
+      "first_groups": [],
+      "coverage_first_model_pixels": 0,
+      "range": [
+        0,
+        3
+      ]
+    }
+  },
+  "temp_dsm_first": {
+    "n": 230,
+    "spearman": -0.650284159522356
+  },
+  "native_first_groups": {
+    "snow": [
+      {
+        "value": 2.31,
+        "points": 53,
+        "south_of_53": 0
+      },
+      {
+        "value": 4.1,
+        "points": 20,
+        "south_of_53": 11
+      },
+      {
+        "value": 3.25,
+        "points": 17,
+        "south_of_53": 17
+      },
+      {
+        "value": 4.07,
+        "points": 14,
+        "south_of_53": 3
+      }
+    ],
+    "visibility": [
+      {
+        "value": 3.9,
+        "points": 53,
+        "south_of_53": 0
+      },
+      {
+        "value": 0.044,
+        "points": 20,
+        "south_of_53": 19
+      },
+      {
+        "value": 0.045,
+        "points": 18,
+        "south_of_53": 18
+      },
+      {
+        "value": 0.054,
+        "points": 17,
+        "south_of_53": 17
+      }
+    ],
+    "wind_speed": [
+      {
+        "value": 1.81,
+        "points": 53,
+        "south_of_53": 0
+      },
+      {
+        "value": 3.82,
+        "points": 17,
+        "south_of_53": 17
+      },
+      {
+        "value": 4.31,
+        "points": 10,
+        "south_of_53": 0
+      },
+      {
+        "value": 4.58,
+        "points": 9,
+        "south_of_53": 0
+      }
+    ],
+    "pop": [
+      {
+        "value": 97.0,
+        "points": 78,
+        "south_of_53": 11
+      },
+      {
+        "value": 96.0,
+        "points": 74,
+        "south_of_53": 0
+      },
+      {
+        "value": 92.0,
+        "points": 70,
+        "south_of_53": 17
+      },
+      {
+        "value": 98.0,
+        "points": 58,
+        "south_of_53": 35
+      }
+    ]
+  }
+}

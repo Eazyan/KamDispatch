@@ -206,3 +206,8 @@ docker compose -f compose.yaml -f compose.s3.yaml -f compose.mail-test.yaml up -
 ```
 
 [Почтовый ящик Mailpit](http://127.0.0.1:8025) принимает письма на тестовый адрес `dispatch@example.test`. Реальные получатели настраиваются через `MAIL_TO` и TLS SMTP в режиме `live`. Форматы доставки включают прогнозное предупреждение, оперативный сигнал с JPEG и утреннюю сводку. Демо хранит сообщения в своём журнале.
+
+
+## Симулятор города
+
+Проект 3D-карты, ветра и снега размещён в [city-sim](city-sim/README_CITY_SIM.md). Запуск из `city-sim/`: `docker compose -f compose.city-sim.yml up --build --detach --wait`. Карта доступна на http://127.0.0.1:8008.

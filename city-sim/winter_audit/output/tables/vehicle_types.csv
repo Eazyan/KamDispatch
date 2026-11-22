@@ -1,0 +1,10 @@
+vehicle_type_id,city_model,confirmed_city_fleet,source_id
+rotary,,False,project_tz
+grader,,False,project_tz
+kdm,,False,project_tz
+mtz,,False,project_tz
+loader,,False,project_tz
+dump_truck,,False,project_tz
+excavator,,False,project_tz
+spreader,,False,project_tz
+compact,,False,project_tz
