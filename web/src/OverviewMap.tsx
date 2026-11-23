@@ -7,7 +7,7 @@ import type { RoadPoint, SnowSegment } from './types';
 export type MapMarker = {
   id: string; label: string; coordinates: RoadPoint[]; color: string; priority: number;
 } & ({ kind: 'bus'; badge: string } | { kind?: undefined });
-type Selection = { id: string; coordinates: RoadPoint[]; revision: number; fitOnly?: boolean };
+type Selection = { id: string; coordinates: RoadPoint[]; revision: number; label?: string; fitOnly?: boolean };
 type Props = {
   cityUrl?: string | null; runId?: string; cleanupAt?: string; roads: SnowSegment[]; markers: MapMarker[];
   traffic?: TrafficSegment[]; trafficStale: boolean;

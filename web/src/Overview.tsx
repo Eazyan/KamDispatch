@@ -144,7 +144,7 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
   const [model, setModel] = useState<'loading' | 'ready' | 'failed'>();
   const [modelProgress, setModelProgress] = useState<string>();
   const [selected, setSelected] = useState<string>();
-  const [selection, setSelection] = useState<{ id: string; coordinates: RoadPoint[]; revision: number } | null>(null);
+  const [selection, setSelection] = useState<{ id: string; coordinates: RoadPoint[]; revision: number; label?: string } | null>(null);
   const [onlyActions, setOnlyActions] = useState(false);
   const [showSnow, setShowSnow] = useState(true);
   const [showTraffic, setShowTraffic] = useState(false);
@@ -274,7 +274,7 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
       <MapSearch scenario={Boolean(scenario)} cameras={data.cameras} buses={positions ?? []} dispatch={data.dispatch_queue} search={search}
         onCamera={onCamera} onDispatch={onDispatch} onCitizen={onCitizenReport} onRoad={road => {
           setSelected(undefined);
-          setSelection({ id: road.id, coordinates: road.coordinates, revision: ++revision.current });
+          setSelection({ id: road.id, coordinates: road.coordinates, label: road.name, revision: ++revision.current });
         }} onBus={(id, point) => {
           setSelected(undefined); setShowBuses(true); setSelectedBusId(id);
           setSelection({ id: 'bus:' + id, coordinates: [point], revision: ++revision.current });

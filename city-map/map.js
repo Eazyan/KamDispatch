@@ -32,6 +32,7 @@ async function start() {
   let roadData;
   let trafficData;
   let markerObjects = [];
+  let addressMarker;
   const view = createMap(metadata, () => {}, async point => {
     if (!model || !state.showSnow) return [];
     const current = model.run_id;
@@ -185,10 +186,18 @@ async function start() {
     if (state.selection?.revision !== revision) {
       revision = state.selection?.revision;
       const points = state.selection?.coordinates?.filter(coordinate) ?? [];
-      const feature = points.length > 1 ? line(points) : points.length === 1
-        ? { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: points[0] } }
-        : null;
-      map.getSource('dispatch-focus').setData({ ...empty(), features: feature && !state.selection?.fitOnly ? [feature] : [] });
+      map.getSource('dispatch-focus').setData({ ...empty(), features: points.length > 1 && !state.selection?.fitOnly ? [line(points)] : [] });
+      addressMarker?.remove();
+      addressMarker = undefined;
+      if (points.length === 1 && !state.selection?.fitOnly && typeof state.selection?.label === 'string') {
+        const marker = document.createElement('span');
+        marker.className = 'city-pin';
+        marker.title = state.selection.label;
+        marker.setAttribute('role', 'img');
+        marker.setAttribute('aria-label', state.selection.label);
+        marker.style.setProperty('--pin', '#fff');
+        addressMarker = new maplibregl.Marker({ element: marker }).setLngLat(points[0]).addTo(map);
+      }
       if (points.length) {
         const bounds = points.reduce((box, point) => box.extend(point), new maplibregl.LngLatBounds(points[0], points[0]));
         const right = window.innerWidth > 800 ? 340 : 28;
@@ -212,9 +221,6 @@ function underlay(map) {
     map.addSource(id, { type: 'geojson', data: empty() });
     map.addLayer({ id, type: 'line', source: id, paint: { 'line-color': color, 'line-width': width } }, 'structures');
   }
-  map.addLayer({ id: 'dispatch-focus-point', type: 'circle', source: 'dispatch-focus',
-    filter: ['==', ['geometry-type'], 'Point'],
-    paint: { 'circle-radius': 7, 'circle-color': '#163842', 'circle-stroke-color': '#fff', 'circle-stroke-width': 3 } });
 
 }
 
