@@ -28,7 +28,7 @@ def digest(path):
 
 
 @contextmanager
-def chrome_page(executable):
+def chrome_page(executable, viewport=(1440, 1000)):
     # Same isolated Chrome + CDP approach as LAB's public-card collector.
     from playwright.sync_api import sync_playwright
     with tempfile.TemporaryDirectory(prefix="kamdispatch-traffic-", ignore_cleanup_errors=True) as directory:
@@ -48,7 +48,7 @@ def chrome_page(executable):
                 browser = playwright.chromium.connect_over_cdp(f"http://127.0.0.1:{port}", timeout=15000)
                 try:
                     page = browser.contexts[0].pages[0]
-                    page.set_viewport_size({"width": 1440, "height": 1000})
+                    page.set_viewport_size({"width": viewport[0], "height": viewport[1]})
                     page.set_default_timeout(20000)
                     yield page
                 finally:
@@ -79,17 +79,17 @@ def navigate(page, url):
     check_block(page)
 
 
-def capture(output, chrome, center, zoom):
+def capture(output, chrome, center, zoom, viewport=(1440, 1000)):
     from monitoring.traffic_image import calibration, mercator
     mercator(center)
-    if not 16 <= zoom <= 18:
-        raise ValueError("Use zoom 16–18")
+    if not 14 <= zoom <= 18:
+        raise ValueError("Use zoom 14–18")
     output.mkdir(parents=True, exist_ok=False)
     url = f"https://2gis.ru/p_kamchatskiy?m={center[0]}%2C{center[1]}%2F{zoom}"
     try:
-        with chrome_page(chrome) as page:
+        with chrome_page(chrome, viewport) as page:
             controls = []
-            for x, y in ((600, 300), (1200, 300), (600, 750), (1200, 750)):
+            for x, y in ((600, 300), (viewport[0]-240, 300), (600, viewport[1]-250), (viewport[0]-240, viewport[1]-250)):
                 navigate(page, url)
                 # Map controls can appear before the canvas context-menu handler.
                 # One bounded retry handles that startup race, never a block/CAPTCHA.
@@ -113,8 +113,8 @@ def capture(output, chrome, center, zoom):
                 controls.append({"pixel": [x, y], "lon_lat": [float(point[1]), float(point[2])]})
                 print(f"UI control point {len(controls)}/4", flush=True)
             metadata = {"schema_version": 1, "source": "2gis_screenshot", "source_url": url,
-                        "center": center, "zoom": zoom, "viewport": [1440, 1000],
-                        "analysis_region": [460, 220, 880, 460], "control_points": controls,
+                        "center": center, "zoom": zoom, "viewport": list(viewport),
+                        "analysis_region": [460, 220, viewport[0]-560, viewport[1]-540], "control_points": controls,
                         "provider_updated_at": None, "direction": "unresolved",
                         "validation": "experimental_unvalidated"}
             _, _, residual = calibration(metadata)
