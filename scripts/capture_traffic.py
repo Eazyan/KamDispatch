@@ -75,7 +75,7 @@ def navigate(page, url):
     response = page.goto(url, wait_until="domcontentloaded", timeout=45000)
     check_block(page, response)
     page.get_by_role("button", name="Пробки", exact=True).wait_for()
-    page.wait_for_timeout(1800)
+    page.wait_for_timeout(4000)
     check_block(page)
 
 
@@ -91,8 +91,20 @@ def capture(output, chrome, center, zoom):
             controls = []
             for x, y in ((600, 300), (1200, 300), (600, 750), (1200, 750)):
                 navigate(page, url)
-                page.mouse.click(x, y, button="right")
-                page.get_by_text("Что здесь?", exact=True).click()
+                # Map controls can appear before the canvas context-menu handler.
+                # One bounded retry handles that startup race, never a block/CAPTCHA.
+                menu = page.get_by_text("Что здесь?", exact=True)
+                for attempt in range(2):
+                    page.mouse.click(x, y, button="right")
+                    try:
+                        menu.wait_for(state="visible", timeout=3000)
+                        break
+                    except Exception:
+                        check_block(page)
+                        if attempt:
+                            raise
+                        page.wait_for_timeout(1500)
+                menu.click()
                 page.wait_for_url(re.compile(r"/geo/[^/]+/[-\d.]+(?:%2C|,)[-\d.]+"))
                 check_block(page)
                 point = re.search(r"/geo/[^/]+/([-\d.]+),([-\d.]+)", unquote(page.url))

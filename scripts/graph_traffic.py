@@ -35,6 +35,7 @@ def main():
     out=assign(visible,lines,[q[1] for q in pairs],region,graph_sha256=export['graph_sha256'],source_sha256=digest(off+on+(a.capture/'capture.json').read_bytes()),captured_at=c['captured_at'],now=a.now or datetime.now(timezone.utc).isoformat(),max_age_s=a.max_age_s,provider_updated_at=c.get('provider_updated_at'))
     out.update(source_lines=lines,segments=visible['segments'],projected=[q[1] for q in pairs],region=region,calibration_holdout_error_px=error)
     (a.output/'observations.json').write_text(json.dumps(out,ensure_ascii=False))
+    (a.output/'reference.png').write_bytes(off)
     template=Path(__file__).with_name('graph_traffic_review.html').read_text()
     (a.output/'review.html').write_text(template.replace('__DATA__',json.dumps(out,ensure_ascii=False).replace('<','\\u003c')))
     if a.graph.read_bytes()!=raw:raise RuntimeError('Graph changed during analysis')
