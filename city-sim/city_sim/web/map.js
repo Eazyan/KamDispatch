@@ -266,16 +266,20 @@ export function createMap(metadata, onAreaChange, snowDetails) {
   let trackpadUntil = 0;
   mapContainer.addEventListener('wheel', event => {
     if (event.ctrlKey || event.metaKey) return;
-    const vertical = Math.abs(event.deltaY);
+    const magnitude = Math.max(Math.abs(event.deltaX), Math.abs(event.deltaY));
     const now = performance.now();
     const pixelScroll = event.deltaMode === WheelEvent.DOM_DELTA_PIXEL &&
-      (vertical < 100 || now < trackpadUntil) && vertical >= Math.abs(event.deltaX);
-    if (!vertical || (!event.altKey && !pixelScroll)) return;
+      (magnitude < 100 || now < trackpadUntil);
+    if (!magnitude || (!event.altKey && !pixelScroll)) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     if (pixelScroll) trackpadUntil = now + 160;
-    const delta = Math.max(-55, Math.min(55, event.deltaY));
-    map.setPitch(Math.max(0, Math.min(map.getMaxPitch(), map.getPitch() + delta * .22)));
+    // A trackpad reports two-finger swipes as wheel deltas, not touch rotation.
+    const clamp = value => Math.max(-55, Math.min(55, value));
+    map.jumpTo({
+      bearing: map.getBearing() + clamp(event.deltaX) * .35,
+      pitch: Math.max(0, Math.min(map.getMaxPitch(), map.getPitch() + clamp(event.deltaY) * .22))
+    });
   }, { capture: true, passive: false });
   updatePitch();
 
@@ -293,7 +297,7 @@ export function createMap(metadata, onAreaChange, snowDetails) {
   $('focus').addEventListener('click', () => locate(area, false));
   $('view').addEventListener('click', () => {
     const use3D = map.getPitch() <= 1;
-    map.easeTo({ pitch: use3D ? 57 : 0, bearing: use3D ? -23 : 0, duration: 650 });
+    map.easeTo({ pitch: use3D ? 57 : 0, duration: 650 });
   });
 
   const ready = new Promise(resolve => map.once('load', () => {
