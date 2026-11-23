@@ -17,7 +17,7 @@ def main():
     (a.output/'segments.json').write_text(json.dumps(export,ensure_ascii=False))
     if not a.capture:return
     from PIL import Image
-    from monitoring.traffic_image import calibration, project, extract_traffic_lines
+    from monitoring.traffic_image import calibration, project, extract_traffic_lines, unproject
     c=json.loads((a.capture/'capture.json').read_text());origin,transform,error=calibration(c)
     off=(a.capture/'traffic-off.png').read_bytes();on=(a.capture/'traffic-on.png').read_bytes()
     for name,data in [('traffic-off.png',off),('traffic-on.png',on)]:
@@ -33,9 +33,17 @@ def main():
         if max(q[0] for q in points)>=x and min(q[0] for q in points)<=x+w and max(q[1] for q in points)>=y and min(q[1] for q in points)<=y+h:pairs.append((road,points))
     visible=dict(export,segments=[q[0] for q in pairs]);lines=extract_traffic_lines(before,after,region)
     out=assign(visible,lines,[q[1] for q in pairs],region,graph_sha256=export['graph_sha256'],source_sha256=digest(off+on+(a.capture/'capture.json').read_bytes()),captured_at=c['captured_at'],now=a.now or datetime.now(timezone.utc).isoformat(),max_age_s=a.max_age_s,provider_updated_at=c.get('provider_updated_at'))
+    out['analyzer_sha256']=digest(b''.join((Path(__file__).resolve().parents[1]/name).read_bytes() for name in ['monitoring/traffic_graph.py','monitoring/traffic_image.py','monitoring/traffic_raster.py']))
     out.update(source_lines=lines,segments=visible['segments'],projected=[q[1] for q in pairs],region=region,calibration_holdout_error_px=error)
     (a.output/'observations.json').write_text(json.dumps(out,ensure_ascii=False))
     (a.output/'reference.png').write_bytes(off)
+    from monitoring.traffic_raster import ribbon_overlay
+    overlay=ribbon_overlay(before,after,region)
+    overlay.save(a.output/'ribbons.png')
+    overlay.resize((max(1,overlay.width//4),max(1,overlay.height//4)),Image.Resampling.LANCZOS).save(a.output/'ribbons-overview.png')
+    out['raster_bounds']=[unproject([x,y+h],origin,transform),unproject([x+w,y],origin,transform)]
+    out['capture_metadata']=c
+    (a.output/'observations.json').write_text(json.dumps(out,ensure_ascii=False))
     template=Path(__file__).with_name('graph_traffic_review.html').read_text()
     (a.output/'review.html').write_text(template.replace('__DATA__',json.dumps(out,ensure_ascii=False).replace('<','\\u003c')))
     if a.graph.read_bytes()!=raw:raise RuntimeError('Graph changed during analysis')

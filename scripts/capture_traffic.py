@@ -105,9 +105,9 @@ def capture(output, chrome, center, zoom, viewport=(1440, 1000)):
                             raise
                         page.wait_for_timeout(1500)
                 menu.click()
-                page.wait_for_url(re.compile(r"/geo/[^/]+/[-\d.]+(?:%2C|,)[-\d.]+"))
+                page.wait_for_url(re.compile(r"/(?:geo|firm)/[^/]+/[-\d.]+(?:%2C|,)[-\d.]+"))
                 check_block(page)
-                point = re.search(r"/geo/[^/]+/([-\d.]+),([-\d.]+)", unquote(page.url))
+                point = re.search(r"/(?:geo|firm)/[^/]+/([-\d.]+),([-\d.]+)", unquote(page.url))
                 if point is None:
                     raise RuntimeError("Cannot read UI control-point coordinates")
                 controls.append({"pixel": [x, y], "lon_lat": [float(point[1]), float(point[2])]})

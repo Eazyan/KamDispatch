@@ -45,3 +45,13 @@ class GraphTrafficTests(unittest.TestCase):
         out=assign(self.export,[],[[[0,0],[100,0]]],[0,-5,50,10],graph_sha256=self.export['graph_sha256'],source_sha256='synthetic',captured_at='2026-11-23T10:00:00+12:00',now='2026-11-23T10:01:00+12:00')
         self.assertTrue(any(r['reason']=='outside_capture' for r in out['observations']))
         self.assertEqual({r['traffic_status'] for r in out['observations']},{'unknown'})
+
+    def test_offset_ribbon_is_continuous_without_extending_endpoints(self):
+        out=self.run_case([dict(id='offset',pixels=[[20,9],[80,9]],traffic_status='slow')])
+        chosen=[r for r in out['observations'] if r['edge_id']=='a' and r['traffic_status']=='slow']
+        self.assertTrue(chosen)
+        self.assertLessEqual(chosen[0]['interval_m'][0],20)
+        self.assertGreaterEqual(chosen[-1]['interval_m'][1],80)
+        for a,b in zip(chosen,chosen[1:]):self.assertAlmostEqual(a['interval_m'][1],b['interval_m'][0])
+        self.assertGreaterEqual(chosen[0]['interval_m'][0],18)
+        self.assertLessEqual(chosen[-1]['interval_m'][1],82)

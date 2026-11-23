@@ -113,3 +113,64 @@ python scripts/capture_traffic_city.py snegoplan/mapprep/out/graph_v3.json /tmp/
 
 Raw screenshots and generated maps are local only, not added to public Git. No
 recurring/background collection or automatic dispatch connection was configured.
+
+## 23.11.2026 · detailed continuity revision (completed)
+
+User requested smaller geographic capture areas and fewer fragmented ribbons.
+Zoom increased 14 → 16; measured footprints produce 31 nonempty road tiles with
+10% overlap. Empty tiles rejected only when no graph geometry bbox intersects;
+actual complete-polyline union coverage is verified after capture.
+
+Exact polyline competitors replace sampled-bin distance comparisons; lateral radius
+12 px, longitudinal endpoint extension at most 1 px. Color classes compete by nearest
+source distance; competing colors within 3 px remain unknown. A corridor with clear
+unambiguous support is not globally vetoed by another rejected source fragment.
+These are experimental matching settings, not calibrated accuracy thresholds.
+Round caps/joins remove visual seams between adjacent assigned intervals.
+
+A separate calibrated transparent raster layer preserves continuous source ribbons
+without Hough fragmentation or graph assignment. It uses the same paired-image
+change/color mask and elongated-component rejection, and keeps real gaps transparent.
+The UI explicitly separates source ribbons from assignments; graph card clicks are
+assignment evidence only. This layer is display evidence, not validated traffic truth.
+Source mosaics clear older imagery in overlap before drawing the newer timestamp.
+
+Same saved zoom16 screenshot comparison (not a precision estimate): old known
+physical length 2667.289 m; revised matcher 2937.608 m. Synthetic offset ribbon is
+continuous from endpoint to endpoint; no longitudinal extension beyond one pixel.
+33 offline tests passed, including continuous source raster, real gap and logo controls.
+Initial large detailed probe failed because a control opened /firm/ rather than
+/geo/. Both standard coordinate-bearing public UI URLs now accepted; four-point
+independent calibration remains required. Retry probe succeeded.
+
+### Detailed capture completion
+
+31/31 tiles completed, with 16 verified previous captures reused after user-requested
+pause. Interrupted tile directory preserved in tiles/interrupted; incomplete captures
+never treated as complete. Cached analyses reused only after graph/source/code hash
+checks. All analyses share input code hash d2be7ecb7ea97b3a578a5af5f48ba08e8f4fe086392052a8155dafde96908d00.
+The source display renderer then independently reconstructed changed white arrow
+pixels: directional closing limited to 11-pixel kernels, only newly white pixels
+changed ≥8 relative to traffic-off; unchanged road gaps remain transparent, competing
+color repair candidates rejected. This is cartographic display reconstruction only,
+not extra graph traffic evidence. Renderer hash separately recorded in evidence.
+
+Full-polylines footprint verification: 11689/11689, missing 0. Source capture times
+18:45:52–19:15:44 Asia/Kamchatka; saved snapshots of different times, not live.
+[DETAIL_TRAFFIC_EVIDENCE.json](DETAIL_TRAFFIC_EVIDENCE.json) contains hashes,
+calibration controls, footprint verification and coverage. Raw PNG local only.
+
+Detailed graph assignment physical lengths: free 192216.292 m, slow 8797.000 m,
+congested 901.296 m, unknown 1053865.712 m. Known length about 201.915 km versus
+72.476 km in the earlier overview run; both time and method differ, so this is
+coverage, not an accuracy improvement estimate. Unknown remains explicit.
+
+Browser: 31/31 overview raster assets loaded; high-resolution layers load only for
+visible zoomed tiles (four detail assets in inspected view). Whole graph renders;
+source-only and assignment-only switches, zoom/reset and congested interval card
+(улица Арсеньева) verified, zero JS errors. Three fixed-area source views inspected
+visually; this is layout/display QA, not the independent manually annotated holdout
+accuracy study required for empirical validation. That study remains not_verified.
+Source ribbons shown by default, assignments can be enabled separately. Relative
+raster URLs keep the generated map portable together with its adjacent assets.
+35 offline tests pass, including white-arrow reconstruction and unchanged-gap control.

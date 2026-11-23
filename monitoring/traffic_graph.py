@@ -61,6 +61,8 @@ def assign(export, lines, projected, region, *, graph_sha256, source_sha256,
         aware(provider_updated_at)
     x, y, w, h = region
     bins = []
+    part_grid = {}
+    radius = 12.0
     for ci, points in enumerate(projected):
         points = np.asarray(points, dtype=float)
         lengths = [float(np.linalg.norm(b-a)) for a,b in zip(points, points[1:])]
@@ -71,6 +73,13 @@ def assign(export, lines, projected, region, *, graph_sha256, source_sha256,
         for a,b,length in zip(points, points[1:], lengths):
             if not length:
                 continue
+            # Index exact polyline parts; sampled-bin distances cause phase jitter.
+            low = np.floor((np.minimum(a,b)-radius)/24).astype(int)
+            high = np.floor((np.maximum(a,b)+radius)/24).astype(int)
+            part = (ci,a,b,(b-a)/length,length)
+            for col in range(low[0],high[0]+1):
+                for row in range(low[1],high[1]+1):
+                    part_grid.setdefault((col,row),[]).append(part)
             n = max(1, math.ceil(length/bin_px))
             for j in range(n):
                 p = a+(b-a)*(j+.5)/n
@@ -93,36 +102,49 @@ def assign(export, lines, projected, region, *, graph_sha256, source_sha256,
             raise ValueError('Invalid source line')
         tangent = (b-a)/length
         # Every bin competes against other corridors at its closest source sample.
-        low = np.floor((np.minimum(a,b)-3)/8).astype(int)
-        high = np.floor((np.maximum(a,b)+3)/8).astype(int)
+        low = np.floor((np.minimum(a,b)-radius)/8).astype(int)
+        high = np.floor((np.maximum(a,b)+radius)/8).astype(int)
         candidates = [q for col in range(low[0],high[0]+1)
                       for row in range(low[1],high[1]+1) for q in grid.get((col,row), [])]
         for item in candidates:
             if not item['visible'] or abs(item['t'] @ tangent) < math.cos(math.radians(20)):
                 continue
-            p = a+tangent*float(np.clip((item['p']-a) @ tangent,0,length))
-            distance = float(np.linalg.norm(item['p']-p))
-            if distance > 3:  # deliberately conservative experimental tolerance
+            along = float((item['p']-a) @ tangent)
+            # Lateral tolerance must not extend a ribbon far beyond its endpoints.
+            if along < -1 or along > length+1:
                 continue
-            col, row = np.floor(p/8).astype(int)
-            neighbors = [q for dx in (-1,0,1) for dy in (-1,0,1) for q in grid.get((col+dx,row+dy), [])]
-            competitors = [q for q in neighbors if q['ci'] != item['ci'] and q['visible']
-                           and abs(q['t'] @ tangent) >= math.cos(math.radians(20))
-                           and np.linalg.norm(q['p']-p) <= distance+2]
+            p = a+tangent*float(np.clip(along,0,length))
+            distance = float(np.linalg.norm(item['p']-p))
+            if distance > radius:
+                continue
+            competitors = []
+            key=tuple(np.floor(p/24).astype(int))
+            for ci,start,end,direction,part_length in part_grid.get(key,[]):
+                if ci==item['ci'] or abs(direction @ tangent)<math.cos(math.radians(20)):
+                    continue
+                q=start+direction*float(np.clip((p-start) @ direction,0,part_length))
+                if np.linalg.norm(q-p)<=distance+2:
+                    competitors.append(ci)
             item['source_ids'].add(line['id'])
             if competitors:
                 item['ambiguous'] = True
             else:
-                item['votes'].append((line['traffic_status'], line['id']))
+                item['votes'].append((line['traffic_status'], line['id'], distance))
     results = []
     for item in bins:
-        statuses = {v[0] for v in item['votes']}
+        distances = {}
+        for status,line_id,distance in item['votes']:
+            distances[status]=min(distances.get(status,math.inf),distance)
+        ranked=sorted(distances,key=distances.get)
+        statuses=set(ranked)
+        if len(ranked)>1 and distances[ranked[1]]-distances[ranked[0]]>3:
+            statuses={ranked[0]}
         status, reason = 'unknown', 'no_source_color'
         if not item['visible']:
             reason = 'outside_capture'
         elif stale:
             reason = 'stale_or_future_capture'
-        elif item['ambiguous']:
+        elif item['ambiguous'] and not statuses:
             reason = 'ambiguous_parallel_corridor'
         elif len(statuses) > 1:
             reason = 'mixed_colors'
@@ -139,6 +161,6 @@ def assign(export, lines, projected, region, *, graph_sha256, source_sha256,
                             'direction': 'unresolved', 'scope': 'road_corridor',
                             'timestamp': captured_at, 'provider_updated_at': provider_updated_at,
                             'graph_sha256': graph_sha256, 'source_sha256': source_sha256})
-    return {'observations': results, 'stale': stale, 'age_s': age,
+    return {'method': 'corridor_exact_geometry_v3', 'matching_parameters': {'radius_px': radius, 'ambiguity_margin_px': 2, 'class_margin_px': 3, 'endpoint_extension_px': 1, 'bin_px': bin_px}, 'observations': results, 'stale': stale, 'age_s': age,
             'max_age_s': max_age_s, 'validation': 'experimental_unvalidated',
             'not_for_automatic_dispatch': True}
