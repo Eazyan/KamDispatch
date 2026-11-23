@@ -20,7 +20,7 @@ from .config import ROOT, Settings
 from .db import connect, migrate
 from .districts import load_districts
 from .dispatch import comparison, inspection_queue
-from . import citizens, dispatch_queue
+from . import citizens, dispatch_queue, messenger_dispatch
 from .snow import city_roads, snow_forecast, snow_raster
 
 TRANSITIONS = {
@@ -108,21 +108,23 @@ def create_app(settings=None):
     def citizen_identity(
         request: Request, authorization: str = Header(default=""),
         x_citizen_bot_key: str = Header(default=""), x_telegram_user: str = Header(default=""),
+        x_max_user: str = Header(default=""),
     ):
-        if x_citizen_bot_key or x_telegram_user:
+        if x_citizen_bot_key or x_telegram_user or x_max_user:
+            platform = "max" if x_max_user else "telegram"
+            user_id = x_max_user or x_telegram_user
             if (not settings.citizen_bot_api_key
                 or not hmac.compare_digest(x_citizen_bot_key.encode(), settings.citizen_bot_api_key.encode())
-                or not re.fullmatch(r"[1-9][0-9]{0,18}", x_telegram_user)):
+                or (x_max_user and x_telegram_user)
+                or not re.fullmatch(r"[1-9][0-9]{0,18}", user_id)):
                 raise HTTPException(401, "Недействительные данные бота")
-            return f"telegram:{x_telegram_user}"
+            return f"{platform}:{user_id}"
         if settings.mode == "live":
             actor = oidc_actor(request, authorization)
-            if actor.startswith("telegram:") or actor == "legacy-web":
+            if actor.startswith(citizens.BOT_ACTOR_PREFIXES) or actor == "legacy-web":
                 raise HTTPException(403, "Недопустимый идентификатор")
             return actor
         return "local-demo"
-
-    app.include_router(citizens.router(settings, citizen_identity, identity))
 
     @app.get("/api/v1/citizens/form-config")
     def citizen_form_config():
@@ -150,6 +152,9 @@ def create_app(settings=None):
         if not found:
             raise HTTPException(404, "Запуск не найден")
         return requested
+
+    app.include_router(citizens.router(settings, citizen_identity, identity, selected_run))
+    app.include_router(messenger_dispatch.router(settings, citizen_identity, selected_run))
 
     def mark_evidence_age(events, run_id):
         cutoff = datetime.now(timezone.utc) - timedelta(seconds=settings.freshness)
@@ -223,6 +228,10 @@ def create_app(settings=None):
             ).fetchone()
             snow = snow_forecast(conn, settings, run_id, datetime.now(timezone.utc))
             dispatch_rows = dispatch_queue.queue(conn, run_id, datetime.now(timezone.utc), settings.freshness)
+            bot_crews = set(settings.dispatch_bot_crews.values())
+            for row in dispatch_rows:
+                if (task := row["task"]) is not None:
+                    task["work_in_bot"] = bool(task["claimed_by"] or task["assignee"] in bot_crews)
             dispatch_locations = dispatch_queue.locations(conn, run_id)
             now = datetime.now(timezone.utc)
             buses = dashboard_demo() if run_id == "demo" else dashboard_rnis(conn, settings, run_id, now)
@@ -234,7 +243,7 @@ def create_app(settings=None):
                 "dispatch_queue": dispatch_rows, "dispatch_locations": dispatch_locations,
                 "bus_observations": buses,
                 "bus_map": bus_map,
-                "dispatch_assignees": sorted(set(settings.crew_subjects.values())) if user[1] == "operator" else [],
+                "dispatch_assignees": sorted(set(settings.crew_subjects.values()) | set(settings.dispatch_bot_crews.values())) if user[1] == "operator" else [],
                 "snow_forecast": snow,
                 "city_map_url": settings.city_map_url if settings.city_map_url.startswith(("http://", "https://")) else None}
 
@@ -297,7 +306,19 @@ def create_app(settings=None):
         if user[1] != "operator":
             raise HTTPException(403, "Действие доступно диспетчеру")
         with connect(settings) as conn:
-            return dispatch_queue.progress_task(conn, selected_run(conn, run), task_id, user[0], draft)
+            return dispatch_queue.progress_task(conn, selected_run(conn, run), task_id, user[0], draft,
+                                                bot_crews=settings.dispatch_bot_crews.values())
+
+    @app.get("/api/v1/dispatch/tasks/{task_id}/result-photo")
+    def dispatch_result_photo(task_id: UUID, run: str | None = None, user=Depends(identity)):
+        with connect(settings) as conn:
+            photo = conn.execute(
+                "SELECT photo_jpeg FROM dispatch_task_photos WHERE (run_id,task_id)=(%s,%s)",
+                (selected_run(conn, run), task_id),
+            ).fetchone()
+        if photo is None:
+            raise HTTPException(404, "Фото результата не найдено")
+        return Response(photo["photo_jpeg"], media_type="image/jpeg")
 
     @app.post("/api/v1/dispatch/tasks/{task_id}/link")
     def share_dispatch_task(task_id: UUID, run: str | None = None, user=Depends(identity)):
@@ -348,7 +369,10 @@ def create_app(settings=None):
     def update_crew_task(task_id: UUID, draft: dispatch_queue.ProgressDraft, token=Depends(crew_token)):
         with connect(settings) as conn:
             task = dispatch_queue.crew_task(conn, task_id, token)
-            return dispatch_queue.progress_task(conn, task["run_id"], task_id, f"Исполнитель: {task['assignee']}", draft, token)
+            return dispatch_queue.progress_task(
+                conn, task["run_id"], task_id, f"Исполнитель: {task['assignee']}", draft, token,
+                bot_crews=settings.dispatch_bot_crews.values(),
+            )
 
     @app.get("/api/v1/snow-raster/{segment_id}")
     def forecast_raster(segment_id: str, calculated_at: datetime, run: str | None = None, user=Depends(identity)):

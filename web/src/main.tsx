@@ -691,7 +691,8 @@ function App() {
         loadHistory={id => scenario ? Promise.resolve([]) : api<HistoryItem[]>('dispatch/tasks/' + id + '/history')}
         loadArchive={() => scenario ? Promise.resolve([]) : api<ArchivedTask[]>('dispatch/archive')}
         onOpenSignal={scenario ? undefined : (id, trigger) => { eventTrigger.current = trigger; setEventId(id); }}
-        frameUrl={frameUrl} formatTime={time} />}
+        frameUrl={frameUrl} resultPhotoUrl={id => '/api/v1/dispatch/tasks/' + id + '/result-photo' + suffix}
+        formatTime={time} />}
       {showOverview && (data ? <Overview key={scenario ?? data.run_id} data={data} error={scenario && scenario !== 'response' ? '' : error} updatedAt={refreshAt}
         scenario={scenario} onScenario={changeScenario} phase={phase} onPhase={changeCleanupPhase} frameUrl={frameUrl} onDispatch={openDispatch}
         onSignal={(id, trigger) => { eventTrigger.current = trigger; setEventId(id); }}

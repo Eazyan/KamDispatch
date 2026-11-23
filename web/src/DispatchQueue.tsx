@@ -184,11 +184,18 @@ function ReportTaskLink({ tasks, onSave }: {
   </form> : <button type="button" className="quiet" onClick={() => setOpen(true)}>Связать с заданием</button>;
 }
 
+function TaskResultPhoto({ url }: { url: string }) {
+  return <a className="dispatch-result-photo" href={url} target="_blank" rel="noreferrer">
+    <img src={url} alt="Фото выполненной работы" loading="lazy" />
+  </a>;
+}
+
 function QueueItem({ row, taskChoices, operator, assignees, onOpenSignal, onSave, onAssign, onProgress, onLink, onLinkReport,
-  loadHistory, frameUrl, formatTime }: AssignmentActions & {
+  loadHistory, frameUrl, resultPhotoUrl, formatTime }: AssignmentActions & {
   row: DispatchGroup; operator: boolean; onOpenSignal?: (id: string, trigger: HTMLButtonElement) => void;
   taskChoices: DispatchGroup[];
-  onSave: (draft: TaskDraft) => Promise<void>; frameUrl: (id: string) => string; formatTime: (at: string) => string;
+  onSave: (draft: TaskDraft) => Promise<void>; frameUrl: (id: string) => string;
+  resultPhotoUrl: (id: string) => string; formatTime: (at: string) => string;
 }) {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
@@ -231,6 +238,7 @@ function QueueItem({ row, taskChoices, operator, assignees, onOpenSignal, onSave
     <div className="dispatch-detail">
       {row.task && <TaskAssignment key={row.task.id} task={row.task} operator={operator} assignees={assignees} onAssign={onAssign}
         onProgress={onProgress} onLink={onLink} loadHistory={loadHistory} formatTime={formatTime} />}
+      {row.task?.has_result_photo && <TaskResultPhoto key={row.task.assignment_version} url={resultPhotoUrl(row.task.id)} />}
       {row.signals.length > 0 && <>
         <h3>Сигналы камер</h3>
         <ul>{row.signals.map(signal => <li key={signal.id}>
@@ -272,14 +280,14 @@ function QueueItem({ row, taskChoices, operator, assignees, onOpenSignal, onSave
 }
 
 export function DispatchQueue({ rows, busObservations, cameraDistricts, loadRoads, operator, assignees, onRegister, onSaveTask, onAssign, onProgress, onLink, onLinkReport,
-  loadHistory, loadArchive, onOpenSignal, frameUrl, formatTime, target }: AssignmentActions & {
+  loadHistory, loadArchive, onOpenSignal, frameUrl, resultPhotoUrl, formatTime, target }: AssignmentActions & {
   target?: { key: string };
   busObservations?: BusObservations | null;
   rows: DispatchGroup[]; cameraDistricts: string[]; loadRoads: LoadRoads; operator: boolean;
   onRegister: (draft: ReportDraft) => Promise<void>; onSaveTask: (draft: TaskDraft) => Promise<void>;
   onOpenSignal?: (id: string, trigger: HTMLButtonElement) => void;
   loadArchive: () => Promise<ArchivedTask[]>;
-  frameUrl: (id: string) => string; formatTime: (at: string) => string;
+  frameUrl: (id: string) => string; resultPhotoUrl: (id: string) => string; formatTime: (at: string) => string;
 }) {
   const [showForm, setShowForm] = useState(false);
   const [notice, setNotice] = useState('');
@@ -397,7 +405,7 @@ export function DispatchQueue({ rows, busObservations, cameraDistricts, loadRoad
         <QueueItem key={rowKey(row)} row={row} operator={operator} assignees={assignees} onAssign={onAssign} onProgress={onProgress}
           taskChoices={rows.filter(item => item.task && item.district.toLocaleLowerCase('ru') === row.district.toLocaleLowerCase('ru'))}
           onLink={onLink} onLinkReport={onLinkReport} loadHistory={loadHistory}
-          onSave={onSaveTask} onOpenSignal={onOpenSignal} frameUrl={frameUrl} formatTime={formatTime} />
+          onSave={onSaveTask} onOpenSignal={onOpenSignal} frameUrl={frameUrl} resultPhotoUrl={resultPhotoUrl} formatTime={formatTime} />
       )}</ul>
     </> : <p className="dispatch-empty muted">{selected || priority || status !== 'all' ? 'По выбранным фильтрам ничего нет.' :
       'Очередь пуста. Здесь появятся сигналы камер и зарегистрированные обращения.'}</p>}
@@ -411,7 +419,9 @@ export function DispatchQueue({ rows, busObservations, cameraDistricts, loadRoad
       {archiveError ? <p className="error">{archiveError}</p> : archive ? (archive.length ? <ul>{archive.map(task =>
         <li key={task.id}>
           <strong>{task.address} · {workLabels[task.work_kind]}</strong> · {task.district} · {formatTime(task.closed_at)}
+          {task.claimed_by && <p>Принял · {task.claimed_by}</p>}
           {task.result && <p>{task.result}</p>}
+          {task.has_result_photo && <TaskResultPhoto url={resultPhotoUrl(task.id)} />}
           {task.reports.map((report, index) => <p key={index}>
             {report.reference && <>Обращение № {report.reference} · </>}{report.description}
             {report.closed_at ? <> · Закрыто. {report.resolution}</> : <> · На исполнении</>}

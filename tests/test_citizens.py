@@ -1,5 +1,7 @@
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
+from datetime import datetime, timedelta, timezone
 from io import BytesIO
 import json
 import os
@@ -12,11 +14,13 @@ import httpx
 from fastapi.testclient import TestClient
 from PIL import Image
 import pytest
+from psycopg.types.json import Jsonb
 
 from monitoring import api, citizen_import
-from monitoring.citizen_bot import Bot, Draft, compact_id
-from monitoring.citizens import MAX_PHOTO_BYTES, MAX_UPLOAD_BYTES
-from monitoring.config import Settings
+from monitoring.citizen_bot import BOT_DISPATCH_PATH, Bot, Draft, compact_id, deliver_task_notices, deliver_warnings
+from monitoring.citizen_max_bot import MaxBot
+from monitoring.citizens import MAX_PHOTO_BYTES, MAX_UPLOAD_BYTES, save_report
+from monitoring.config import ROOT, Settings
 from monitoring.db import connect
 from monitoring.districts import load_districts, locate_district
 
@@ -122,13 +126,14 @@ def test_persists_photo_and_filters_reports(tmp_path):
         assert client.get(REPORTS, params=params).json() == {"items": [], "next_offset": None}
 
 
-def test_citizen_clients_share_storage_and_telegram_history_is_private(tmp_path):
+def test_citizen_clients_share_storage_and_bot_history_is_private(tmp_path):
     database = os.getenv("TEST_DATABASE_URL")
     if not database:
         pytest.skip("Set TEST_DATABASE_URL to a temporary PostgreSQL database")
     settings = Settings(database=database, mode="demo", media_dir=tmp_path, citizen_bot_api_key="test-key")
     actor = str(uuid4().int % 10**18 + 1)
     headers = {"X-Citizen-Bot-Key": "test-key", "X-Telegram-User": actor}
+    max_headers = {"X-Citizen-Bot-Key": "test-key", "X-Max-User": actor}
     stranger = {**headers, "X-Telegram-User": str(int(actor) + 1)}
     request_id = str(uuid4())
     body = {"description": "Гололёд у дома", "latitude": -32.001, "longitude": 180,
@@ -139,17 +144,39 @@ def test_citizen_clients_share_storage_and_telegram_history_is_private(tmp_path)
         assert client.get("/citizens/app.js").status_code == 200
         assert client.get("/api/v1/citizens/form-config").json() == {"requires_token": False}
 
-        def send(auth):
-            return client.post(REPORTS, headers=auth, data=body, files={"photo": ("photo.png", png())})
+        def send(auth, image=None):
+            return client.post(REPORTS, headers=auth, data=body, files={
+                "photo": ("photo", png() if image is None else image),
+            })
 
         assert send({"X-Telegram-User": actor}).status_code == 401
+        assert send({"X-Max-User": actor}).status_code == 401
+        assert send({**max_headers, "X-Telegram-User": actor}).status_code == 401
         saved = send(headers)
         assert saved.status_code == 201, saved.text
         report = saved.json()
         assert report["address"] == body["address"]
         assert report["suggested_tags"] == ["гололёд"]
-        assert send(headers).json()["id"] == report["id"]
+        assert report["report_number"] == 1
+        assert send(headers).json() == report
         assert send({}).json()["id"] != report["id"]
+        webp = BytesIO()
+        Image.new("RGB", (20, 10), "white").save(webp, format="WEBP")
+        assert send(headers, webp.getvalue()).status_code == 415
+        assert send({}, webp.getvalue()).status_code == 415
+        saved_max = send(max_headers, webp.getvalue())
+        assert saved_max.status_code == 201, saved_max.text
+        max_report = saved_max.json()
+        max_photo = client.get(max_report["photo_url"], headers=max_headers)
+        assert max_photo.status_code == 200
+        assert max_photo.headers["content-type"] == "image/jpeg"
+        assert max_photo.content.startswith(b"\xff\xd8")
+        assert max_report["id"] != report["id"]
+        assert max_report["report_number"] == 1
+        assert send(max_headers).json()["id"] == max_report["id"]
+        assert client.get(REPORTS + "/mine", headers=max_headers).json() == [max_report]
+        assert client.get(report["photo_url"], headers=max_headers).status_code == 404
+        assert client.get(max_report["photo_url"], headers=headers).status_code == 404
 
         assert client.get(REPORTS + "/mine", headers=headers).json() == [report]
         assert client.get(REPORTS + "/mine", headers=stranger).json() == []
@@ -164,6 +191,66 @@ def test_citizen_clients_share_storage_and_telegram_history_is_private(tmp_path)
         assert any(zone["latitude_cell"] == -3201 and zone["longitude_cell"] == 17999
                    and zone["count"] >= 2 for zone in zones)
 
+        assert client.get(f"{REPORTS}/1", headers=headers).json() == report
+        assert client.get(f"{REPORTS}/1", headers=max_headers).json() == max_report
+        assert client.get(f"{REPORTS}/1", headers=stranger).status_code == 404
+        assert client.get(f"{REPORTS}/9223372036854775808", headers=headers).status_code == 422
+
+        def send_new(owner, retry_key):
+            response = client.post(REPORTS, headers=owner, data={**body, "request_id": retry_key},
+                                   files={"photo": ("photo", png())})
+            assert response.status_code == 201, response.text
+            return response.json()
+
+        retry_key = str(uuid4())
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            repeated, repeated_again, another, latest = pool.map(
+                lambda key: send_new(headers, key), (retry_key, retry_key, str(uuid4()), str(uuid4())),
+            )
+        assert repeated == repeated_again
+        assert sorted(item["report_number"] for item in (repeated, another, latest)) == [2, 3, 4]
+
+        browser = {"X-Citizen-Browser-Id": str(uuid4())}
+        second_browser = {"X-Citizen-Browser-Id": str(uuid4())}
+        assert send_new(browser, str(uuid4()))["report_number"] == 1
+        assert send_new(browser, str(uuid4()))["report_number"] == 2
+        assert send_new(second_browser, str(uuid4()))["report_number"] == 1
+
+
+
+def test_number_migration_preserves_existing_rows_and_continues_numbering(tmp_path):
+    database = os.getenv("TEST_DATABASE_URL")
+    if not database:
+        pytest.skip("Set TEST_DATABASE_URL to a temporary PostgreSQL database")
+    settings = Settings(database=database, mode="demo", media_dir=tmp_path)
+    migrations = ROOT / "monitoring" / "migrations"
+    early, late, other_author, other_mode = sorted(uuid4() for _ in range(4))
+    image = png()
+    with connect(settings) as conn:
+        conn.execute((migrations / "011_citizen_reports.sql").read_text()
+                     .replace("CREATE TABLE", "CREATE TEMP TABLE", 1))
+        conn.execute((migrations / "012_citizen_clients.sql").read_text())
+        for identifier, mode, author, date in (
+            (late, "demo", "telegram:1", "2026-11-22"),
+            (early, "demo", "telegram:1", "2026-11-22"),
+            (other_author, "demo", "telegram:2", "2026-11-21"),
+            (other_mode, "preview", "telegram:1", "2026-11-21"),
+        ):
+            conn.execute(
+                """INSERT INTO citizen_reports (id, mode, submitted_by, created_at, district_id,
+                                                description, latitude, longitude, photo_jpeg)
+                   VALUES (%s, %s, %s, %s, 'unassigned', 'Снег', 0, 0, %s)""",
+                (identifier, mode, author, date, image),
+            )
+        conn.execute((migrations / "015_citizen_report_numbers.sql").read_text())
+        rows = conn.execute("SELECT id, report_number, photo_jpeg FROM citizen_reports").fetchall()
+        assert {row["id"]: row["report_number"] for row in rows} == {
+            early: 1, late: 2, other_author: 1, other_mode: 1,
+        }
+        assert all(row["photo_jpeg"] == image for row in rows)
+        new = save_report(conn, mode="demo", actor="telegram:1", districts=[], image=image,
+                          description="Снег", latitude=0, longitude=0)
+        assert new["report_number"] == 3
 
 
 def test_legacy_import_is_atomic_and_idempotent(tmp_path, monkeypatch):
@@ -203,8 +290,8 @@ def test_legacy_import_is_atomic_and_idempotent(tmp_path, monkeypatch):
 
 def test_bot_submits_telegram_photo_through_api_and_reads_it_back():
     report_id = str(uuid4())
-    report = {"id": report_id, "description": "Гололёд", "latitude": 53.02, "longitude": 158.65,
-              "created_at": "2025-01-01T10:00:00Z", "tags": [], "suggested_tags": ["гололёд"]}
+    report = {"id": report_id, "report_number": 1, "description": "Гололёд", "latitude": 53.02, "longitude": 158.65,
+              "created_at": "2025-01-01T14:30:00Z", "tags": [], "suggested_tags": ["гололёд"]}
     image = png()
 
     async def transport(request):
@@ -217,7 +304,7 @@ def test_bot_submits_telegram_photo_through_api_and_reads_it_back():
             return httpx.Response(201, json=report)
         if request.url.path.endswith("/photo"):
             return httpx.Response(200, content=image)
-        assert request.url.path == f"{REPORTS}/{report_id}"
+        assert request.url.path in {f"{REPORTS}/{report_id}", f"{REPORTS}/1"}
         return httpx.Response(200, json=report)
 
     async def exercise():
@@ -235,13 +322,149 @@ def test_bot_submits_telegram_photo_through_api_and_reads_it_back():
             await bot.handle(update, None)
             telegram.get_file.assert_awaited_once_with("telegram-photo")
             assert 123 not in bot.drafts
-            assert report_id in message.reply_text.await_args.args[0]
-            message.text = "/r_" + compact_id(report_id)
-            await bot.handle(update, None)
-            assert message.reply_photo.await_args.args[0] == image
+            assert "Обращение №1 принято. Открыть · /r_1" in message.reply_text.await_args.args[0]
+            for command in ("/r_1", "/report 1", "/r_" + compact_id(report_id)):
+                message.text = command
+                await bot.handle(update, None)
+                assert message.reply_photo.await_args.args[0] == image
+                assert "02.01.2025 02:30 (Камчатка)" in message.reply_photo.await_args.kwargs["caption"]
 
     asyncio.run(exercise())
 
+
+
+def test_max_bot_submits_photo_and_returns_personal_history():
+    report = {"id": str(uuid4()), "report_number": 1, "description": "Гололёд", "latitude": 53.02, "longitude": 158.65,
+              "created_at": "2025-01-01T14:30:00Z", "tags": [], "suggested_tags": ["гололёд"]}
+    image = png()
+    outgoing = []
+    submissions = 0
+    role = "contractor"
+    task_id = str(uuid4())
+
+    async def transport(request):
+        nonlocal submissions, role
+        if request.url.host == "i.oneme.ru":
+            assert "Authorization" not in request.headers
+            return httpx.Response(200, content=image)
+        if request.url.host == "iu.oneme.ru":
+            assert request.headers["Authorization"] == "max-token"
+            assert b'name="data"' in await request.aread()
+            return httpx.Response(200, json={"photos": {"id": {"token": "uploaded-image"}}})
+        if request.url.host == "platform-api2.max.ru":
+            assert request.headers["Authorization"] == "max-token"
+            if request.url.path == "/uploads":
+                assert request.url.params["type"] == "image"
+                return httpx.Response(200, json={"url": "https://iu.oneme.ru/uploadImage"})
+            if request.url.path == "/answers":
+                assert request.url.params["callback_id"] == "switch"
+                outgoing.append(json.loads(await request.aread())["message"])
+                return httpx.Response(200, json={"success": True})
+            assert request.url.path == "/messages"
+            assert request.url.params["user_id"] == "123"
+            outgoing.append(json.loads(await request.aread()))
+            return httpx.Response(200, json={})
+        assert request.url.host == "api"
+        assert request.headers["X-Max-User"] == "123"
+        assert request.headers["X-Citizen-Bot-Key"] == "test-key"
+        if request.url.path == BOT_DISPATCH_PATH + "/role":
+            if request.method == "PUT":
+                role = json.loads(await request.aread())["role"]
+            return httpx.Response(200, json={"role": role, "assigned_role": "contractor"})
+        if request.url.path == f"{BOT_DISPATCH_PATH}/tasks/{task_id}/result":
+            assert request.method == "POST"
+            payload = await request.aread()
+            assert image in payload and "Снег убран".encode() in payload
+            return httpx.Response(200, json={"stage": "done"})
+        if request.method == "POST":
+            submissions += 1
+            if submissions == 1:
+                return httpx.Response(413, json={"detail": "Фото должно быть не больше 16 мегапикселей"})
+            payload = await request.aread()
+            assert image in payload and "Гололёд".encode() in payload
+            assert b'name="request_id"' in payload
+            assert b'name="latitude"\r\n\r\n53.0749' in payload
+            assert b'name="longitude"\r\n\r\n158.6497' in payload
+            assert "улица Ларина, 22, Петропавловск-Камчатский".encode() in payload
+            return httpx.Response(201, json=report)
+        if request.url.path.endswith("/photo"):
+            return httpx.Response(200, content=image)
+        assert request.url.path == REPORTS + "/mine"
+        return httpx.Response(200, json=[report])
+
+    async def exercise():
+        mock = httpx.MockTransport(transport)
+        async with (
+            httpx.AsyncClient(base_url="http://api", transport=mock) as citizen,
+            httpx.AsyncClient(base_url="https://platform-api2.max.ru", transport=mock,
+                              headers={"Authorization": "max-token"}) as platform,
+            httpx.AsyncClient(transport=mock) as media,
+        ):
+            bot = MaxBot(citizen, "test-key")
+            sender = {"user_id": 123, "is_bot": False}
+
+            async def send(body, chat_type="dialog"):
+                await bot.handle_update({
+                    "update_type": "message_created",
+                    "message": {"sender": sender, "recipient": {"chat_type": chat_type}, "body": body},
+                }, platform, media)
+
+            await bot.handle_update({"update_type": "bot_started", "user": sender}, platform, media)
+            assert outgoing[-1]["attachments"][0]["payload"]["buttons"][0][0]["text"] == "Новое обращение"
+            await send({"text": "Моя роль"})
+            for expected in ("resident", "contractor"):
+                button = outgoing[-1]["attachments"][0]["payload"]["buttons"][-1][0]
+                assert button == {"type": "callback", "text": "Сменить роль", "payload": f"/role_{expected}"}
+                await bot.handle_update({
+                    "update_type": "message_callback",
+                    "callback": {"user": sender, "payload": button["payload"], "callback_id": "switch"},
+                    "message": {"recipient": {"chat_type": "dialog"}},
+                }, platform, media)
+                assert role == expected
+            await send({"text": f"/finish_{compact_id(task_id)}_3"})
+            assert "Пришлите фото" in outgoing[-1]["text"]
+            await send({"text": "Снег убран"})
+            assert "в подписи" in outgoing[-1]["text"]
+            await send({"text": "Снег убран", "attachments": [
+                {"type": "image", "payload": {"url": "https://i.oneme.ru/result"}},
+            ]})
+            assert "Результат и фото переданы" in outgoing[-1]["text"]
+            assert not bot.task_notes
+            await send({"text": "/new"}, chat_type="chat")
+            assert not bot.drafts
+            await send({"mid": "mid.photo", "text": report["description"], "attachments": [
+                {"type": "image", "payload": {"url": "https://i.oneme.ru/image"}},
+            ]})
+            assert outgoing[-1]["attachments"][0]["payload"]["buttons"][0][0]["type"] == "request_geo_location"
+            await send({"mid": "mid.location", "attachments": [
+                {"type": "location", "latitude": 53.02, "longitude": 158.65},
+            ]})
+            assert "16 мегапикселей" in outgoing[-1]["text"]
+            assert not bot.drafts[123].photo_id
+            assert bot.drafts[123].description == report["description"]
+            await send({"mid": "mid.replacement", "attachments": [
+                {"type": "image", "payload": {"url": "https://i.oneme.ru/replacement"}},
+            ]})
+            assert "улицу и номер дома" in outgoing[-1]["text"]
+            await send({"mid": "mid.incomplete-address", "text": "улица Ларина"})
+            assert "Укажите улицу и номер дома" in outgoing[-1]["text"]
+            await send({"mid": "mid.unknown-address", "text": "улица Ларина, 999"})
+            assert "Дом по этому адресу не найден" in outgoing[-1]["text"]
+            assert bot.drafts[123].description == report["description"]
+            await send({"mid": "mid.misspelled-address", "text": "ул. Ларна, д. 22"})
+            assert "Проверьте адрес: улица Ларина, 22, Петропавловск-Камчатский" in outgoing[-1]["text"]
+            button = outgoing[-1]["attachments"][0]["payload"]["buttons"][0][0]
+            assert button == {"type": "message", "text": "Подтвердить адрес"}
+            assert submissions == 1
+            await send({"mid": "mid.confirmed-address", "text": button["text"]})
+            assert not bot.drafts
+            assert "Обращение №1 принято. Открыть · /r_1" in outgoing[-1]["text"]
+            await send({"mid": "mid.history", "text": "Мои обращения"})
+            assert report["description"] in outgoing[-1]["text"]
+            assert "02.01.2025 02:30 (Камчатка)" in outgoing[-1]["text"]
+            assert {"type": "image", "payload": {"token": "uploaded-image"}} in outgoing[-1]["attachments"]
+
+    asyncio.run(exercise())
 
 
 @pytest.mark.parametrize(("latitude", "longitude", "expected"), [
@@ -285,3 +508,246 @@ def test_city_filter_includes_microdistricts_and_refines_existing_reports(tmp_pa
             result = client.get(REPORTS, params={"id": report["id"], "district": district}).json()
             assert result["items"] == [report]
         assert not client.get(REPORTS, params={"id": report["id"], "district": "pk-center"}).json()["items"]
+
+
+def test_messenger_roles_share_dispatch_workflow_and_warning_receipts(tmp_path):
+    database = os.getenv("TEST_DATABASE_URL")
+    if not database:
+        pytest.skip("Set TEST_DATABASE_URL to a temporary PostgreSQL database")
+    names = {"telegram:912": "Тестовая бригада", "telegram:913": "Другая бригада", "max:916": "Тестовая бригада"}
+    settings = Settings(
+        database=database, mode="preview", media_dir=tmp_path, citizen_bot_api_key="test-key",
+        dispatch_bot_crews=names, dispatch_telegram_admins=("914",), dispatch_max_operators=("915",),
+    )
+    now = datetime.now(timezone.utc)
+    point = f"Тестовый район {uuid4().hex}"
+
+    def auth(user, platform="Telegram"):
+        return {"X-Citizen-Bot-Key": "test-key", f"X-{platform}-User": user}
+
+    with TestClient(api.create_app(settings)) as client:
+        def bot_request(method, path, user, platform="Telegram", **kwargs):
+            return client.request(method, BOT_DISPATCH_PATH + path, headers=auth(user, platform), **kwargs)
+
+        assert client.get(BOT_DISPATCH_PATH + "/role").status_code == 403
+        assert bot_request("GET", "/role", "911").json() == {"role": "resident"}
+        assert bot_request("GET", "/role", "912").json() == {"role": "contractor"}
+        assert bot_request("GET", "/role", "914").json() == {"role": "administration"}
+        assert bot_request("GET", "/role", "915", "Max").json() == {"role": "dispatcher", "assigned_role": "dispatcher"}
+        assert bot_request("GET", "/role", "915").json() == {"role": "resident"}
+        assert bot_request("GET", "/tasks", "911").status_code == 403
+        assert bot_request("GET", "/warnings", "912").status_code == 403
+        assert bot_request("PUT", "/role", "917", "Max", json={"role": "contractor"}).status_code == 403
+        assert bot_request("PUT", "/role", "916", "Max", json={"role": "dispatcher"}).status_code == 403
+        assert bot_request("PUT", "/role", "916", "Max", json={"role": "resident"}).json() == {
+            "role": "resident", "assigned_role": "contractor",
+        }
+        assert bot_request("GET", "/role", "916", "Max").json()["role"] == "resident"
+        assert bot_request("GET", "/tasks", "916", "Max").status_code == 403
+        assert bot_request("PUT", "/role", "916", "Max", json={"role": "contractor"}).json()["role"] == "contractor"
+        assert bot_request("GET", "/tasks", "916", "Max").status_code == 200
+
+        def complain():
+            return client.post(
+                REPORTS, headers=auth("911"),
+                data={"request_id": request_id, "address": point, "description": "Сугроб перекрыл проезд",
+                      "latitude": 53.02, "longitude": 158.65, "tags": "сугроб"},
+                files={"photo": ("photo.png", png())},
+            )
+
+        request_id = str(uuid4())
+        first = complain()
+        assert first.status_code == 201, first.text
+        assert complain().json() == first.json()
+        citizen_id = first.json()["id"]
+        dashboard = client.get("/api/v1/dashboard").json()
+        assert set(dashboard["dispatch_assignees"]) >= set(names.values())
+        group = next(group for group in dashboard["dispatch_queue"] if group["address"] == point)
+        assert [report["id"] for report in group["reports"]] == [citizen_id]
+        created = client.post("/api/v1/dispatch/tasks", json={
+            "location_key": group["location_key"], "kind": group["kind"], "work_kind": "clear",
+        })
+        assert created.status_code == 200, created.text
+        task_id = created.json()["id"]
+        assignment = f"/api/v1/dispatch/tasks/{task_id}/assignment"
+
+        def assign(assignee, version):
+            response = client.put(assignment, json={
+                "version": version, "assignee": assignee, "due_at": (now + timedelta(hours=2)).isoformat(),
+            })
+            assert response.status_code == 200, response.text
+            return response.json()["assignment_version"]
+
+        version = assign(names["telegram:912"], 0)
+        assert task_id in [task["id"] for task in bot_request("GET", "/tasks", "912").json()["items"]]
+        assert task_id not in [task["id"] for task in bot_request("GET", "/tasks", "913").json()["items"]]
+
+        def progress(action, by, version, note="", platform="Telegram"):
+            return bot_request("PUT", f"/tasks/{task_id}", by, platform,
+                               json={"action": action, "version": version, "note": note})
+
+        assert progress("accept", "911", version).status_code == 403
+        assert progress("accept", "913", version).status_code == 404
+        reassigned = assign(names["telegram:913"], version)
+        version = assign(names["telegram:912"], reassigned)
+        assert progress("accept", "912", reassigned).status_code == 409
+        crew = [("912", "Telegram"), ("916", "Max")]
+        for user, platform in crew:
+            notices = bot_request("GET", "/task-notices", user, platform).json()
+            assert any(job["id"] == task_id and job["claimed_by"] is None for job in notices)
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results = list(pool.map(lambda member: progress("accept", member[0], version, platform=member[1]), crew))
+        assert sorted(response.status_code for response in results) == [200, 409]
+        winner_index = next(index for index, response in enumerate(results) if response.status_code == 200)
+        winner, winner_platform = crew[winner_index]
+        other, other_platform = crew[1 - winner_index]
+        assert task_id not in [task["id"] for task in bot_request("GET", "/tasks", other, other_platform).json()["items"]]
+        assert progress("start", other, version, platform=other_platform).status_code == 409
+        assert progress("start", winner, version, platform=winner_platform).json() == {"stage": "in_progress"}
+        version += 1
+        assert progress("finish", winner, version, "Снег убран", winner_platform).status_code == 422
+        assert bot_request("POST", f"/tasks/{task_id}/result", winner, winner_platform,
+                           data={"version": version, "note": "Снег убран"}).status_code == 422
+
+        def send_result(user, platform, image):
+            return bot_request("POST", f"/tasks/{task_id}/result", user, platform,
+                               data={"version": version, "note": "Снег убран"},
+                               files={"photo": ("result.png", image)})
+
+        assert send_result(other, other_platform, png()).status_code == 409
+        assert send_result(winner, winner_platform, b"broken photo").status_code == 415
+        assert send_result(winner, winner_platform, png()).json() == {"stage": "done"}
+        version += 1
+        assert progress("close", winner, version, "Проверено", winner_platform).status_code == 403
+        photo_path = f"/api/v1/dispatch/tasks/{task_id}/result-photo"
+        result_photo = client.get(photo_path)
+        live_task = next(group["task"] for group in client.get("/api/v1/dashboard").json()["dispatch_queue"]
+                         if group["address"] == point)
+        assert live_task["has_result_photo"] and live_task["work_in_bot"]
+        assert result_photo.headers["content-type"] == "image/jpeg"
+        with Image.open(BytesIO(result_photo.content)) as image:
+            assert image.size == (20, 10)
+        assert bot_request("GET", f"/tasks/{task_id}/result-photo", other, other_platform).status_code == 403
+        assert progress("finish", "915", version, "Снег убран", "Max").status_code == 403
+
+        with connect(settings) as conn:
+            conn.execute(
+                "INSERT INTO warnings (run_id,point,revision,payload) VALUES ('preview',%s,1,%s)",
+                (point, Jsonb({"start": now.isoformat(), "end": (now + timedelta(hours=1)).isoformat(),
+                              "probability": .8})),
+            )
+
+        async def exercise_bots():
+            outgoing = []
+
+            async def transport(request):
+                if request.url.host == "http.test":
+                    response = client.request(
+                        request.method, request.url.raw_path.decode(),
+                        headers=request.headers, content=await request.aread(),
+                    )
+                    return httpx.Response(response.status_code, content=response.content)
+                assert request.headers["Authorization"] == "test-max-token"
+                if request.url.host == "iu.oneme.ru":
+                    assert result_photo.content in await request.aread()
+                    return httpx.Response(200, json={"photos": {"id": {"token": "result-image"}}})
+                if request.url.path == "/uploads":
+                    return httpx.Response(200, json={"url": "https://iu.oneme.ru/upload-result"})
+                data = json.loads(await request.aread())
+                if request.url.path == "/answers":
+                    assert request.url.params["callback_id"] == "test-callback"
+                    outgoing.append(data["message"])
+                else:
+                    assert request.url.path == "/messages"
+                    assert request.url.params["user_id"] == "915"
+                    outgoing.append(data)
+                return httpx.Response(200, json={"success": True})
+
+            mock = httpx.MockTransport(transport)
+            async with (
+                httpx.AsyncClient(base_url="http://http.test", transport=mock) as citizen,
+                httpx.AsyncClient(base_url="https://platform-api2.max.ru", transport=mock,
+                                  headers={"Authorization": "test-max-token"}) as max_client,
+            ):
+                telegram = SimpleNamespace(send_message=AsyncMock())
+                bot = Bot(citizen, "test-key")
+                await deliver_warnings(bot, telegram, "914")
+                await deliver_warnings(bot, telegram, "914")
+                telegram.send_message.assert_awaited_once()
+                assert telegram.send_message.await_args.kwargs["chat_id"] == 914
+                assert point in telegram.send_message.await_args.kwargs["text"]
+
+                max_bot = MaxBot(citizen, "test-key")
+                notify = AsyncMock()
+                for member_bot, member_id in ((bot, "912"), (max_bot, "916")):
+                    await deliver_task_notices(member_bot, notify, member_id)
+                    await deliver_task_notices(member_bot, notify, member_id)
+                assert {call.args[0] for call in notify.await_args_list if point in call.args[1]} == {"912", "916"}
+                assert sum(point in call.args[1] for call in notify.await_args_list) == 2
+                returned = client.put(f"/api/v1/dispatch/tasks/{task_id}/progress", json={
+                    "action": "return", "version": version, "note": "Расчистите второй проход",
+                })
+                assert returned.json() == {"stage": "returned"}
+                notify.reset_mock()
+                for member_bot, member_id in ((bot, "912"), (max_bot, "916")):
+                    await deliver_task_notices(member_bot, notify, member_id)
+                    await deliver_task_notices(member_bot, notify, member_id)
+                notify.assert_awaited_once()
+                recipient, text, keyboard = notify.await_args.args
+                assert recipient == winner
+                assert "Расчистите второй проход" in text and "новое фото" in text
+                assert keyboard.inline_keyboard[0][0].text == "Начать доработку"
+                assert progress("start", winner, version + 1, platform=winner_platform).json() == {"stage": "in_progress"}
+                photo_again = bot_request(
+                    "POST", f"/tasks/{task_id}/result", winner, winner_platform,
+                    data={"version": version + 2, "note": "Снег убран"}, files={"photo": ("result.png", png())},
+                )
+                assert photo_again.json() == {"stage": "done"}
+
+                sender = {"user_id": 915, "is_bot": False}
+
+                async def send(text):
+                    await max_bot.handle_update({
+                        "update_type": "message_created",
+                        "message": {"sender": sender, "recipient": {"chat_type": "dialog"}, "body": {"text": text}},
+                    }, max_client, max_client)
+
+                await send("/role")
+                switch = outgoing[-1]["attachments"][0]["payload"]["buttons"][-1][0]
+                assert switch["text"] == "Сменить роль"
+
+                async def click(payload):
+                    await max_bot.handle_update({
+                        "update_type": "message_callback",
+                        "callback": {"user": sender, "payload": payload, "callback_id": "test-callback"},
+                        "message": {"recipient": {"chat_type": "dialog"}},
+                    }, max_client, max_client)
+
+                await click(switch["payload"])
+                assert "Житель" in outgoing[-1]["text"]
+                await click(outgoing[-1]["attachments"][0]["payload"]["buttons"][-1][0]["payload"])
+                assert "Диспетчер" in outgoing[-1]["text"]
+                await send("/jobs")
+                task_card = next(item for item in outgoing if point in item["text"])
+                assert task_card["attachments"][0] == {"type": "image", "payload": {"token": "result-image"}}
+                button = task_card["attachments"][1]["payload"]["buttons"][0][0]
+                assert button["text"] == "Подтвердить выполнение"
+                assert button["type"] == "callback"
+                await click(button["payload"])
+                assert "Напишите, как проверили" in outgoing[-1]["text"]
+                await send("Проверено диспетчером")
+                assert "Выполнение подтверждено" in outgoing[-1]["text"]
+
+        asyncio.run(exercise_bots())
+        assert any(item["point"] == point for item in bot_request("GET", "/warnings", "914").json())
+        with connect(settings) as conn:
+            task = conn.execute("SELECT stage,result FROM dispatch_tasks WHERE (run_id,id)=('preview',%s)",
+                                (task_id,)).fetchone()
+            report = conn.execute("SELECT resolution FROM dispatch_reports WHERE (run_id,id)=('preview',%s)",
+                                  (citizen_id,)).fetchone()
+        assert task == {"stage": "closed", "result": "Снег убран"}
+        assert report["resolution"] == "Проверено диспетчером"
+        archived = next(item for item in client.get("/api/v1/dispatch/archive").json() if item["id"] == task_id)
+        assert archived["has_result_photo"]
+        assert archived["claimed_by"] == f"{winner_platform.lower()}:{winner}"
+        assert client.get(photo_path).content == result_photo.content
