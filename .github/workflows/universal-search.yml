@@ -1,0 +1,25 @@
+name: Universal search backend
+on:
+  push:
+    paths: ['city-sim/shared/universal_search/**', '.github/workflows/universal-search.yml']
+  pull_request:
+    paths: ['city-sim/shared/universal_search/**', '.github/workflows/universal-search.yml']
+permissions:
+  contents: read
+jobs:
+  offline-search:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.12']
+    defaults:
+      run:
+        working-directory: city-sim
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '${{ matrix.python-version }}'
+      - run: python -m unittest discover -s shared/universal_search/tests -v
+        env:
+          PYTHONPATH: shared
