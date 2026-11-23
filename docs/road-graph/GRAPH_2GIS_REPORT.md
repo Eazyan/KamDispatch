@@ -60,3 +60,19 @@ Local image versions: OpenCV 5.0.0, numpy 2.4.4, Pillow 12.2.0.
 Graph Git blob remains edf56d39621c06956f48fb5ca85374ed18143812.
 Next: repair capture against current UI with a separately authorized bounded attempt,
 then manual development/holdout annotations and empirical assignment metrics.
+
+## 23.11.2026 · real capture repair
+
+Capture startup race repaired: wait 4 s after UI readiness, allow one bounded retry
+of context-menu opening (3 s + 1.5 s). Four UI points succeeded; independent calibration
+error rounded to 0 px. Real capture at 2026-11-23T05:57:58.566510Z (17:57:58 Kamchatka).
+Local-only data: research/traffic-2gis-2026-11-23 in source workspace. Source lines:
+392 free, 38 slow, 4 congested. Graph review covers 169 corridors; at capture time
+1773 free, 156 slow, 11208 unknown directed sample intervals. Counts are samples,
+not independent roads or validation accuracy. No congested interval assigned.
+Browser assignments-only view confirms 896 free and 78 slow physical sample bins;
+clicked slow interval shows edge ID, source IDs and reason. Zero JS errors.
+Basemap now uses the paired reference screenshot; current age is recomputed when
+opening review. Historical reproduction uses --now equal to captured_at; a stale
+warning still appears based on actual viewer time. This is a saved snapshot, not live.
+Full three-section manual empirical annotation remains not_verified.
