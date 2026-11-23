@@ -1,0 +1,280 @@
+{
+  "coverage": {
+    "total_corridors": 11689,
+    "captured_corridors": 11689,
+    "length_m": {
+      "unknown": 1183304.1113608559,
+      "free": 68948.89839295279,
+      "slow": 2948.0076556750623,
+      "congested": 579.2825905143294
+    }
+  },
+  "footprint": {
+    "total_corridors": 11689,
+    "fully_in_capture_footprints": 11689,
+    "missing_corridor_ids": []
+  },
+  "graph_sha256": "c29d4675e8f230015cde370b0d6e13b9d13f7a93f65516bf7f889c34b8162c76",
+  "captures": [
+    {
+      "center": [
+        158.60109825601967,
+        52.97524076653663
+      ],
+      "zoom": 14,
+      "viewport": [
+        4096,
+        4096
+      ],
+      "analysis_region": [
+        460,
+        220,
+        3536,
+        3556
+      ],
+      "captured_at": "2026-11-23T06:31:33.431805+00:00",
+      "image_sha256": {
+        "traffic-off.png": "77aad05cb2c1a56a4c6e26ff7de8a9f4d01393cb8b9b537ff54f93c0623d58cc",
+        "traffic-on.png": "484a2fa2139c7966b5381d31483c7fa7daa301214709586e4b4769118015d92f"
+      },
+      "control_points": [
+        {
+          "pixel": [
+            600,
+            300
+          ],
+          "lon_lat": [
+            158.458962,
+            53.06549
+          ]
+        },
+        {
+          "pixel": [
+            3856,
+            300
+          ],
+          "lon_lat": [
+            158.738427,
+            53.06549
+          ]
+        },
+        {
+          "pixel": [
+            600,
+            3846
+          ],
+          "lon_lat": [
+            158.458962,
+            52.882214
+          ]
+        },
+        {
+          "pixel": [
+            3856,
+            3846
+          ],
+          "lon_lat": [
+            158.738427,
+            52.882214
+          ]
+        }
+      ],
+      "calibration_holdout_error_px": 4.547473508864641e-13
+    },
+    {
+      "center": [
+        158.87424611105652,
+        52.97524076653663
+      ],
+      "zoom": 14,
+      "viewport": [
+        4096,
+        4096
+      ],
+      "analysis_region": [
+        460,
+        220,
+        3536,
+        3556
+      ],
+      "captured_at": "2026-11-23T06:32:25.049051+00:00",
+      "image_sha256": {
+        "traffic-off.png": "99aea5b4bf852536ec1423abdd2ccbf4acbee658c66f3452d62cb91c813b7b54",
+        "traffic-on.png": "1f9fc4ab89a2ca2cdd57242fa34163f4fd550db1c1577cf6a30be8fafea90497"
+      },
+      "control_points": [
+        {
+          "pixel": [
+            600,
+            300
+          ],
+          "lon_lat": [
+            158.73211,
+            53.06549
+          ]
+        },
+        {
+          "pixel": [
+            3856,
+            300
+          ],
+          "lon_lat": [
+            159.011575,
+            53.06549
+          ]
+        },
+        {
+          "pixel": [
+            600,
+            3846
+          ],
+          "lon_lat": [
+            158.73211,
+            52.882214
+          ]
+        },
+        {
+          "pixel": [
+            3856,
+            3846
+          ],
+          "lon_lat": [
+            159.011575,
+            52.882214
+          ]
+        }
+      ],
+      "calibration_holdout_error_px": 4.547473508864641e-13
+    },
+    {
+      "center": [
+        158.60109825601967,
+        53.14033293565022
+      ],
+      "zoom": 14,
+      "viewport": [
+        4096,
+        4096
+      ],
+      "analysis_region": [
+        460,
+        220,
+        3536,
+        3556
+      ],
+      "captured_at": "2026-11-23T06:33:10.402819+00:00",
+      "image_sha256": {
+        "traffic-off.png": "e490da3dce05ecddf9591cbe1d06324512443e47360be2a1622bb997c5e04d19",
+        "traffic-on.png": "12d703aacfa9dc5c3d61512c31dd27b054bd64cff46e880f7616d22e0dc2daf7"
+      },
+      "control_points": [
+        {
+          "pixel": [
+            600,
+            300
+          ],
+          "lon_lat": [
+            158.458962,
+            53.230237
+          ]
+        },
+        {
+          "pixel": [
+            3856,
+            300
+          ],
+          "lon_lat": [
+            158.738427,
+            53.230237
+          ]
+        },
+        {
+          "pixel": [
+            600,
+            3846
+          ],
+          "lon_lat": [
+            158.458962,
+            53.047661
+          ]
+        },
+        {
+          "pixel": [
+            3856,
+            3846
+          ],
+          "lon_lat": [
+            158.738427,
+            53.047661
+          ]
+        }
+      ],
+      "calibration_holdout_error_px": 4.547473508864641e-13
+    },
+    {
+      "center": [
+        158.87424611105652,
+        53.14033293565022
+      ],
+      "zoom": 14,
+      "viewport": [
+        4096,
+        4096
+      ],
+      "analysis_region": [
+        460,
+        220,
+        3536,
+        3556
+      ],
+      "captured_at": "2026-11-23T06:34:00.011805+00:00",
+      "image_sha256": {
+        "traffic-off.png": "52b291c2eb0ceed10813497f4414cd1e83d71881c4608c8c4ef5e8e8bb06992e",
+        "traffic-on.png": "c096bdeeee2f1a9fc2be4d22748bbfcfeb02a8eef91e53ddf682fe5bd9bdc7e3"
+      },
+      "control_points": [
+        {
+          "pixel": [
+            600,
+            300
+          ],
+          "lon_lat": [
+            158.73211,
+            53.230237
+          ]
+        },
+        {
+          "pixel": [
+            3856,
+            300
+          ],
+          "lon_lat": [
+            159.011575,
+            53.230237
+          ]
+        },
+        {
+          "pixel": [
+            600,
+            3846
+          ],
+          "lon_lat": [
+            158.73211,
+            53.047661
+          ]
+        },
+        {
+          "pixel": [
+            3856,
+            3846
+          ],
+          "lon_lat": [
+            159.011575,
+            53.047661
+          ]
+        }
+      ],
+      "calibration_holdout_error_px": 4.547473508864641e-13
+    }
+  ]
+}

@@ -93,7 +93,11 @@ def assign(export, lines, projected, region, *, graph_sha256, source_sha256,
             raise ValueError('Invalid source line')
         tangent = (b-a)/length
         # Every bin competes against other corridors at its closest source sample.
-        for item in bins:
+        low = np.floor((np.minimum(a,b)-3)/8).astype(int)
+        high = np.floor((np.maximum(a,b)+3)/8).astype(int)
+        candidates = [q for col in range(low[0],high[0]+1)
+                      for row in range(low[1],high[1]+1) for q in grid.get((col,row), [])]
+        for item in candidates:
             if not item['visible'] or abs(item['t'] @ tangent) < math.cos(math.radians(20)):
                 continue
             p = a+tangent*float(np.clip((item['p']-a) @ tangent,0,length))
