@@ -229,7 +229,7 @@ def match_traffic_lines(lines, projected, roads, region):
     return results
 
 
-def analyze_roads(before, after, capture, roads):
+def validate_capture_geometry(before, after, capture):
     if before.size != after.size or max(before.size) > 4096:
         raise ValueError("Screenshot pair must have equal dimensions, at most 4096 pixels")
     if "viewport" in capture and tuple(capture["viewport"]) != before.size:
@@ -243,6 +243,11 @@ def analyze_roads(before, after, capture, roads):
         0 <= x < x + width <= before.width and 0 <= y < y + height <= before.height
     ):
         raise ValueError("Analysis region must fit inside the screenshots")
+    return origin,transform,residual,(x,y,width,height)
+
+
+def analyze_roads(before, after, capture, roads):
+    origin,transform,residual,(x,y,width,height)=validate_capture_geometry(before,after,capture)
     lines = extract_traffic_lines(before, after, capture["analysis_region"])
     projected = [[project(point, origin, transform) for point in road["coordinates"]] for road in roads]
     if any(len(points)<2 or any(np.linalg.norm(b-a)>100000 for a,b in zip(points,points[1:])) for points in projected):
@@ -391,3 +396,35 @@ def estimate_traffic(roads, result):
                 "max_network_distance_m":1000,"distance_decay_m":250,"max_neighbor_ways":3,
                 "sample_prior_warning":"Selected roads with visible traffic are not representative of all streets",
                 "validation":"experimental_unvalidated","not_for_automatic_dispatch":True}}
+
+
+def validate_basemap_pair(before, after, region):
+    """Reject blank or visibly incomplete basemaps; keep low-detail blocks explicit."""
+    from PIL import Image
+    x,y,width,height = map(int,region)
+    bounds = (x,y,x+width,y+height)
+    small = [image.convert("RGB").crop(bounds).resize((256,256),Image.Resampling.NEAREST)
+             for image in (before,after)]
+    arrays = [np.asarray(image,dtype=np.int16) for image in small]
+    unique = [len(np.unique(array.reshape(-1,3),axis=0)) for array in arrays]
+    if min(unique) < 2:
+        raise ValueError("Blank basemap: a uniform frame does not prove map coverage")
+    changed = np.max(np.abs(arrays[0]-arrays[1]),axis=2) >= 30
+    unexplained = changed & (color_mask(*small) == 0)
+    low_detail = []
+    for row in range(8):
+        for col in range(8):
+            window = (slice(row*32,(row+1)*32),slice(col*32,(col+1)*32))
+            counts = [len(np.unique(array[window].reshape(-1,3),axis=0)) for array in arrays]
+            fraction = float(np.mean(unexplained[window]))
+            if counts[0] == 1 and counts[1] > 1 and fraction > .1:
+                raise ValueError("Incomplete basemap loading in a reference block")
+            if max(counts) < 4:
+                low_detail.append([col,row])
+    if float(np.mean(unexplained)) > .25:
+        raise ValueError("Basemap pair changed outside traffic colors; loading or camera mismatch")
+    return {"status":"passed","method":"paired_basemap_block_audit_v1",
+            "before_unique_colors":unique[0],"after_unique_colors":unique[1],
+            "unexplained_changed_fraction":round(float(np.mean(unexplained)),6),
+            "block_grid":[8,8],"low_detail_blocks":low_detail,
+            "low_detail_note":"Flat blocks may be valid empty terrain; their detail is unverified, not traffic evidence"}

@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'monitoring/traffic_image.py'
+      - 'monitoring/traffic_coverage.py'
       - 'scripts/capture_traffic.py'
       - 'scripts/evaluate_traffic.py'
       - 'tests/fixtures/traffic_annotations.json'

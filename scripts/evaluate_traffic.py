@@ -13,7 +13,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from monitoring.traffic_image import analyze_roads, calibration, project, estimate_traffic
+from monitoring.traffic_image import analyze_roads, calibration, project, estimate_traffic, validate_basemap_pair
 
 
 def samples(points):
@@ -218,6 +218,7 @@ def main():
         if hashlib.sha256((folder/'traffic-on.png').read_bytes()).hexdigest()!=reference['image_sha256']:
             raise ValueError('Manual references belong to another screenshot')
         with Image.open(folder/'traffic-off.png') as before,Image.open(folder/'traffic-on.png') as after:
+            validate_basemap_pair(before,after,capture["analysis_region"])
             result=analyze_roads(before,after,capture,roads)
         result['metadata'].update(captured_at=capture['captured_at'],image_sha256=capture['image_sha256'],roads_sha256=hashlib.sha256(raw).hexdigest())
         result['model_estimates']=estimate_traffic(roads,result)

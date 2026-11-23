@@ -1,0 +1,41 @@
+{
+  "scope": "Offline plan projection and verification of already saved PNGs. No network capture, no claim of completed city coverage.",
+  "plan_sha256": "75bbd5d654ddcad11ead7582dbd9b2276523c2197fd13726cd427c778daf27eb",
+  "planned_capture_count": 30,
+  "planned_boundary_coverage_fraction": 1.0,
+  "planned_fully_captured_road_count": 7806,
+  "reference_road_count": 7806,
+  "verified_real_capture_count": 7,
+  "actual_boundary_coverage_fraction": 0.25690951459299893,
+  "actual_fully_captured_road_count": 5047,
+  "date": "2026-11-23",
+  "timezone": "Asia/Kamchatka",
+  "full_live_run_performed": false,
+  "collection_paused_by_user": true,
+  "synthetic_run": {
+    "planned_views": 30,
+    "network_requests": 0,
+    "injected_transient_failures": 1,
+    "capture_transport_calls": 30
+  },
+  "test_validation": "102 passed, 1 skipped (ffmpeg missing); full regression before independent review",
+  "verified_edges": [
+    "unsealed resume",
+    "sealed attempt recovery",
+    "transient retry budget",
+    "UI timeout no retry",
+    "403/429/CAPTCHA no retry",
+    "Ctrl-C",
+    "duplicate collector lock",
+    "atomic publication",
+    "cache bindings",
+    "actual camera/zoom",
+    "whole road tails"
+  ],
+  "code_sha256": {
+    "monitoring/traffic_image.py": "25a5bb0774120f9c85937da898e7360ce63be870b08f38e926d7240680badd2a",
+    "monitoring/traffic_coverage.py": "bfc91c9a5c9e7835c5d3bd60470d2e20030401cceff9c6425a0c7b05c2b012f4",
+    "scripts/capture_traffic.py": "766d7b757d4b9c7a5ef43f8e772dfa93dc21749f04f2336dca4c7a7673266b38",
+    "tests/test_traffic_city_runner.py": "e509cca843add4bc8af1556dcf9a3aa11f35ba711c872aae207cb0aa34b12227"
+  }
+}

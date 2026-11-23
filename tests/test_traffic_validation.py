@@ -121,6 +121,7 @@ def test_explicit_target_ids_preserve_the_original_evaluation_denominator(tmp_pa
     import json
     from scripts.capture_traffic import analyze, digest, write_json
     before,capture,road=scene()
+    ImageDraw.Draw(before).line((30,80,170,80),fill=(215,215,215),width=5)
     for name in ('traffic-off.png','traffic-on.png'):
         before.save(tmp_path/name)
     capture.update(schema_version=1,source_url='https://2gis.ru/p_kamchatskiy',target_road_ids=['road'],
