@@ -266,10 +266,12 @@ export function createMap(metadata, onAreaChange, snowDetails) {
   let trackpadUntil = 0;
   mapContainer.addEventListener('wheel', event => {
     if (event.ctrlKey || event.metaKey) return;
-    const magnitude = Math.max(Math.abs(event.deltaX), Math.abs(event.deltaY));
+    const horizontal = Math.abs(event.deltaX);
+    const vertical = Math.abs(event.deltaY);
+    const magnitude = Math.max(horizontal, vertical);
     const now = performance.now();
     const pixelScroll = event.deltaMode === WheelEvent.DOM_DELTA_PIXEL &&
-      (magnitude < 100 || now < trackpadUntil);
+      (horizontal > vertical || magnitude < 100 || now < trackpadUntil);
     if (!magnitude || (!event.altKey && !pixelScroll)) return;
     event.preventDefault();
     event.stopImmediatePropagation();

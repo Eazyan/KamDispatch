@@ -33,6 +33,7 @@ class Settings:
     snow_sim_url: str = os.getenv("SNOW_SIM_URL", "").strip().rstrip("/")
     snow_city_url: str = os.getenv("SNOW_CITY_URL", "").strip().rstrip("/")
     snow_city_remote_url: str = os.getenv("SNOW_CITY_REMOTE_URL", "").strip().rstrip("/")
+    traffic_worker_url: str = os.getenv("TRAFFIC_WORKER_URL", "").strip().rstrip("/")
     city_map_url: str = os.getenv("CITY_MAP_URL", "").strip()
     snow_segments_path: Path = Path(os.getenv("SNOW_SEGMENTS_FILE", str(ROOT / "monitoring" / "snow_segments.json")))
     cameras_path: Path = Path(os.getenv("MONITOR_CAMERAS", str(ROOT / "monitoring" / "cameras.json")))

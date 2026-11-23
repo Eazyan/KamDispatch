@@ -1,5 +1,5 @@
 import { $, empty, request } from '../api.js';
-import { createMap } from '../map.js';
+import { createMap } from '../map.js?v=trackpad-rotation';
 import { raster } from '../raster_motion.js';
 import { createSnowVolume } from '../snow_volume.js';
 
@@ -14,6 +14,7 @@ const time = new Intl.DateTimeFormat('ru', { timeZone: 'Asia/Kamchatka', day: 'n
 const line = coordinates => ({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates } });
 const coordinate = point => Array.isArray(point) && point.length === 2 &&
   point.every(Number.isFinite) && Math.abs(point[0]) <= 180 && Math.abs(point[1]) <= 90;
+const trafficColors = { free: '#52cf73', slow: '#f6be48', congested: '#f46c67' };
 const validLine = row => Array.isArray(row) && row.length >= 2 && row.every(coordinate);
 
 async function start() {
@@ -29,6 +30,7 @@ async function start() {
   let timer;
   let markerData;
   let roadData;
+  let trafficData;
   let markerObjects = [];
   const view = createMap(metadata, () => {}, async point => {
     if (!model || !state.showSnow) return [];
@@ -151,6 +153,14 @@ async function start() {
       map.getSource('dispatch-roads').setData({ ...empty(), features: (state.roads ?? []).filter(validLine).map(line) });
       roadData = nextRoads;
     }
+    const nextTraffic = JSON.stringify(state.traffic);
+    if (trafficData !== nextTraffic) {
+      map.getSource('dispatch-traffic').setData({ ...empty(), features: (state.traffic ?? [])
+        .filter(row => Object.hasOwn(trafficColors, row.status) && validLine(row.coordinates))
+        .map(row => ({ ...line(row.coordinates), properties: { color: trafficColors[row.status] } })) });
+      trafficData = nextTraffic;
+    }
+    map.setPaintProperty('dispatch-traffic', 'line-opacity', state.trafficStale ? .46 : .95);
     const nextMarkers = JSON.stringify(state.showMarkers && state.markers);
     if (markerData !== nextMarkers) {
       markerObjects.forEach(marker => marker.remove());
@@ -178,7 +188,7 @@ async function start() {
       if (points.length) {
         const bounds = points.reduce((box, point) => box.extend(point), new maplibregl.LngLatBounds(points[0], points[0]));
         const right = window.innerWidth > 800 ? 340 : 28;
-        map.fitBounds(bounds, { maxZoom: 16, padding: { left: 55, top: 90, right, bottom: 145 },
+        map.fitBounds(bounds, { maxZoom: 16, bearing: map.getBearing(), padding: { left: 55, top: 90, right, bottom: 145 },
           duration: matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 600 });
       }
     }
@@ -187,14 +197,14 @@ async function start() {
     if (run === 'cleanup' && state.cleanupAt !== previousCleanupAt) syncCleanupTime(state.cleanupAt);
     else paint();
   });
-  send('ready', { busBadges: true });
+  send('ready', { busBadges: true, traffic: true });
 }
 
 function underlay(map) {
   const colors = { background: '#295060', water: '#15384c', shore: '#789ea7', green: '#425c53', streets: '#9db1a9', arterials: '#bfc4ab' };
   for (const [id, color] of Object.entries(colors)) map.setPaintProperty(id, map.getLayer(id).type + '-color', color);
   if (map.getLayer('relief-color')) map.setPaintProperty('relief-color', 'raster-brightness-max', .66);
-  for (const [id, color, width] of [['dispatch-roads', '#89d8fc', 3], ['dispatch-focus', '#fff', 5]]) {
+  for (const [id, color, width] of [['dispatch-roads', '#89d8fc', 3], ['dispatch-traffic', ['get', 'color'], 4], ['dispatch-focus', '#fff', 5]]) {
     map.addSource(id, { type: 'geojson', data: empty() });
     map.addLayer({ id, type: 'line', source: id, paint: { 'line-color': color, 'line-width': width } }, 'structures');
   }

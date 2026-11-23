@@ -236,3 +236,22 @@
 }
 .ops-search-results button:hover, .ops-search-results button:focus-visible { background: #284b5b; }
 .ops-search-results small { display: block; color: #b9d8e1; }
+
+.ops-traffic-status {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 0;
+  display: grid;
+  gap: 4px;
+  width: max-content;
+  max-width: min(330px, 88vw);
+  padding: 7px 9px;
+  border: 1px solid #8abbc47c;
+  border-radius: 7px;
+  background: #102e3b;
+  color: #d8f1f3;
+  font-size: 11px;
+}
+.ops-traffic-status a { display: inline; padding: 0; border: 0; background: none; text-decoration: underline; font-size: inherit; }
+.ops-traffic-legend, .ops-traffic-legend span { display: flex; align-items: center; gap: 6px; }
+.ops-traffic-legend i { width: 10px; height: 3px; border-radius: 2px; }

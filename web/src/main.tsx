@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { CameraMap } from './Map';
+import type { SearchHit } from './MapSearch';
 import { Overview } from './Overview';
 import { CitizenReports, RecentCitizenReports, useRecentCitizenReports } from './CitizenReports';
 import { cameraRoadAssessment, deliveryBucket, upcomingForecast } from './sectionViews';
@@ -74,6 +75,10 @@ const noDemoRaster = async () => [];
 
 function loadSnowRoads(calculatedAt: string, signal: AbortSignal) {
   return api<SnowSegment[]>('snow-roads?' + new URLSearchParams({ calculated_at: calculatedAt }), { signal });
+}
+
+function searchMap(query: string, signal: AbortSignal) {
+  return api<SearchHit[]>('map/search?' + new URLSearchParams({ q: query }), { signal });
 }
 
 function loadDispatchRoads(signal: AbortSignal) {
@@ -721,7 +726,7 @@ function App() {
       {showOverview && (data ? <Overview key={scenario ?? data.run_id} data={data} error={scenario && scenario !== 'response' ? '' : error} updatedAt={refreshAt}
         scenario={scenario} onScenario={changeScenario} phase={phase} onPhase={changeCleanupPhase} frameUrl={frameUrl} onDispatch={openDispatch}
         onSignal={(id, trigger) => { eventTrigger.current = trigger; setEventId(id); }}
-        onCamera={openCamera} onRefresh={refresh} loadRoads={loadSnowRoads} loadSearchRoads={loadDispatchRoads} recentCitizens={recentCitizens}
+        onCamera={openCamera} onRefresh={refresh} loadRoads={loadSnowRoads} search={searchMap} recentCitizens={recentCitizens}
         citizenReports={showRecentCitizens ? recentReports.page?.items : undefined} onCitizenReport={openCitizen} />
         : <section className="overview-start">
           <h1>Дорожная обстановка</h1>
