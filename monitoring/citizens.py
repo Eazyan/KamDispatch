@@ -4,10 +4,10 @@ import logging
 from typing import Annotated, Literal
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, Response, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Query, Request, Response, UploadFile
 from fastapi.routing import APIRoute
 from PIL import Image, ImageOps
-from pydantic import AwareDatetime, BaseModel
+from pydantic import AwareDatetime, BaseModel, Field
 
 from .citizen_tagging import analyze_description
 from .db import connect
@@ -17,15 +17,23 @@ from .districts import DISTRICT_ID_PATTERN, UNASSIGNED, locate_district
 MAX_PHOTO_BYTES = 5 * 1024 * 1024
 MAX_UPLOAD_BYTES = MAX_PHOTO_BYTES + 64 * 1024
 MAX_PHOTO_PIXELS = 16_000_000
+PHOTO_FORMATS = ("JPEG", "PNG")
+MAX_BOT_PHOTO_FORMATS = (*PHOTO_FORMATS, "WEBP", "AVIF")
 Tag = Literal["снег", "дождь", "пробка", "сугроб"]
 LOGGER = logging.getLogger("uvicorn.error.citizens")
+BOT_ACTOR_PREFIXES = ("telegram:", "max:")
 REPORTS_PATH = "/api/v1/citizens/reports"
-REPORT_COLUMNS = "id, district_id, district, description, latitude, longitude, tags, suggested_tags, created_at, address"
+REPORT_COLUMNS = (
+    "id, report_number, district_id, district, description, latitude, longitude, "
+    "tags, suggested_tags, created_at, address"
+)
+ReportNumber = Annotated[int, Field(gt=0, le=2**63 - 1)]
 REPORT_SELECT = REPORT_COLUMNS + ", (photo_jpeg IS NOT NULL) AS has_photo"
 
 
 class Report(BaseModel):
     id: UUID
+    report_number: int
     district_id: str
     district: str | None
     description: str
@@ -72,21 +80,21 @@ class ReportRoute(APIRoute):
         return limit_upload
 
 
-def photo_jpeg(file, *, max_bytes=MAX_PHOTO_BYTES, max_pixels=MAX_PHOTO_PIXELS) -> bytes:
+def photo_jpeg(file, *, max_bytes=MAX_PHOTO_BYTES, max_pixels=MAX_PHOTO_PIXELS, formats=PHOTO_FORMATS) -> bytes:
     data = file.read(max_bytes + 1)
     if len(data) > max_bytes:
         raise HTTPException(413, f"Фото должно быть не больше {max_bytes // (1024 * 1024)} МиБ")
     try:
-        with Image.open(BytesIO(data), formats=("JPEG", "PNG")) as image:
+        with Image.open(BytesIO(data), formats=formats) as image:
             if image.width * image.height > max_pixels:
                 raise HTTPException(413, f"Фото должно быть не больше {max_pixels // 1_000_000} мегапикселей")
             if getattr(image, "is_animated", False):
-                raise HTTPException(415, "Требуется один снимок в формате JPEG или PNG")
+                raise HTTPException(415, "Требуется один снимок без анимации")
             normalized = ImageOps.exif_transpose(image).convert("RGB")
     except Image.DecompressionBombError as exc:
         raise HTTPException(413, f"Фото должно быть не больше {max_pixels // 1_000_000} мегапикселей") from exc
     except (OSError, ValueError, SyntaxError) as exc:
-        raise HTTPException(415, "Требуется корректное фото JPEG или PNG") from exc
+        raise HTTPException(415, f"Требуется корректное фото в одном из форматов: {', '.join(formats)}") from exc
 
     normalized.thumbnail((2048, 2048))
     normalized.info.clear()
@@ -102,19 +110,26 @@ def serialize(row, request: Request):
     return Report(**row, photo_url=photo_path)
 
 
+def lock_report_author(conn, mode, actor):
+    conn.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))", (f"citizen:{mode}:{actor}",))
+
+
 def save_report(conn, *, mode, actor, districts, image, description, latitude, longitude,
                 tags=(), address="", request_id=None, created_at: datetime | None = None):
     district = locate_district(districts, latitude, longitude)
+    lock_report_author(conn, mode, actor)
     return conn.execute(
         f"""INSERT INTO citizen_reports (id, mode, submitted_by, district, district_id, description,
                                          latitude, longitude, tags, suggested_tags, photo_jpeg,
-                                         address, request_id, created_at)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,COALESCE(%s,now()))
+                                         address, request_id, created_at, report_number)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,COALESCE(%s,now()),
+                    (SELECT COALESCE(MAX(report_number), 0) + 1 FROM citizen_reports
+                     WHERE mode=%s AND submitted_by=%s))
             ON CONFLICT (mode, submitted_by, request_id) DO UPDATE
             SET request_id=EXCLUDED.request_id RETURNING {REPORT_SELECT}""",
         (uuid4(), mode, actor, district.name if district else None, district.id if district else UNASSIGNED,
          description, latitude, longitude, list(dict.fromkeys(tags)), list(analyze_description(description)),
-         image, address, request_id, created_at),
+         image, address, request_id, created_at, mode, actor),
     ).fetchone()
 
 
@@ -157,6 +172,7 @@ def router(settings, citizen_identity, staff_identity):
         address: Annotated[str, Form(max_length=240)] = "",
         request_id: Annotated[UUID | None, Form()] = None,
         photo: Annotated[UploadFile | None, File()] = None,
+        x_citizen_browser_id: Annotated[UUID | None, Header()] = None,
     ) -> Report:
         description = description.strip()
         if not description or "\x00" in description:
@@ -164,9 +180,12 @@ def router(settings, citizen_identity, staff_identity):
 
         if "\x00" in address:
             raise HTTPException(422, "Проверьте адрес")
-        image = photo_jpeg(photo.file) if photo else None
+        formats = MAX_BOT_PHOTO_FORMATS if actor.startswith("max:") else PHOTO_FORMATS
+        image = photo_jpeg(photo.file, formats=formats) if photo else None
+        if settings.mode != "live" and actor == "local-demo" and x_citizen_browser_id is not None:
+            actor = f"browser:{x_citizen_browser_id}"
         with connect(settings) as conn:
-            conn.execute("SELECT pg_advisory_xact_lock(hashtext(%s), hashtext(%s))", (settings.mode, actor))
+            lock_report_author(conn, settings.mode, actor)
             if request_id is not None:
                 saved = conn.execute(
                     f"SELECT {REPORT_SELECT} FROM citizen_reports WHERE mode=%s AND submitted_by=%s AND request_id=%s",
@@ -228,8 +247,8 @@ def router(settings, citizen_identity, staff_identity):
         before: UUID | None = None,
         limit: Annotated[int, Query(ge=1, le=100)] = 5,
     ) -> list[Report]:
-        # Local browser requests share one actor. Personal history requires a verified identity.
-        if settings.mode != "live" and not actor.startswith("telegram:"):
+        # Personal history requires a verified identity.
+        if settings.mode != "live" and not actor.startswith(BOT_ACTOR_PREFIXES):
             raise HTTPException(403, "Требуется личный аккаунт")
         with connect(settings) as conn:
             rows = conn.execute(
@@ -256,12 +275,15 @@ def router(settings, citizen_identity, staff_identity):
             ).fetchall()
 
     @routes.get(REPORTS_PATH + "/{report_id}")
-    def own_report(request: Request, report_id: UUID, actor: Annotated[str, Depends(citizen_identity)]):
-        if settings.mode != "live" and not actor.startswith("telegram:"):
+    def own_report(
+        request: Request, report_id: UUID | ReportNumber, actor: Annotated[str, Depends(citizen_identity)],
+    ):
+        if settings.mode != "live" and not actor.startswith(BOT_ACTOR_PREFIXES):
             raise HTTPException(403, "Требуется личный аккаунт")
+        column = "id" if isinstance(report_id, UUID) else "report_number"
         with connect(settings) as conn:
             row = conn.execute(
-                f"SELECT {REPORT_SELECT} FROM citizen_reports WHERE mode=%s AND submitted_by=%s AND id=%s",
+                f"SELECT {REPORT_SELECT} FROM citizen_reports WHERE mode=%s AND submitted_by=%s AND {column}=%s",
                 (settings.mode, actor, report_id),
             ).fetchone()
         if not row:

@@ -45,12 +45,14 @@ export function TaskAssignment({ task, operator, assignees, onAssign, onProgress
   return <div className="dispatch-assignment">
     {task.assignee && <dl className="dispatch-task-facts">
       <div><dt>Исполнитель</dt><dd>{task.assignee}</dd></div>
+      {task.claimed_by && <div><dt>Принял</dt><dd>{task.claimed_by}</dd></div>}
       {task.due_at && <div><dt>Срок</dt><dd>{formatTime(task.due_at)}{task.overdue && <strong className="urgent"> · Просрочено</strong>}</dd></div>}
       <div><dt>Получение</dt><dd>{task.accepted_at ? 'Подтверждено · ' + formatTime(task.accepted_at) : 'Ждёт подтверждения'}</dd></div>
       {task.response_seconds !== null && <div><dt>От сигнала до назначения</dt><dd>{Math.floor(task.response_seconds / 60)} мин {task.response_seconds % 60} сек</dd></div>}
     </dl>}
     {task.instructions && <p><strong>Указания</strong> · {task.instructions}</p>}
     <p><strong>Статус</strong> · {taskStages[task.stage]}</p>
+    {task.work_in_bot && task.stage !== 'done' && <p>Бригада передаёт результат в боте.</p>}
     {operator && task.stage !== 'done' && (editing ? <form className="dispatch-progress-form" onSubmit={submit} key={task.assignment_version}>
       <fieldset disabled={busy}>
         <legend>Назначение исполнителя</legend>
@@ -71,7 +73,7 @@ export function TaskAssignment({ task, operator, assignees, onAssign, onProgress
     </form> : <div className="dispatch-controls">
       <button type="button" className={task.assignee ? 'quiet' : undefined} disabled={busy}
         onClick={() => { setError(''); setEditing(true); }}>{task.assignee ? 'Изменить назначение' : 'Назначить исполнителя'}</button>
-      {task.assignee && <button type="button" className="quiet" disabled={busy} onClick={() => void update(async () => {
+      {task.assignee && !task.work_in_bot && <button type="button" className="quiet" disabled={busy} onClick={() => void update(async () => {
         const token = await onLink(task.id);
         const url = new URL('/assignment#' + task.id + '.' + token, location.origin).href;
         setLink({ version: task.assignment_version, url });

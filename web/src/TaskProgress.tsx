@@ -18,7 +18,7 @@ const historyLabels: Record<HistoryItem['action'], string> = {
 };
 
 export function TaskProgress({ task, dispatcher, onProgress, allowPhotos = false }: {
-  task: { stage: TaskStage; work_kind: WorkKind; assignment_version: number; result: string; return_note: string | null };
+  task: { stage: TaskStage; work_kind: WorkKind; assignment_version: number; result: string; return_note: string | null; work_in_bot?: boolean };
   dispatcher: boolean; allowPhotos?: boolean; onProgress?: (draft: ProgressDraft, photos: File[]) => Promise<void>;
 }) {
   const [writing, setWriting] = useState<TaskAction>();
@@ -26,8 +26,8 @@ export function TaskProgress({ task, dispatcher, onProgress, allowPhotos = false
   const [error, setError] = useState('');
   const available: TaskAction[] = [];
   if (task.stage === 'sent') available.push('accept');
-  if (task.stage === 'accepted' || task.stage === 'returned') available.push('start');
-  if (task.stage === 'in_progress') available.push('finish');
+  if (!task.work_in_bot && (task.stage === 'accepted' || task.stage === 'returned')) available.push('start');
+  if (!task.work_in_bot && task.stage === 'in_progress') available.push('finish');
   if (task.stage === 'done' && dispatcher) {
     available.push('close', 'return');
     if (task.work_kind === 'inspect') available.push('followup');

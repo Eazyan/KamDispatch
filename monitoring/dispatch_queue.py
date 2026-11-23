@@ -119,6 +119,8 @@ def assign_task(conn, run_id, task_id, actor, draft):
            )
            UPDATE dispatch_tasks t SET assignee=%s,due_at=%s,assigned_at=now(),assigned_by=%s,instructions=%s,
                   accepted_at=%s, accepted_by=%s, stage=%s, crew_token=%s,
+                  claimed_by=CASE WHEN %s THEN t.claimed_by END,
+                  assignment_notice_version=assignment_version+1,
                   result=CASE WHEN %s THEN t.result ELSE '' END,
                   completed_at=CASE WHEN %s THEN t.completed_at END,
                   response_seconds=COALESCE(t.response_seconds,
@@ -129,7 +131,7 @@ def assign_task(conn, run_id, task_id, actor, draft):
          task["accepted_at"] if same_assignee else None, task["accepted_by"] if same_assignee else None,
          task["stage"] if same_assignee else "sent",
          (task["crew_token"] if same_assignee else None) or token_urlsafe(32),
-         same_assignee, same_assignee, run_id, task_id),
+         same_assignee, same_assignee, same_assignee, run_id, task_id),
     ).fetchone()
     log_task(conn, run_id, task_id, actor, "assignment", draft.instructions, draft.assignee, draft.due_at)
     return result
@@ -181,7 +183,7 @@ def issue_crew_link(conn, run_id, task_id):
     return row["crew_token"]
 
 
-def progress_task(conn, run_id, task_id, actor, draft, token=None):
+def progress_task(conn, run_id, task_id, actor, draft, token=None, *, contractor=False, photo=None, bot_crews=()):
     action = draft.action
     transitions = {
         "accept": ({"sent", "accepted", "in_progress", "returned", "done"}, "accepted"),
@@ -200,12 +202,26 @@ def progress_task(conn, run_id, task_id, actor, draft, token=None):
         if location:
             lock_group(conn, run_id, location["location_key"], location["kind"])
     task = assignment_task(conn, run_id, task_id, draft.version, token)
+    claimed_by = task["claimed_by"]
+    if contractor and claimed_by and claimed_by != actor:
+        raise HTTPException(409, "Задание уже принял другой участник бригады")
+    if contractor and action != "accept" and not claimed_by:
+        raise HTTPException(409, "Сначала примите задание")
+    if (claimed_by or task["assignee"] in bot_crews) and not contractor and (token or action in {"start", "finish"}):
+        raise HTTPException(409, "Принятие и выполнение задания бригадой доступны в боте")
+    if contractor and action == "finish" and photo is None:
+        raise HTTPException(422, "Приложите фото выполненной работы")
     previous, stage = transitions[action]
     if task["stage"] not in previous:
         raise HTTPException(409, "Действие недоступно в текущем статусе")
     if action in {"finish", "return", "close", "followup"} and not draft.note:
         raise HTTPException(422, "Укажите результат или причину")
     if action == "accept":
+        if contractor and not claimed_by:
+            conn.execute("UPDATE dispatch_tasks SET claimed_by=%s WHERE (run_id,id)=(%s,%s)",
+                         (actor, run_id, task_id))
+            if task["accepted_at"]:
+                log_task(conn, run_id, task_id, actor, "accept", "Задание закреплено за участником бригады")
         return record_receipt(conn, task, actor)
     if action == "followup" and task["work_kind"] != "inspect":
         raise HTTPException(409, "Уборку по итогам можно создать только из проверки")
@@ -218,6 +234,8 @@ def progress_task(conn, run_id, task_id, actor, draft, token=None):
            WHERE (run_id,id)=(%s,%s)""",
         (stage, action, draft.note, action, action, stage, run_id, task_id),
     )
+    if action == "finish" and photo is not None:
+        save_result_photos(conn, run_id, task_id, [photo])
     if action == "close":
         conn.execute(
             """UPDATE dispatch_reports r SET closed_at=now(),closed_by=%s,resolution=%s
@@ -256,7 +274,7 @@ def progress_task(conn, run_id, task_id, actor, draft, token=None):
     return {"stage": stage}
 
 
-def finish_with_photos(conn, run_id, task_id, actor, draft, images, token):
+def finish_with_photos(conn, run_id, task_id, actor, draft, images, token, *, bot_crews=()):
     task = conn.execute(
         """SELECT stage,assignment_version,completed_at,result FROM dispatch_tasks
            WHERE (run_id,id)=(%s,%s) AND crew_token=%s FOR UPDATE""", (run_id, task_id, token),
@@ -270,14 +288,26 @@ def finish_with_photos(conn, run_id, task_id, actor, draft, images, token):
         ).fetchall()
         if task["result"] == draft.note and [row["photo_jpeg"] for row in saved] == images:
             return {"stage": task["stage"]}
-    result = progress_task(conn, run_id, task_id, actor, draft, token)
+    result = progress_task(conn, run_id, task_id, actor, draft, token, bot_crews=bot_crews)
+    save_result_photos(conn, run_id, task_id, images)
+    return result
+
+
+def save_result_photos(conn, run_id, task_id, images):
     for position, image in enumerate(images, start=1):
         conn.execute(
             """INSERT INTO dispatch_result_photos (id,run_id,task_id,completed_at,position,photo_jpeg)
                SELECT %s,run_id,id,completed_at,%s,%s FROM dispatch_tasks WHERE (run_id,id)=(%s,%s)""",
             (uuid4(), position, image, run_id, task_id),
         )
-    return result
+
+
+def first_result_photo(conn, run_id, task_id):
+    return conn.execute(
+        """SELECT p.photo_jpeg FROM dispatch_tasks t JOIN dispatch_result_photos p
+           ON (p.run_id,p.task_id,p.completed_at)=(t.run_id,t.id,t.completed_at)
+           WHERE (t.run_id,t.id)=(%s,%s) ORDER BY p.position LIMIT 1""", (run_id, task_id),
+    ).fetchone()
 
 
 def task_history(conn, run_id, task_id):
@@ -293,10 +323,12 @@ def task_history(conn, run_id, task_id):
 
 def archive(conn, run_id):
     return conn.execute(
-        """SELECT id,address,district,result,work_kind,closed_at,
+        """SELECT id,address,district,result,work_kind,closed_at,claimed_by,
                  (SELECT ARRAY(SELECT p.id FROM dispatch_result_photos p
                       WHERE (p.run_id,p.task_id,p.completed_at)=(t.run_id,t.id,t.completed_at)
                       ORDER BY p.position)) AS result_photo_ids,
+                 EXISTS (SELECT 1 FROM dispatch_result_photos p
+                      WHERE (p.run_id,p.task_id,p.completed_at)=(t.run_id,t.id,t.completed_at)) AS has_result_photo,
                  (SELECT COALESCE(jsonb_agg(jsonb_build_object('reference',r.reference,'description',r.description,
                             'resolution',r.resolution,'closed_at',r.closed_at) ORDER BY r.created_at),'[]')
                   FROM dispatch_task_reports s JOIN dispatch_reports r ON (s.run_id,s.report_id)=(r.run_id,r.id)
@@ -394,10 +426,12 @@ def register_report(conn, run_id, actor, draft):
 def queue(conn, run_id, now, freshness):
     tasks = conn.execute(
         """SELECT id,location_key,kind,district,address,work_kind,created_at,assignee,due_at,stage,instructions,severity,
-                  result,completed_at,assigned_at,accepted_at,response_seconds,assignment_version,
+                  result,completed_at,assigned_at,accepted_at,response_seconds,assignment_version,claimed_by,
                   (SELECT ARRAY(SELECT p.id FROM dispatch_result_photos p
                       WHERE (p.run_id,p.task_id,p.completed_at)=(t.run_id,t.id,t.completed_at)
                       ORDER BY p.position)) AS result_photo_ids,
+                 EXISTS (SELECT 1 FROM dispatch_result_photos p
+                      WHERE (p.run_id,p.task_id,p.completed_at)=(t.run_id,t.id,t.completed_at)) AS has_result_photo,
                   COALESCE(COALESCE(completed_at,%s) > due_at,false) AS overdue,
                   (SELECT note FROM dispatch_task_history h WHERE (h.run_id,h.task_id)=(t.run_id,t.id)
                    AND action='return' ORDER BY id DESC LIMIT 1) AS return_note

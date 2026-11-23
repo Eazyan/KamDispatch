@@ -452,6 +452,7 @@ export function DispatchQueue({ rows, busObservations, cameraDistricts, loadRoad
       {archiveError ? <p className="error">{archiveError}</p> : archive ? (archive.length ? <ul>{archive.map(task =>
         <li key={task.id}>
           <strong>{task.address} · {workLabels[task.work_kind]}</strong> · {task.district} · {formatTime(task.closed_at)}
+          {task.claimed_by && <p>Принял · {task.claimed_by}</p>}
           {task.result && <p>{task.result}</p>}
           <ResultPhotos ids={task.result_photo_ids} photoUrl={photoUrl} />
           {task.reports.map((report, index) => <p key={index}>

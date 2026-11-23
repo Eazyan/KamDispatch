@@ -51,7 +51,7 @@ export type ProgressDraft = { version: number; action: TaskAction; note: string 
 export type DispatchTask = {
   id: string; work_kind: WorkKind; created_at: string; assignee: string | null; due_at: string | null;
   assigned_at: string | null; accepted_at: string | null; response_seconds: number | null;
-  overdue: boolean; assignment_version: number;
+  overdue: boolean; assignment_version: number; claimed_by?: string | null; work_in_bot?: boolean;
   stage: TaskStage; instructions: string; result: string; return_note: string | null; result_photo_ids?: string[];
 };
 export type CrewTask = Pick<DispatchTask, 'id' | 'work_kind' | 'assignee' | 'due_at' | 'assignment_version' | 'stage' | 'instructions' | 'result' | 'return_note'> & {
@@ -63,6 +63,7 @@ export type HistoryItem = {
 };
 export type ArchivedTask = {
   id: string; address: string; district: string; result: string; work_kind: WorkKind; closed_at: string; result_photo_ids?: string[];
+  claimed_by?: string | null;
   reports: { reference: string; description: string; resolution: string; closed_at: string | null }[];
 };
 type DispatchSource = { id: string; active: boolean; linked: boolean; last_seen: string };
