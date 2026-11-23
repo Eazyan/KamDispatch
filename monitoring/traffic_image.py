@@ -1,0 +1,429 @@
+"""Conservative corridor observations from paired, UI-georeferenced screenshots.
+
+Colors are provider display classes, never measured speeds or travel directions.
+"""
+from collections import Counter
+from datetime import datetime
+import math
+
+import numpy as np
+
+LABELS = {1: "free", 2: "slow", 3: "congested"}
+
+
+def mercator(point):
+    lon, lat = map(float, point)
+    if not math.isfinite(lon) or not math.isfinite(lat) or not -180 <= lon <= 180 or not -85 < lat < 85:
+        raise ValueError("Coordinates must be finite WGS84 lon/lat within WebMercator")
+    return np.array([math.radians(lon), math.asinh(math.tan(math.radians(lat)))])
+
+
+def calibration(capture):
+    """Fit three control points and independently verify a fourth point."""
+    points = capture["control_points"]
+    if len(points) != 4:
+        raise ValueError("Exactly four independent UI control points are required")
+    geo = np.array([mercator(p["lon_lat"]) for p in points])
+    pixel = np.array([p["pixel"] for p in points], dtype=float)
+    if pixel.shape != (4, 2) or not np.isfinite(pixel).all():
+        raise ValueError("Invalid control point pixels")
+    origin = geo[0]
+    design = np.column_stack((geo - origin, np.ones(4)))
+    if np.linalg.matrix_rank(design[:3]) != 3:
+        raise ValueError("Control points are collinear")
+    transform = np.linalg.solve(design[:3], pixel[:3])
+    residual = float(np.linalg.norm(design[3] @ transform - pixel[3]))
+    if not math.isfinite(residual) or residual > 1:
+        raise ValueError("Independent calibration error exceeds one pixel")
+    # Rotated or tilted views cannot support the axis-aligned corridor review.
+    if (transform[0, 0] <= 0 or transform[1, 1] >= 0
+            or abs(transform[0, 1]) > .01 * transform[0, 0]
+            or abs(transform[1, 0]) > .01 * abs(transform[1, 1])):
+        raise ValueError("Use a north-up, untilted map")
+    return origin, transform, residual
+
+
+def project(point, origin, transform):
+    return np.append(mercator(point) - origin, 1) @ transform
+
+
+def color_mask(before, after):
+    """Ignore unchanged basemap colors, including parks and ordinary roads."""
+    old = np.asarray(before.convert("RGB"), dtype=np.int16)
+    new = np.asarray(after.convert("RGB"), dtype=np.int16)
+    changed = np.max(np.abs(new - old), axis=2) >= 20
+    r, g, b = new.transpose(2, 0, 1)
+    labels = np.zeros(r.shape, dtype=np.uint8)
+    labels[changed & (g > 100) & (g > r * 1.18) & (g > b * 1.18)] = 1
+    labels[changed & (r > 190) & (g > 135) & (b < 135) & (r > g * .95)] = 2
+    labels[changed & (r > 170) & (g < 135) & (b < 135)] = 3
+    return labels
+
+
+def extract_traffic_lines(before, after, analysis_region):
+    """Vectorize source ribbons without receiving or consulting any OSM roads."""
+    import cv2
+    labels = color_mask(before, after)
+    x, y, width, height = map(int, analysis_region)
+    result = []
+    for label, status in LABELS.items():
+        mask = np.zeros(labels.shape, dtype=np.uint8)
+        mask[y:y+height, x:x+width] = (labels[y:y+height, x:x+width] == label) * 255
+        count, components, stats, _ = cv2.connectedComponentsWithStats(mask, connectivity=8)
+        allowed = np.zeros(count, dtype=bool)
+        widths, heights = stats[1:, cv2.CC_STAT_WIDTH], stats[1:, cv2.CC_STAT_HEIGHT]
+        extent = np.maximum(widths, heights)
+        aspect = extent / np.maximum(1, np.minimum(widths, heights))
+        fill = stats[1:, cv2.CC_STAT_AREA] / (widths * heights)
+        # Small compact glyphs/logos are not elongated traffic ribbons.
+        allowed[1:] = (extent >= 10) & ~((extent < 40) & (aspect < 1.8) & (fill > .3))
+        mask = (allowed[components] * 255).astype(np.uint8)
+        # A thin ribbon remains a line. Unlike erosion, Hough preserves one-pixel strokes.
+        lines = cv2.HoughLinesP(mask, 1, np.pi / 180, threshold=5, minLineLength=6, maxLineGap=3)
+        if lines is None:
+            continue
+        unique = set()
+        for raw in lines[:, 0]:
+            a, b = np.asarray(raw[:2], dtype=float), np.asarray(raw[2:], dtype=float)
+            if tuple(a) > tuple(b):
+                a, b = b, a
+            key = tuple(map(int, [*a, *b]))
+            if key in unique:
+                continue
+            unique.add(key)
+            # Reject a straight hypothesis that only bridges isolated glyphs.
+            samples = np.linspace(a, b, max(2, math.ceil(np.linalg.norm(b-a))))
+            hits = 0
+            for px, py in samples:
+                col, row = int(round(px)), int(round(py))
+                hits += bool(np.any(mask[max(0,row-1):row+2, max(0,col-1):col+2]))
+            if hits / len(samples) < .85:
+                continue
+            result.append({"id": f"traffic-{label}-{len(result)}", "traffic_status": status,
+                           "pixels": [a.tolist(), b.tolist()]})
+    return result
+
+
+def unproject(pixel, origin, transform):
+    coordinate = (np.asarray(pixel) - transform[2]) @ np.linalg.inv(transform[:2]) + origin
+    return [math.degrees(coordinate[0]), math.degrees(math.atan(math.sinh(coordinate[1])))]
+
+
+def match_traffic_lines(lines, projected, roads, region):
+    """Assign source samples to nearby, parallel OSM geometry before aggregation."""
+    radius, cell_size = 12., 24.
+    x, y, width, height = region
+    grid, road_parts, lengths = {}, [], []
+    assignments = [[] for _ in roads]
+    for road_index, points in enumerate(projected):
+        parts, cumulative = [], 0.
+        for a, b in zip(points, points[1:]):
+            vector = b-a
+            length = float(np.linalg.norm(vector))
+            if not length:
+                continue
+            part = (a, b, vector / length, length, cumulative, road_index)
+            parts.append(part)
+            west, north = np.minimum(a, b) - radius
+            east, south = np.maximum(a, b) + radius
+            if east >= x and west < x+width and south >= y and north < y+height:
+                for col in range(math.floor(max(west,x-radius)/cell_size), math.floor(min(east,x+width+radius)/cell_size)+1):
+                    for row in range(math.floor(max(north,y-radius)/cell_size), math.floor(min(south,y+height+radius)/cell_size)+1):
+                        grid.setdefault((col,row), []).append(part)
+            cumulative += length
+        road_parts.append(parts)
+        lengths.append(cumulative)
+    for line in lines:
+        a, b = np.asarray(line["pixels"], dtype=float)
+        vector = b-a
+        length = float(np.linalg.norm(vector))
+        tangent = vector / length
+        for point in np.linspace(a, b, max(2, math.ceil(length / 2)+1)):
+            candidates = {}
+            for start, end, direction, part_length, offset, index in grid.get(tuple(np.floor(point/cell_size).astype(int)), ()):
+                alignment = abs(float(tangent @ direction))
+                if alignment < math.cos(math.radians(20)):
+                    continue
+                raw_along = float((point-start) @ direction)
+                # A parallel ribbon beyond an endpoint does not observe that road.
+                if raw_along < -2 or raw_along > part_length+2:
+                    continue
+                along = float(np.clip(raw_along, 0, part_length))
+                distance = float(np.linalg.norm(point-(start+direction*along)))
+                if distance > radius:
+                    continue
+                score = distance + 12*(1-alignment)
+                if index not in candidates or score < candidates[index][0]:
+                    candidates[index] = (score, offset+along, distance)
+            ordered = sorted(candidates, key=lambda index: candidates[index][0])
+            if not ordered:
+                continue
+            best = ordered[0]
+            # Closely competing parallel roads are unresolved rather than double painted.
+            group = roads[best].get("osm_way", roads[best]["id"])
+            ambiguous = any(roads[i].get("osm_way", roads[i]["id"]) != group
+                            and candidates[i][0] < candidates[best][0]+2 for i in ordered[1:])
+            if ambiguous:
+                continue
+            _, along, distance = candidates[best]
+            assignments[best].append((along, line["traffic_status"], distance, line["id"]))
+    results = []
+    for index, parts in enumerate(road_parts):
+        votes, total, visible, matched_ids = Counter(), lengths[index], 0., set()
+        assigned = assignments[index]
+        sections = []
+        for start, end, direction, length, offset, _ in parts:
+            count = max(1, math.ceil(length/2))
+            weight = length/count
+            for j in range(count):
+                along = (j+.5)*weight
+                px, py = start+direction*along
+                if not (x <= px < x+width and y <= py < y+height):
+                    continue
+                visible += weight
+                nearby = [p for p in assigned if abs(p[0]-(offset+along)) <= 3]
+                if not nearby:
+                    continue
+                by_class = {}
+                for _, status, distance, line_id in nearby:
+                    by_class[status] = min(by_class.get(status, math.inf), distance)
+                ranked = sorted(by_class, key=by_class.get)
+                if len(ranked)>1 and by_class[ranked[1]]-by_class[ranked[0]] <= 3:
+                    continue
+                status = ranked[0]
+                votes[status] += weight
+                ids = {p[3] for p in nearby if p[1] == status}
+                matched_ids.update(ids)
+                first = start+direction*(along-weight/2)
+                last = start+direction*(along+weight/2)
+                # Export only bins fully inside the analyzed image region.
+                if all(x <= q[0] < x+width and y <= q[1] < y+height for q in (first,last)):
+                    begin, finish = offset+along-weight/2, offset+along+weight/2
+                    if (sections and sections[-1]["traffic_status"] == status
+                            and abs(sections[-1]["end"]-begin) < 1e-6):
+                        section = sections[-1]
+                        section["pixels"].append(last.tolist())
+                        section["end"] = finish
+                        section["source_line_ids"].update(ids)
+                    else:
+                        sections.append({"traffic_status": status, "start": begin, "end": finish,
+                                         "pixels": [first.tolist(),last.tolist()], "source_line_ids": ids})
+        if not visible:
+            results.append(None)
+            continue
+        coverage = sum(votes.values())/total if total else 0.
+        status, reason = "unknown", "insufficient_matched_line_coverage"
+        if coverage >= .6 and sum(votes.values()) >= min(6, total*.6):
+            dominant, amount = votes.most_common(1)[0]
+            if amount >= .75*sum(votes.values()):
+                status, reason = dominant, "geometry_matched_source_lines"
+            else:
+                reason = "mixed_or_ambiguous_colors"
+        results.append({"traffic_status": status, "reason": reason,
+                        "coverage_fraction": round(coverage,4),
+                        "visible_fraction": round(visible/total,4) if total else 0,
+                        "source_line_ids": sorted(matched_ids),
+                        "matched_sections": [{"traffic_status": s["traffic_status"], "pixels": s["pixels"],
+                                              "source_line_ids": sorted(s["source_line_ids"])}
+                                             for s in sections if s["end"]-s["start"] >= 6]})
+    return results
+
+
+def validate_capture_geometry(before, after, capture):
+    if before.size != after.size or max(before.size) > 4096:
+        raise ValueError("Screenshot pair must have equal dimensions, at most 4096 pixels")
+    if "viewport" in capture and tuple(capture["viewport"]) != before.size:
+        raise ValueError("Screenshot dimensions must match the CSS viewport")
+    timestamp = datetime.fromisoformat(capture["captured_at"])
+    if timestamp.tzinfo is None:
+        raise ValueError("Capture time requires a UTC offset")
+    origin, transform, residual = calibration(capture)
+    x, y, width, height = map(float, capture["analysis_region"])
+    if not all(map(math.isfinite, (x, y, width, height))) or not (
+        0 <= x < x + width <= before.width and 0 <= y < y + height <= before.height
+    ):
+        raise ValueError("Analysis region must fit inside the screenshots")
+    return origin,transform,residual,(x,y,width,height)
+
+
+def analyze_roads(before, after, capture, roads):
+    origin,transform,residual,(x,y,width,height)=validate_capture_geometry(before,after,capture)
+    lines = extract_traffic_lines(before, after, capture["analysis_region"])
+    projected = [[project(point, origin, transform) for point in road["coordinates"]] for road in roads]
+    if any(len(points)<2 or any(np.linalg.norm(b-a)>100000 for a,b in zip(points,points[1:])) for points in projected):
+        raise ValueError("Invalid road geometry")
+    observations = match_traffic_lines(lines, projected, roads, (x,y,width,height))
+    features, matched_sections = [], []
+    for road, observed in zip(roads, observations):
+        if observed is None:
+            continue
+        for section_index, section in enumerate(observed.pop("matched_sections")):
+            matched_sections.append({"type": "Feature", "id": f"{road['id']}-observed-{section_index}",
+                "geometry": {"type": "LineString", "coordinates": [unproject(p,origin,transform) for p in section["pixels"]]},
+                "properties": {"road_id": road["id"], "name": road.get("name",road["id"]),
+                               "traffic_status": section["traffic_status"], "source_line_ids": section["source_line_ids"],
+                               "direction": "unresolved", "evidence_scope": "matched_road_section",
+                               "source": "2gis_screenshot", "observed_at": capture["captured_at"],
+                               "validation": "experimental_unvalidated"}})
+        features.append({"type": "Feature", "id": road["id"],
+                         "geometry": {"type": "LineString", "coordinates": road["coordinates"]},
+                         "properties": {"id": road["id"], "name": road.get("name", road["id"]),
+                                        "osm_way": road.get("osm_way"), **observed,
+                                        "direction": "unresolved", "evidence_scope": "road_corridor",
+                                        "source": "2gis_screenshot", "observed_at": capture["captured_at"],
+                                        "provider_updated_at": None, "validation": "experimental_unvalidated"}})
+    source = {"type": "FeatureCollection", "features": [
+        {"type": "Feature", "id": line["id"],
+         "geometry": {"type": "LineString", "coordinates": [unproject(p, origin, transform) for p in line["pixels"]]},
+         "properties": {"traffic_status": line["traffic_status"], "pixels": line["pixels"],
+                        "source": "2gis_screenshot", "direction": "unresolved",
+                        "observed_at": capture["captured_at"], "validation": "experimental_unvalidated",
+                        "evidence_scope": "extracted_display_ribbon"}} for line in lines]}
+    return {"type": "FeatureCollection", "features": features, "traffic_lines": source,
+            "matched_sections": {"type": "FeatureCollection", "features": matched_sections},
+            "metadata": {"calibration_holdout_error_px": round(residual,4),
+                         "method": "source_lines_geometry_match_v3", "source_line_count": len(lines),
+                         "speed_estimate": None, "direction": "unresolved", "not_for_automatic_dispatch": True}}
+
+
+def estimate_traffic(roads, result):
+    """Graph smoothing with an explicit sample-prior fallback, never an observation.
+
+    Road-adjacency distances approximate center-to-center distance via shared OSM
+    vertices. Normalized class weights are uncalibrated scores, not probabilities.
+    """
+    import heapq
+    statuses = tuple(LABELS.values())
+    indices = {road["id"]: i for i, road in enumerate(roads)}
+    observations = {f["id"]: f["properties"] for f in result["features"]}
+    sections = {}
+    for feature in result.get("matched_sections", {}).get("features", []):
+        prop = feature["properties"]
+        points = feature["geometry"]["coordinates"]
+        length = sum(float(np.linalg.norm(mercator(b)-mercator(a))) for a,b in zip(points,points[1:]))
+        vector = sections.setdefault(prop["road_id"], np.zeros(3))
+        vector[statuses.index(prop["traffic_status"])] += length
+    sources = {}
+    for road_id, prop in observations.items():
+        if road_id not in indices:
+            continue
+        if prop["traffic_status"] in statuses:
+            vector = np.array([float(status == prop["traffic_status"]) for status in statuses])
+        elif road_id in sections and sum(sections[road_id]) > 0:
+            vector = sections[road_id]/sum(sections[road_id])
+        else:
+            continue
+        sources[indices[road_id]] = (vector, prop.get("coverage_fraction", 1.))
+    empty = {"type": "FeatureCollection", "features": []}
+    if not sources:
+        return empty
+    groups = [road.get("osm_way") or road["id"] for road in roads]
+    grouped = {}
+    for index, (vector, _) in sources.items():
+        grouped.setdefault(groups[index], []).append(vector)
+    # One vote per OSM way prevents segmentation from multiplying its prior weight.
+    prior = np.ones(3)+sum((np.mean(v,axis=0) for v in grouped.values()), np.zeros(3))
+    prior /= sum(prior)
+    vertices, lengths = {}, []
+    for i, road in enumerate(roads):
+        points = road["coordinates"]
+        length = 0.
+        for a,b in zip(points,points[1:]):
+            latitude = math.radians((a[1]+b[1])/2)
+            length += 6371008.8*math.cos(latitude)*float(np.linalg.norm(mercator(b)-mercator(a)))
+        lengths.append(length)
+        for point in {tuple(p) for p in points}:
+            vertices.setdefault(point, []).append(i)
+    adjacency = [{} for _ in roads]
+    for connected in vertices.values():
+        for a in connected:
+            for b in connected:
+                if a != b:
+                    adjacency[a][b] = (lengths[a]+lengths[b])/2
+    targets = {indices[key] for key,prop in observations.items()
+               if key in indices and prop["traffic_status"] == "unknown"}
+    neighbors = {index: {} for index in targets}
+    for source, (vector, strength) in sources.items():
+        distances, queue = {source: 0.}, [(0.,source)]
+        while queue:
+            distance,index = heapq.heappop(queue)
+            if distance != distances[index]:
+                continue
+            if index in targets:
+                previous = neighbors[index].get(groups[source])
+                if previous is None or distance < previous[0]:
+                    neighbors[index][groups[source]] = (distance,source,vector,strength)
+            for other,length in adjacency[index].items():
+                candidate = distance+length
+                if candidate <= 1000 and candidate < distances.get(other, math.inf):
+                    distances[other] = candidate
+                    heapq.heappush(queue,(candidate,other))
+    features = []
+    for index in sorted(targets):
+        nearby = sorted(neighbors[index].values(), key=lambda row:(row[0],row[1]))[:3]
+        scores = prior.copy()
+        evidence_weight = 0.
+        for distance,source,vector,strength in nearby:
+            weight = 4*math.exp(-distance/250)*strength
+            scores += weight*vector
+            evidence_weight += weight
+        scores /= sum(scores)
+        basis = ("partial_observation_and_graph" if any(row[1] == index for row in nearby)
+                 else "graph_neighbors" if nearby else "sample_prior_only")
+        graph_share = evidence_weight/(1+evidence_weight)
+        supported = bool(nearby) and graph_share >= .1
+        road = roads[index]
+        features.append({"type":"Feature", "id":road["id"],
+            "geometry":{"type":"LineString","coordinates":road["coordinates"]},
+            "properties":{"road_id":road["id"],"name":road.get("name",road["id"]),
+                "estimated_status":statuses[int(np.argmax(scores))] if supported else "unknown",
+                "graph_evidence_share":round(graph_share,4),
+                "abstention_reason":None if supported else "weak_graph_support" if nearby else "no_local_graph_support",
+                "class_scores":{status:round(float(value),6) for status,value in zip(statuses,scores)},
+                "basis":basis,"source":"traffic_graph_model","direction":"unresolved",
+                "source_road_ids":[roads[row[1]]["id"] for row in nearby],
+                "nearest_observation_m":round(nearby[0][0],1) if nearby else None,
+                "based_on_observations_at":result.get("metadata",{}).get("captured_at"),
+                "validation":"experimental_unvalidated","score_interpretation":"uncalibrated_class_weights",
+                "not_for_automatic_dispatch":True}})
+    return {"type":"FeatureCollection","features":features,
+            "metadata":{"method":"osm_adjacency_smoothing_v1","prior_scores":dict(zip(statuses,prior.tolist())),
+                "prior_source_road_ids":[roads[i]["id"] for i in sources],"prior_osm_way_count":len(grouped),
+                "minimum_graph_evidence_share":.1,
+                "input_image_sha256":result.get("metadata",{}).get("image_sha256"),
+                "input_roads_sha256":result.get("metadata",{}).get("roads_sha256"),
+                "based_on_observations_at":result.get("metadata",{}).get("captured_at"),
+                "max_network_distance_m":1000,"distance_decay_m":250,"max_neighbor_ways":3,
+                "sample_prior_warning":"Selected roads with visible traffic are not representative of all streets",
+                "validation":"experimental_unvalidated","not_for_automatic_dispatch":True}}
+
+
+def validate_basemap_pair(before, after, region):
+    """Reject blank or visibly incomplete basemaps; keep low-detail blocks explicit."""
+    from PIL import Image
+    x,y,width,height = map(int,region)
+    bounds = (x,y,x+width,y+height)
+    small = [image.convert("RGB").crop(bounds).resize((256,256),Image.Resampling.NEAREST)
+             for image in (before,after)]
+    arrays = [np.asarray(image,dtype=np.int16) for image in small]
+    unique = [len(np.unique(array.reshape(-1,3),axis=0)) for array in arrays]
+    if min(unique) < 2:
+        raise ValueError("Blank basemap: a uniform frame does not prove map coverage")
+    changed = np.max(np.abs(arrays[0]-arrays[1]),axis=2) >= 30
+    unexplained = changed & (color_mask(*small) == 0)
+    low_detail = []
+    for row in range(8):
+        for col in range(8):
+            window = (slice(row*32,(row+1)*32),slice(col*32,(col+1)*32))
+            counts = [len(np.unique(array[window].reshape(-1,3),axis=0)) for array in arrays]
+            if min(counts) == 1 and float(np.mean(changed[window])) > .1:
+                raise ValueError("Incomplete basemap loading in an image block")
+            if max(counts) < 4:
+                low_detail.append([col,row])
+    if float(np.mean(unexplained)) > .25:
+        raise ValueError("Basemap pair changed outside traffic colors; loading or camera mismatch")
+    return {"status":"passed","method":"paired_basemap_block_audit_v2",
+            "before_unique_colors":unique[0],"after_unique_colors":unique[1],
+            "unexplained_changed_fraction":round(float(np.mean(unexplained)),6),
+            "block_grid":[8,8],"low_detail_blocks":low_detail,
+            "low_detail_note":"Flat blocks may be valid empty terrain; their detail is unverified, not traffic evidence"}

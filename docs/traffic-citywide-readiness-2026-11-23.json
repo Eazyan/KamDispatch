@@ -1,0 +1,67 @@
+{
+  "scope": "Offline plan projection and verification of already saved PNGs. No network capture, no claim of completed city coverage.",
+  "plan_sha256": "75bbd5d654ddcad11ead7582dbd9b2276523c2197fd13726cd427c778daf27eb",
+  "planned_capture_count": 30,
+  "planned_boundary_coverage_fraction": 1.0,
+  "planned_fully_captured_road_count": 7806,
+  "reference_road_count": 7806,
+  "verified_real_capture_count": 7,
+  "actual_boundary_coverage_fraction": 0.25690951459299893,
+  "actual_fully_captured_road_count": 5047,
+  "date": "2026-11-23",
+  "timezone": "Asia/Kamchatka",
+  "full_live_run_performed": false,
+  "collection_paused_by_user": true,
+  "synthetic_run": {
+    "planned_views": 30,
+    "network_requests": 0,
+    "injected_transient_failures": 1,
+    "capture_transport_calls": 30
+  },
+  "test_validation": "102 passed, 1 skipped (ffmpeg missing); full regression before independent review",
+  "verified_edges": [
+    "unsealed resume",
+    "sealed attempt recovery",
+    "transient retry budget",
+    "UI timeout no retry",
+    "403/429/CAPTCHA no retry",
+    "Ctrl-C",
+    "duplicate collector lock",
+    "atomic publication",
+    "cache bindings",
+    "actual camera/zoom",
+    "whole road tails"
+  ],
+  "code_sha256": {
+    "monitoring/traffic_image.py": "c0ec70bfdc04911c00028c5db6777bd40b59cdf5e4928f0b04e3b67a5f93ffd7",
+    "monitoring/traffic_coverage.py": "406a215d9e643a84d8401f7d37b0d468cb794aa4aab5cf74057eccd0da40f19c",
+    "scripts/capture_traffic.py": "23d9d6f7d0cc9b883736ca11e9bf1ebf7a996648f06666744168b034e157a215",
+    "tests/test_traffic_city_runner.py": "1949a84f17bb2d153f48511f4569d92b433078cca9f577520739eab7bccffedf"
+  },
+  "initial_code_sha256": {
+    "monitoring/traffic_image.py": "25a5bb0774120f9c85937da898e7360ce63be870b08f38e926d7240680badd2a",
+    "monitoring/traffic_coverage.py": "bfc91c9a5c9e7835c5d3bd60470d2e20030401cceff9c6425a0c7b05c2b012f4",
+    "scripts/capture_traffic.py": "766d7b757d4b9c7a5ef43f8e772dfa93dc21749f04f2336dca4c7a7673266b38",
+    "tests/test_traffic_city_runner.py": "e509cca843add4bc8af1556dcf9a3aa11f35ba711c872aae207cb0aa34b12227"
+  },
+  "post_review_validation": {
+    "traffic_tests_passed": 60,
+    "full_tests_passed": 108,
+    "full_tests_skipped": 1,
+    "skip_reason": "ffmpeg missing",
+    "new_network_captures": 0,
+    "existing_real_pairs_revalidated": 7,
+    "mutation_failures_confirmed": [
+      "green loading mask",
+      "broken cache recovery",
+      "captcha HTTP503 priority"
+    ]
+  },
+  "independent_review": {
+    "skill": "local-skills:prod-code-review",
+    "round_1": "3 confirmed HIGH",
+    "fixes": "implemented and reproduced offline",
+    "round_2": "passed: all 3 blockers closed, 24 independent targeted tests passed, 7 saved real pairs reverified",
+    "reviewed_fix_commit": "c4265fa"
+  }
+}
