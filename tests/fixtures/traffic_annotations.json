@@ -1,0 +1,594 @@
+{
+  "version": 1,
+  "annotation_method": "Human-selected visible ribbons and non-traffic controls on saved screenshots, inspected on a coordinate-grid overlay. Approximate manual ribbon anchors were snapped to nearby source-color pixels (maximum20px) before evaluating predictions; annotations are not exhaustive. No extracted vectors or OSM matches used for selection. Centerline tolerance5CSSpx.",
+  "development_capture": "pilot-2",
+  "holdout_capture": "pilot-4",
+  "captures": [
+    {
+      "id": "pilot-2",
+      "positive": [
+        {
+          "id": "2-left-1",
+          "class": "free",
+          "pixels": [
+            [
+              746,
+              446
+            ],
+            [
+              757,
+              472
+            ],
+            [
+              767,
+              495
+            ]
+          ]
+        },
+        {
+          "id": "2-left-2",
+          "class": "free",
+          "pixels": [
+            [
+              784,
+              534
+            ],
+            [
+              798,
+              567
+            ],
+            [
+              782,
+              620
+            ]
+          ]
+        },
+        {
+          "id": "2-bottom-1",
+          "class": "free",
+          "pixels": [
+            [
+              840,
+              650
+            ],
+            [
+              875,
+              666
+            ],
+            [
+              917,
+              665
+            ]
+          ]
+        },
+        {
+          "id": "2-vertical-2",
+          "class": "free",
+          "pixels": [
+            [
+              1265,
+              378
+            ],
+            [
+              1256,
+              404
+            ],
+            [
+              1250,
+              437
+            ]
+          ]
+        },
+        {
+          "id": "2-diagonal-1",
+          "class": "free",
+          "pixels": [
+            [
+              849,
+              372
+            ],
+            [
+              883,
+              392
+            ],
+            [
+              911,
+              418
+            ]
+          ]
+        },
+        {
+          "id": "2-diagonal-2",
+          "class": "free",
+          "pixels": [
+            [
+              921,
+              426
+            ],
+            [
+              942,
+              440
+            ],
+            [
+              961,
+              452
+            ]
+          ]
+        },
+        {
+          "id": "2-main-1",
+          "class": "free",
+          "pixels": [
+            [
+              1115,
+              407
+            ],
+            [
+              1146,
+              430
+            ],
+            [
+              1178,
+              454
+            ]
+          ]
+        },
+        {
+          "id": "2-main-2",
+          "class": "free",
+          "pixels": [
+            [
+              1223,
+              476
+            ],
+            [
+              1262,
+              517
+            ],
+            [
+              1298,
+              544
+            ]
+          ]
+        },
+        {
+          "id": "2-main-north",
+          "class": "free",
+          "pixels": [
+            [
+              1038,
+              248
+            ],
+            [
+              1042,
+              270
+            ],
+            [
+              1039,
+              291
+            ]
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "2-temple-text",
+          "pixels": [
+            [
+              982,
+              341
+            ],
+            [
+              1055,
+              341
+            ]
+          ]
+        },
+        {
+          "id": "2-gai-text",
+          "pixels": [
+            [
+              1009,
+              532
+            ],
+            [
+              1074,
+              532
+            ]
+          ]
+        },
+        {
+          "id": "2-logo",
+          "pixels": [
+            [
+              810,
+              410
+            ],
+            [
+              835,
+              410
+            ]
+          ]
+        },
+        {
+          "id": "2-green-park",
+          "pixels": [
+            [
+              490,
+              510
+            ],
+            [
+              530,
+              510
+            ]
+          ]
+        },
+        {
+          "id": "2-uncolored-road",
+          "pixels": [
+            [
+              981,
+              471
+            ],
+            [
+              981,
+              515
+            ]
+          ]
+        },
+        {
+          "id": "2-building",
+          "pixels": [
+            [
+              824,
+              531
+            ],
+            [
+              849,
+              531
+            ]
+          ]
+        }
+      ],
+      "image_sha256": "7782914a9e539776d5cff46c79baf07b41319c9938930b390fea05c99435b258"
+    },
+    {
+      "id": "pilot-4",
+      "positive": [
+        {
+          "id": "4-upper-west",
+          "class": "free",
+          "pixels": [
+            [
+              551,
+              610
+            ],
+            [
+              595,
+              592
+            ],
+            [
+              639,
+              575
+            ]
+          ]
+        },
+        {
+          "id": "4-upper-middle",
+          "class": "free",
+          "pixels": [
+            [
+              707,
+              548
+            ],
+            [
+              745,
+              533
+            ],
+            [
+              784,
+              517
+            ]
+          ]
+        },
+        {
+          "id": "4-upper-east",
+          "class": "free",
+          "pixels": [
+            [
+              856,
+              488
+            ],
+            [
+              889,
+              475
+            ],
+            [
+              922,
+              462
+            ]
+          ]
+        },
+        {
+          "id": "4-upper-junction",
+          "class": "free",
+          "pixels": [
+            [
+              997,
+              432
+            ],
+            [
+              1032,
+              418
+            ],
+            [
+              1068,
+              404
+            ]
+          ]
+        },
+        {
+          "id": "4-lower-west",
+          "class": "free",
+          "pixels": [
+            [
+              619,
+              674
+            ],
+            [
+              668,
+              672
+            ],
+            [
+              710,
+              654
+            ]
+          ]
+        },
+        {
+          "id": "4-lower-middle",
+          "class": "free",
+          "pixels": [
+            [
+              765,
+              637
+            ],
+            [
+              803,
+              621
+            ],
+            [
+              840,
+              605
+            ]
+          ]
+        },
+        {
+          "id": "4-lower-east",
+          "class": "free",
+          "pixels": [
+            [
+              861,
+              596
+            ],
+            [
+              897,
+              580
+            ],
+            [
+              933,
+              564
+            ]
+          ]
+        },
+        {
+          "id": "4-red",
+          "class": "congested",
+          "pixels": [
+            [
+              985,
+              525
+            ],
+            [
+              1002,
+              504
+            ],
+            [
+              1020,
+              484
+            ]
+          ]
+        },
+        {
+          "id": "4-main-south",
+          "class": "free",
+          "pixels": [
+            [
+              973,
+              560
+            ],
+            [
+              971,
+              588
+            ],
+            [
+              968,
+              615
+            ]
+          ]
+        },
+        {
+          "id": "4-bottom-east",
+          "class": "free",
+          "pixels": [
+            [
+              1047,
+              628
+            ],
+            [
+              1084,
+              616
+            ],
+            [
+              1121,
+              603
+            ]
+          ]
+        },
+        {
+          "id": "4-bottom-far-east",
+          "class": "free",
+          "pixels": [
+            [
+              1197,
+              577
+            ],
+            [
+              1234,
+              562
+            ],
+            [
+              1270,
+              548
+            ]
+          ]
+        },
+        {
+          "id": "4-north",
+          "class": "free",
+          "pixels": [
+            [
+              1144,
+              320
+            ],
+            [
+              1160,
+              300
+            ],
+            [
+              1179,
+              275
+            ]
+          ]
+        },
+        {
+          "id": "4-east-connector",
+          "class": "free",
+          "pixels": [
+            [
+              1278,
+              419
+            ],
+            [
+              1297,
+              431
+            ],
+            [
+              1316,
+              443
+            ]
+          ]
+        },
+        {
+          "id": "4-side-access",
+          "class": "free",
+          "pixels": [
+            [
+              1116,
+              442
+            ],
+            [
+              1132,
+              455
+            ],
+            [
+              1144,
+              464
+            ]
+          ]
+        }
+      ],
+      "negative": [
+        {
+          "id": "4-orange-label",
+          "pixels": [
+            [
+              1010,
+              347
+            ],
+            [
+              1066,
+              347
+            ]
+          ]
+        },
+        {
+          "id": "4-uncolored-street",
+          "pixels": [
+            [
+              693,
+              365
+            ],
+            [
+              734,
+              353
+            ]
+          ]
+        },
+        {
+          "id": "4-park",
+          "pixels": [
+            [
+              475,
+              360
+            ],
+            [
+              520,
+              360
+            ]
+          ]
+        },
+        {
+          "id": "4-building",
+          "pixels": [
+            [
+              871,
+              425
+            ],
+            [
+              908,
+              412
+            ]
+          ]
+        },
+        {
+          "id": "4-label-university",
+          "pixels": [
+            [
+              850,
+              554
+            ],
+            [
+              899,
+              554
+            ]
+          ]
+        },
+        {
+          "id": "4-medical-icon",
+          "pixels": [
+            [
+              1257,
+              330
+            ],
+            [
+              1257,
+              343
+            ]
+          ]
+        }
+      ],
+      "image_sha256": "fb9e0af51360bdff0f81fd9638e1ca73c92d3021dd1784613d1e2d30707898a9"
+    }
+  ]
+}
