@@ -101,3 +101,14 @@ tab. `scripts/probe_yandex_maps.py` is one finite raw off/on probe, not a produc
 provider adapter: no georeferencing, graph matching or source-colour validation.
 Do not feed these PNGs through the 2GIS matcher and claim equivalent observations.
 The existing three-hour cleanup covers all files under the same spool.
+
+Yandex Maps probe succeeded on the third finite probe attempt: first selector
+assumed an A element had link role; DOM inspection corrected to observed aria-label.
+Second probe assumed l=trf URL; actual UI navigated to /probki/. After correction,
+spool/yandex-maps-03 captured a raw 1920×1080 zoom14 pair in 10.766 s, with a
+5.443 s timestamp gap and identical ll/z/tilt/azimuth URL parameters. Both PNG
+hashes/dimensions verified; off/on images visually inspected: traffic ribbons
+appear, including green/yellow on this view. Provider update time unknown.
+This is not a full-city benchmark, georeferenced capture, speed measurement,
+or validation of the 2GIS classifier on Yandex. Browser remains open on traffic.
+47 offline tests passed. No periodic provider requests were enabled.
