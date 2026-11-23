@@ -9,6 +9,6 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install numpy Pillow opencv-python-headless pytest
-      - run: python -m pytest tests/test_traffic_raster.py tests/test_traffic_city.py tests/test_traffic_graph.py tests/test_traffic_image.py tests/test_traffic_lines.py tests/test_traffic_validation.py tests/test_traffic_evaluation.py tests/test_traffic_linux_worker.py tests/test_traffic_retention.py tests/test_traffic_yandex_worker.py -q
+      - run: python -m pytest tests/test_traffic_raster.py tests/test_traffic_city.py tests/test_traffic_graph.py tests/test_traffic_image.py tests/test_traffic_lines.py tests/test_traffic_validation.py tests/test_traffic_evaluation.py tests/test_traffic_linux_worker.py tests/test_traffic_retention.py tests/test_traffic_yandex_worker.py tests/test_traffic_product.py tests/test_traffic_queue.py tests/test_traffic_server.py -q
       - run: python scripts/graph_traffic_smoke.py /tmp/graph-synthetic
       - run: python scripts/graph_traffic.py snegoplan/mapprep/out/graph_v3.json /tmp/graph-export

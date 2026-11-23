@@ -60,10 +60,10 @@ def color_mask(before, after):
     return labels
 
 
-def extract_traffic_lines(before, after, analysis_region):
+def extract_traffic_lines(before, after, analysis_region, color_mask_fn=None):
     """Vectorize source ribbons without receiving or consulting any OSM roads."""
     import cv2
-    labels = color_mask(before, after)
+    labels = (color_mask_fn or color_mask)(before, after)
     x, y, width, height = map(int, analysis_region)
     result = []
     for label, status in LABELS.items():

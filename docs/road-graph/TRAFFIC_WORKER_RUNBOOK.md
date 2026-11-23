@@ -112,3 +112,36 @@ appear, including green/yellow on this view. Provider update time unknown.
 This is not a full-city benchmark, georeferenced capture, speed measurement,
 or validation of the 2GIS classifier on Yandex. Browser remains open on traffic.
 47 offline tests passed. No periodic provider requests were enabled.
+
+## Verified product run, 24.11.2026 (Asia/Kamchatka)
+
+ФАКТ: the five-popup-per-frame calibration was the failure source. The observed
+Yandex menu item is a `<label>`; a synthetic `evaluate('click')` never runs its
+handler, while `press('Enter')` does. That is why earlier runs wrote one control
+point and then timed out.
+
+ФАКТ: calibration is now measured once per run. The map URL gives the center, the
+`.map-container` box gives the anchor, and one independent "Что здесь?" point must
+agree within 2 px. The anchor is the container center on X and `height/2 + 10` on Y
+(a 20 px top inset), reproduced on 2048x2048, 4096x2048 and 4096x4096 to 0.02 px.
+No per-frame popups remain.
+
+ФАКТ: Playwright screenshots at 4096x4096 took 6-20 s here and intermittently
+timed out. Raw CDP `Page.captureScreenshot` takes about 0.1 s for a clipped
+readiness frame and 3 s for a full PNG. Coverage of a readiness frame is measured
+only for a uniform light surface: sea and forest are legitimately low-variance and
+were previously mis-rejected as "empty".
+
+ФАКТ: a full city pass accepted 11/11 frames in 110.7 s with 11689/11689 corridors
+inside frame footprints. The 300 s scheduler started the next run at the next
+boundary and never overlapped (12:34:42 -> 12:39:42). A four-hour-old PNG was
+deleted while a fresh PNG and the audit JSON were kept; TTL is 10800 s.
+
+РАСЧЁТ/НАБЛЮДЕНИЕ: the latest versions report free 65.9 km, slow 0.3 km,
+congested 0 km and unknown 1189.6 km out of 1255.8 km of graph. Most unknown
+length is `no_source_color`: Yandex paints traffic ribbons only on a subset of
+roads (43 km matched vs 466 km uncoloured in one dense frame). A zoom-16 probe
+covered the same share per area as zoom 15, so a higher zoom does not add
+observations. The graph is fully inside the captured frames and every corridor is
+drawn on the map, but uncoloured roads stay explicitly unknown; they are never
+turned into "free".
