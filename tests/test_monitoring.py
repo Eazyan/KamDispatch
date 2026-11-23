@@ -1,3 +1,4 @@
+from io import BytesIO
 import json
 import os
 import socket
@@ -42,6 +43,10 @@ def test_four_control_labels():
     assert event_signals(observed(heavy, 2, 91), True, 90) == {}
     assert event_signals(observed(path), False, 90) == {"snowfall": "watch"}
     assert event_signals(observed(heavy), False, 90) == {"snowfall": "watch"}
+    hidden_road = {**first, "falling_snow": "no", "snow_on_ground": "yes",
+                   "road_coverage": "mostly_covered", "large_snowdrifts": "yes",
+                   "details": {"road_view": "unusable"}}
+    assert event_signals(observed(hidden_road), True, 90) == {"snowfall": "end"}
     invalid = {**heavy, "format_valid": False}
     assert event_signals([*observed(heavy, 1), *observed(invalid, 1)], True, 90) == {}
 
@@ -464,6 +469,16 @@ def test_preview_keeps_previous_analysis_while_processing_new_frame(settings):
     assert result["analysis_stage"] == "pending"
     assert result["scene"]["falling_snow"] == "no"
 
+    with connect(settings) as conn:
+        conn.execute("UPDATE frames SET observed_at=%s WHERE id=%s", (at - timedelta(minutes=3), older))
+    with TestClient(create_app(config)) as client:
+        camera_rows = client.get("/api/v1/dashboard").json()["cameras"]
+        result = next(row for row in camera_rows if row["id"] == camera_id)
+    assert result["scene"] is None and result["analyzed_frame_id"] is None
+    assert result["archived_analysis"]["frame_id"] == str(older)
+    assert datetime.fromisoformat(result["archived_analysis"]["at"]) == at - timedelta(minutes=3)
+    assert result["archived_analysis"]["scene"]["falling_snow"] == "no"
+
 
 def test_camera_location_and_slow_source_freshness(settings):
     from dataclasses import replace
@@ -691,7 +706,19 @@ def test_dispatch_crew_result_followup_and_report_archive(settings):
         call("PUT", crew, {"version": 2, "action": "start"}, headers=access, expected=409)
         call("PUT", crew, {"version": 2, "action": "accept"}, headers=access)
         call("PUT", crew, {"version": 2, "action": "start"}, headers=access)
-        call("PUT", crew, {"version": 3, "action": "finish", "note": "Нужна уборка"}, headers=access)
+        image = BytesIO()
+        Image.new("RGB", (16, 16), "white").save(image, format="PNG")
+        files = [("photos", ("result.png", image.getvalue(), "image/png"))] * 2
+        for _ in range(2):
+            photo_result = client.post(f"/api/v1/{crew}/result", headers=access,
+                                       data={"version": 3, "note": "Нужна уборка"}, files=files)
+            assert photo_result.status_code == 200, photo_result.text
+        row, = call("GET", "dashboard")["dispatch_queue"]
+        ids = row["task"]["result_photo_ids"]
+        assert len(ids) == 2 and len(set(ids)) == 2
+        photo_url = "/api/v1/dispatch/result-photos/" + ids[0]
+        assert client.get(photo_url, params={"run": run}).headers["content-type"] == "image/jpeg"
+        assert client.get(photo_url, params={"run": "other"}).status_code == 404
         call("PUT", crew, {"version": 4, "action": "close", "note": "Закрыто"}, headers=access, expected=403)
         call("PUT", dispatcher + "/progress", {"version": 4, "action": "return", "note": "Укажите длину участка"})
         assert call("GET", crew, headers=access)["return_note"] == "Укажите длину участка"
@@ -796,7 +823,8 @@ def test_bus_dashboard_preview_collection_and_demo_isolation(settings, tmp_path)
         assert conn.execute(
             "SELECT count(*) AS n FROM bus_positions WHERE run_id='preview'",
         ).fetchone()["n"] == len(positions)
-        assert dashboard_rnis(conn, preview, "preview", now)["rows"][0]["reason"] == "buses"
+        actual = dashboard_rnis(conn, preview, "preview", now)["rows"][0]
+        assert actual["reason"] == "buses" and actual["coordinates"] == sections[0].coordinates
         assert dashboard_rnis(conn, preview, "preview", now + timedelta(hours=4)) is None
         layer = map_rnis(conn, preview, "preview", now)
         assert layer["state"] == "ready"

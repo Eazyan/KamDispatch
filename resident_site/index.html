@@ -36,12 +36,12 @@
     <div class="shell layout">
       <section id="report" class="card">
         <h2>Новое обращение</h2>
-        <p class="muted intro">Добавьте фото, опишите проблему и укажите её местоположение.</p>
+        <p class="muted intro">Опишите проблему и укажите её местоположение. Фото можно добавить по желанию.</p>
         <form id="report-form">
           <div class="field">
-            <label for="photo">Фотография</label>
+            <label for="photo">Фотография (необязательно)</label>
             <label class="drop-zone" id="drop-zone" for="photo">
-              <input id="photo" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" required aria-describedby="photo-hint">
+              <input id="photo" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" aria-describedby="photo-hint">
               <span class="upload-icon" aria-hidden="true">↑</span>
               <span><strong id="photo-name">Выберите фото или перетащите сюда</strong><small id="photo-hint">JPG или PNG, до 5 МиБ</small></span>
               <img id="preview" alt="Предпросмотр фото" hidden>
@@ -52,6 +52,12 @@
             <textarea id="description" rows="4" maxlength="880" required placeholder="Например, на тротуаре у дома 12 гололёд и сугробы. Проходить опасно." aria-describedby="count"></textarea>
             <small class="counter" id="count">0 / 880</small>
           </div>
+          <label class="field" for="problem-tag">Тег (необязательно)
+            <select id="problem-tag">
+              <option value="">Определить по описанию</option>
+              <option>снег</option><option>сугроб</option><option>пробка</option><option>дождь</option>
+            </select>
+          </label>
           <fieldset class="field location">
             <legend>Местоположение</legend>
             <div class="coordinates">

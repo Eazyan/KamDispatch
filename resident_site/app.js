@@ -17,6 +17,12 @@ const submit = form.querySelector("[type=submit]");
 let previewUrl;
 let requestId;
 
+function randomId() {
+  // getRandomValues also works when the form is served on a local HTTP network.
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)),
+    byte => byte.toString(16).padStart(2, "0")).join("");
+}
+
 function updatePhoto() {
   if (previewUrl) URL.revokeObjectURL(previewUrl);
   const file = photo.files[0];
@@ -106,9 +112,7 @@ form.addEventListener("submit", async event => {
     return;
   }
   const file = photo.files[0];
-  // getRandomValues also works when the form is served on a local HTTP network.
-  requestId ??= Array.from(crypto.getRandomValues(new Uint8Array(16)),
-    byte => byte.toString(16).padStart(2, "0")).join("");
+  requestId ??= randomId();
   submit.disabled = true;
   status.className = "";
   status.textContent = "Отправляем обращение…";
@@ -120,11 +124,24 @@ form.addEventListener("submit", async event => {
     }
     const body = new FormData();
     for (const [key, value] of Object.entries({
-      request_id: requestId, photo: file, description: text,
+      request_id: requestId, description: text,
       latitude: lat, longitude: lon, address: address.value.trim(),
     })) body.append(key, value);
+    if (file) body.append("photo", file);
+    const tag = document.querySelector("#problem-tag").value;
+    if (tag) body.append("tags", tag);
     const headers = {};
-    if (config.requires_token) headers.Authorization = "Bearer " + accessToken.value.trim();
+    if (config.requires_token) {
+      headers.Authorization = "Bearer " + accessToken.value.trim();
+    } else {
+      const key = "kamdispatch.citizenBrowserId";
+      let browserId = localStorage.getItem(key);
+      if (!browserId) {
+        browserId = randomId();
+        localStorage.setItem(key, browserId);
+      }
+      headers["X-Citizen-Browser-Id"] = browserId;
+    }
     const response = await fetch(api + "/reports", {method: "POST", headers, body});
     const result = await response.json();
     if (!response.ok) throw new Error(typeof result.detail === "string"
@@ -135,7 +152,7 @@ form.addEventListener("submit", async event => {
     locationStatus.textContent = "";
     status.className = "success";
     const tags = [...new Set([...result.tags, ...result.suggested_tags])].map(tag => `#${tag}`).join(" ");
-    status.textContent = `Обращение №${result.id} принято.${tags ? "\n" + tags : ""}`;
+    status.textContent = `Обращение №${result.report_number} принято.${tags ? "\n" + tags : ""}`;
   } catch (error) {
     status.className = "error";
     status.textContent = error instanceof TypeError ? "Ошибка соединения. Попробуйте ещё раз." : error.message;

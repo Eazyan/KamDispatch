@@ -1,11 +1,20 @@
 import json
 import os
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TZ = ZoneInfo("Asia/Kamchatka")
+
+
+def messenger_ids(variable):
+    return tuple(dict.fromkeys(item.strip() for item in os.getenv(variable, "").split(",") if item.strip()))
+
+
+def messenger_crews():
+    return json.loads(os.getenv("DISPATCH_BOT_CREWS") or "{}")
 
 
 @dataclass(frozen=True)
@@ -36,6 +45,13 @@ class Settings:
     operators: tuple = tuple(filter(None, os.getenv("OPERATOR_SUBJECTS", "").split(",")))
     viewers: tuple = tuple(filter(None, os.getenv("VIEWER_SUBJECTS", "").split(",")))
     crew_subjects: dict[str, str] = field(default_factory=lambda: json.loads(os.getenv("DISPATCH_CREW_SUBJECTS") or "{}"))
+    dispatch_bot_crews: dict[str, str] = field(default_factory=messenger_crews)
+    dispatch_telegram_admins: tuple[str, ...] = field(
+        default_factory=lambda: messenger_ids("DISPATCH_TELEGRAM_ADMINS"),
+    )
+    dispatch_max_operators: tuple[str, ...] = field(
+        default_factory=lambda: messenger_ids("DISPATCH_MAX_OPERATORS"),
+    )
     recipients: tuple = tuple(sorted(set(value.strip() for value in os.getenv("MAIL_TO", "").split(",") if value.strip())))
     mail_test: bool = os.getenv("MONITOR_MAIL_TEST") == "1"
     mail_host: str = os.getenv("SMTP_HOST", "")
@@ -84,6 +100,17 @@ class Settings:
             for subject, label in self.crew_subjects.items()
         ):
             raise ValueError("DISPATCH_CREW_SUBJECTS must map OIDC subjects to assignee names")
+
+        if not isinstance(self.dispatch_bot_crews, dict) or any(
+            not re.fullmatch(r"(?:telegram|max):[1-9][0-9]{0,18}", actor)
+            or not isinstance(label, str) or not label.strip() or label != label.strip() or len(label) > 150
+            for actor, label in self.dispatch_bot_crews.items()
+        ):
+            raise ValueError("DISPATCH_BOT_CREWS must map messenger accounts to assignee names")
+        for platform, ids in (("telegram", self.dispatch_telegram_admins), ("max", self.dispatch_max_operators)):
+            if any(not re.fullmatch(r"[1-9][0-9]{0,18}", ident)
+                   or f"{platform}:{ident}" in self.dispatch_bot_crews for ident in ids):
+                raise ValueError("Administrative messenger roles require unique positive account IDs")
 
     def cameras(self):
         sources = {source["id"]: source for source in json.loads((ROOT / "cameras" / "sources.json").read_text())}

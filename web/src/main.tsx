@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } 
 import { createRoot } from 'react-dom/client';
 import { CameraMap } from './Map';
 import { Overview } from './Overview';
-import { CitizenReports, RecentCitizenReports } from './CitizenReports';
-import { deliveryBucket, upcomingForecast } from './sectionViews';
+import { CitizenReports, RecentCitizenReports, useRecentCitizenReports } from './CitizenReports';
+import { cameraRoadAssessment, deliveryBucket, upcomingForecast } from './sectionViews';
 import { demoDashboard, demoFrameUrl, demoScenarios, parseCleanupPhase, parseScenario, scenarioClock, type CleanupPhase, type DemoScenario } from './overviewDemo';
-import { dispatchKey } from './overviewWidgets';
+import { cameraShowsSnow, currentCameraScene, dispatchKey } from './overviewWidgets';
 import { DispatchQueue } from './DispatchQueue';
 import { CrewAssignment, CrewInbox } from './CrewAssignment';
 import { Icon, type IconName } from './Icon';
@@ -87,24 +87,25 @@ function SceneFacts({ scene, road, missing }: { scene: Scene | null; road: boole
     poor: 'Плохая', clear: 'Чисто', partial: 'Частично', mostly_covered: 'Большая часть',
     not_visible: 'Дорога вне кадра', limited: 'Обзор ограничен', unusable: 'Обзор недоступен', major: 'Сильное',
   };
-  const valid = scene?.format_valid ? scene : null;
+  const valid = scene?.format_valid && scene.view_quality !== 'unusable' ? scene : null;
   const detail = valid?.details;
   const value = (field?: string) => field ? values[field] : 'Нет оценки';
   const visibility = valid?.visibility === 'uncertain' && detail
     ? detail.air_view === 'good' ? 'Хороший обзор' : value(detail.air_view)
     : value(valid?.visibility);
   const conclusion = !scene ? missing
-    : !valid ? 'Анализ кадра не прошёл проверку.'
+    : !scene.format_valid ? 'Анализ кадра не прошёл проверку.'
+    : !valid ? 'По этому кадру нельзя оценить обстановку.'
     : /\p{Script=Latin}/u.test(valid.evidence)
       ? { yes: 'В кадре виден снегопад.', no: 'Падающего снега не видно.',
           uncertain: 'По кадру не удалось определить, идёт ли снег.' }[valid.falling_snow]
       : valid.evidence;
   return <><dl className="facts">
-    <div><dt>Падает снег</dt><dd>{value(valid?.falling_snow)}</dd></div>
+    <div><dt>Идёт снег</dt><dd>{value(valid?.falling_snow)}</dd></div>
     <div><dt>Интенсивность</dt><dd>{value(valid?.intensity)}</dd></div>
     <div><dt>Видимость по кадру</dt><dd>{visibility}</dd></div>
     <div><dt>Снег на дороге</dt><dd>{road ? value(valid?.road_coverage) : 'Вне дорожного мониторинга'}</dd></div>
-    <div><dt>Снег на земле</dt><dd>{value(valid?.snow_on_ground)}</dd></div>
+    <div><dt>Снег лежит на земле</dt><dd>{value(valid?.snow_on_ground)}</dd></div>
     <div><dt>Крупные валы</dt><dd>{value(valid?.large_snowdrifts)}</dd></div>
   </dl>
     <p className="evidence">{conclusion}</p>
@@ -123,7 +124,13 @@ function SceneFacts({ scene, road, missing }: { scene: Scene | null; road: boole
   </>;
 }
 
-function CameraDetail({ camera, real }: { camera: Camera; real: boolean }) {
+function CameraDetail({ camera, real, onOpenCleanup }: { camera: Camera; real: boolean; onOpenCleanup?: () => void }) {
+  const scene = currentCameraScene(camera);
+  const previous = camera.archived_analysis ?? (
+    !scene && camera.scene && camera.analyzed_frame_id && camera.analyzed_frame_at
+      ? { scene: camera.scene, frame_id: camera.analyzed_frame_id, at: camera.analyzed_frame_at } : null
+  );
+  const { passage, action } = cameraRoadAssessment(camera, scene);
   const analysisState = camera.analysis_stage === 'pending' ? 'Последний кадр в очереди на анализ.'
     : camera.analysis_stage === 'running' ? 'Последний кадр анализируется.'
     : camera.analysis_stage === 'skipped' ? 'Анализ последнего кадра пропущен.'
@@ -155,12 +162,18 @@ function CameraDetail({ camera, real }: { camera: Camera; real: boolean }) {
         {real && <div><dt>Последняя проверка</dt><dd>{time(camera.last_poll, true)}</dd></div>}
         {real && camera.source_at && <div><dt>Обновление у источника</dt><dd>{time(camera.source_at, true)}</dd></div>}
       </dl>
-      {real && camera.analyzed_frame_id && camera.analyzed_frame_id !== camera.frame_id &&
-        <p className="muted">{analysisState} Оценка относится к{' '}
-          <a href={frameUrl(camera.analyzed_frame_id)} target="_blank" rel="noreferrer">
-            кадру от {time(camera.analyzed_frame_at, true)}</a>.
-        </p>}
-      <SceneFacts scene={camera.scene} road={camera.road} missing={missing} />
+      <dl className="facts camera-road-assessment">
+        <div><dt>Состояние проезда</dt><dd>{passage}</dd></div>
+        {onOpenCleanup ? <div><dt>Решение диспетчера</dt><dd>
+          <button type="button" className="quiet" onClick={onOpenCleanup}>Требуется очистка · открыть задание</button>
+        </dd></div> : action && <div><dt>Рекомендация</dt><dd>{action}</dd></div>}
+      </dl>
+      <SceneFacts scene={scene} road={camera.road} missing={missing} />
+      {previous && <details className="camera-archive">
+        <summary>Оценка прошлого кадра · {time(previous.at, true)}</summary>
+        <a href={frameUrl(previous.frame_id)} target="_blank" rel="noreferrer">Открыть кадр от {time(previous.at, true)}</a>
+        <SceneFacts scene={previous.scene} road={camera.road} missing="" />
+      </details>}
     </div>
   </section>;
 }
@@ -373,19 +386,23 @@ const percent = (value: number | null) => value == null ? '—' : Math.round(val
 function ForecastPage({ data, real, updatedAt }: { data: Dashboard; real: boolean; updatedAt: string }) {
   const [point, setPoint] = useState('');
   const checks = forecastChecks(data);
-  const forecast = data.forecasts.find(item => item.point === point) ?? data.forecasts[0];
+  const points = [...new Set([...(data.forecast_points ?? []), ...data.forecasts.map(item => item.point)])];
+  const selected = points.includes(point) ? point : points[0];
+  const forecast = data.forecasts.find(item => item.point === selected);
   const reference = real || forecast?.source ? updatedAt : forecast?.fetched_at;
   const from = Date.parse(reference ?? '') || Date.now();
   const periods = forecast ? upcomingForecast(forecast.periods, from) : [];
   const warning = forecast && data.warnings.find(item => item.point === forecast.point && Date.parse(item.payload.end) > from);
   const nearestSnow = periods.find(period => period.snow);
   return <div className="page-stack">
+    {points.length > 0 && <div className="panel panel-head">
+      <label>Город или район <select value={selected} onChange={event => setPoint(event.currentTarget.value)}>
+        {points.map(name => <option key={name}>{name}</option>)}
+      </select></label>
+    </div>}
     {forecast ? <section className="panel forecast">
       <div className="panel-head forecast-head">
         <div><h2>Погодное окно</h2><p>{forecast.source ?? (real ? 'OpenWeather' : 'Контрольный прогноз')} · {time(forecast.fetched_at)}</p></div>
-        <select aria-label="Точка прогноза" value={forecast.point} onChange={e => setPoint(e.currentTarget.value)}>
-          {data.forecasts.map(item => <option key={item.point}>{item.point}</option>)}
-        </select>
       </div>
       {warning && <div className="forecast-warning">
         <Icon name="bell" /><div><strong>{forecast.source ? 'Снежный эпизод в сценарии' : 'Погодное предупреждение'}</strong>
@@ -423,7 +440,7 @@ function ForecastPage({ data, real, updatedAt }: { data: Dashboard; real: boolea
         </div> : <Empty icon="forecast">Периоды прогноза отсутствуют</Empty>}
       </details>
     </section> : <section className="panel"><Empty icon="forecast" hint="Здесь появятся ожидаемые осадки, температура и ветер.">
-      Прогноз ещё не получен
+      {selected ? 'Для выбранной точки прогноза пока нет' : 'Прогноз ещё не получен'}
     </Empty></section>}
     {checks.length > 0 && <section className="panel">
       <div className="panel-head"><h2>Источник прогноза</h2></div>
@@ -565,17 +582,18 @@ function App() {
   }, [eventId, Boolean(listedEvent), scenario]);
   const event = listedEvent ?? (linkedEvent?.id === eventId ? linkedEvent : null);
   const cameras = [...(data?.cameras ?? [])].sort((first, second) => Number(second.road) - Number(first.road));
-  const cameraSnow = (camera: Camera) => cameraHealthy(camera) && camera.scene?.format_valid && camera.scene.falling_snow === 'yes';
   const cameraAttention = (camera: Camera) => !cameraHealthy(camera);
   const search = cameraSearch.trim().toLocaleLowerCase('ru');
   const visibleCameras = cameras.filter(camera => (!search || [camera.name, camera.area, camera.district, camera.section_name]
     .some(value => value?.toLocaleLowerCase('ru').includes(search))) &&
-    (cameraFilter === 'all' || (cameraFilter === 'snow' ? cameraSnow(camera) : cameraAttention(camera))));
+    (cameraFilter === 'all' || (cameraFilter === 'snow' ? cameraShowsSnow(camera) : cameraAttention(camera))));
   const selectedCamera = visibleCameras.find(camera => camera.id === cameraId) ?? visibleCameras[0];
+  const cameraCleanup = selectedCamera?.road ? data?.dispatch_queue.find(row => row.task?.work_kind === 'clear' &&
+    row.signals.some(signal => signal.camera_id === selectedCamera.id && signal.linked && signal.active)) : undefined;
   const page = {
     overview: ['Дорожная обстановка', 'Текущие сигналы и состояние камер'],
     dispatch: ['Диспетчерская', 'Сигналы камер, обращения жителей и задания на проверку или уборку'],
-    citizens: ['Обращения жителей', 'Поступившие сообщения с сайта и из Telegram'],
+    citizens: ['Обращения жителей', 'Сообщения с сайта, из Telegram и MAX'],
     cameras: ['Камеры', 'Последние кадры и оценки по каждому ракурсу'],
     forecast: ['Прогноз', 'Ожидаемые осадки, температура и ветер'],
     reports: ['Сводки и доставка', 'Журнал погодных предупреждений и действий'],
@@ -617,11 +635,18 @@ function App() {
     location.hash = 'dispatch';
   }
 
+  function openCitizen(id?: string) {
+    setCitizenReport(id);
+    location.hash = 'citizens';
+    window.scrollTo(0, 0);
+  }
+
   const showOverview = tab === 'overview';
   const showCitizens = tab === 'citizens';
-  const recentCitizens = !scenario && run !== 'demo' ? <RecentCitizenReports token={citizenToken} onOpen={id => {
-    setCitizenReport(id); window.scrollTo(0, 0);
-  }} /> : null;
+  const showRecentCitizens = showOverview && !scenario && run !== 'demo';
+  const recentReports = useRecentCitizenReports(citizenToken, showRecentCitizens);
+  const recentCitizens = showRecentCitizens
+    ? <RecentCitizenReports result={recentReports} onOpen={openCitizen} /> : null;
   const serviceMode = serviceData?.mode ?? data?.mode;
   const showBusDemoLink = tab === 'dispatch' && (serviceMode === 'preview' || serviceMode === 'demo') &&
     data?.bus_observations?.source !== 'simulation';
@@ -679,6 +704,7 @@ function App() {
       {data && !scenario && event && (tab === 'dispatch' || tab === 'cameras') &&
         <EventDetail key={event.id} event={event} role={data.role} close={closeEvent} refresh={refresh} />}
       {data && tab === 'dispatch' && <DispatchQueue rows={data.dispatch_queue} loadRoads={loadDispatchRoads}
+        photoUrl={id => '/api/v1/dispatch/result-photos/' + id + suffix} onCitizen={openCitizen}
         busObservations={data.bus_observations}
         assignees={data.dispatch_assignees}
         cameraDistricts={data.cameras.map(camera => camera.district || camera.area)}
@@ -695,7 +721,8 @@ function App() {
       {showOverview && (data ? <Overview key={scenario ?? data.run_id} data={data} error={scenario && scenario !== 'response' ? '' : error} updatedAt={refreshAt}
         scenario={scenario} onScenario={changeScenario} phase={phase} onPhase={changeCleanupPhase} frameUrl={frameUrl} onDispatch={openDispatch}
         onSignal={(id, trigger) => { eventTrigger.current = trigger; setEventId(id); }}
-        onCamera={openCamera} onRefresh={refresh} loadRoads={loadSnowRoads} recentCitizens={recentCitizens} />
+        onCamera={openCamera} onRefresh={refresh} loadRoads={loadSnowRoads} loadSearchRoads={loadDispatchRoads} recentCitizens={recentCitizens}
+        citizenReports={showRecentCitizens ? recentReports.page?.items : undefined} onCitizenReport={openCitizen} />
         : <section className="overview-start">
           <h1>Дорожная обстановка</h1>
           <p role={error ? 'alert' : 'status'}>{error || 'Подключаем данные мониторинга…'}</p>
@@ -714,7 +741,7 @@ function App() {
               <input type="search" value={cameraSearch} onChange={e => setCameraSearch(e.currentTarget.value)}
                 placeholder="Название или район" aria-label="Поиск камер" />
               <div className="section-filters" aria-label="Фильтр камер">
-                {([['all', 'Все', cameras.length], ['snow', 'В кадре снег', cameras.filter(cameraSnow).length],
+                {([['all', 'Все', cameras.length], ['snow', 'Идёт снег', cameras.filter(cameraShowsSnow).length],
                   ['attention', 'Нет свежих кадров', cameras.filter(cameraAttention).length]] as const).map(([id, label, count]) =>
                   <button type="button" key={id} aria-pressed={cameraFilter === id} onClick={() => setCameraFilter(id)}>
                     {label} <small>{count}</small>
@@ -730,7 +757,8 @@ function App() {
             }} />
           </section>
           <div ref={cameraPanel} tabIndex={-1} className="camera-selection">
-            {selectedCamera ? <CameraDetail camera={selectedCamera} real={real} /> : <section className="panel">
+            {selectedCamera ? <CameraDetail camera={selectedCamera} real={real}
+              onOpenCleanup={cameraCleanup ? () => openDispatch(cameraCleanup) : undefined} /> : <section className="panel">
               <Empty icon="camera">Выберите камеру</Empty>
             </section>}
           </div>

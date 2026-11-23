@@ -1,19 +1,19 @@
 import { useId, useState, type FormEvent } from 'react';
-import { TaskHistory, TaskProgress, taskStages } from './TaskProgress';
+import { ResultPhotos, TaskHistory, TaskProgress, taskStages } from './TaskProgress';
 import type { AssignmentDraft, DispatchTask, HistoryItem, ProgressDraft } from './types';
 
 const kamchatkaInput = new Intl.DateTimeFormat('sv-SE', {
   timeZone: 'Asia/Kamchatka', dateStyle: 'short', timeStyle: 'short',
 });
 
-export function TaskAssignment({ task, operator, assignees, onAssign, onProgress, onLink, loadHistory, formatTime }: {
+export function TaskAssignment({ task, operator, assignees, onAssign, onProgress, onLink, loadHistory, formatTime, photoUrl }: {
   task: DispatchTask; operator: boolean; onAssign: (id: string, draft: AssignmentDraft) => Promise<void>;
   assignees: string[];
   onProgress: (id: string, draft: ProgressDraft) => Promise<void>;
   onLink: (id: string) => Promise<string>; loadHistory: (id: string) => Promise<HistoryItem[]>;
-  formatTime: (value: string) => string;
+  formatTime: (value: string) => string; photoUrl: (id: string) => string;
 }) {
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(operator && task.stage === 'draft');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [link, setLink] = useState<{ version: number; url: string }>();
@@ -45,12 +45,14 @@ export function TaskAssignment({ task, operator, assignees, onAssign, onProgress
   return <div className="dispatch-assignment">
     {task.assignee && <dl className="dispatch-task-facts">
       <div><dt>Исполнитель</dt><dd>{task.assignee}</dd></div>
+      {task.claimed_by && <div><dt>Принял</dt><dd>{task.claimed_by}</dd></div>}
       {task.due_at && <div><dt>Срок</dt><dd>{formatTime(task.due_at)}{task.overdue && <strong className="urgent"> · Просрочено</strong>}</dd></div>}
       <div><dt>Получение</dt><dd>{task.accepted_at ? 'Подтверждено · ' + formatTime(task.accepted_at) : 'Ждёт подтверждения'}</dd></div>
       {task.response_seconds !== null && <div><dt>От сигнала до назначения</dt><dd>{Math.floor(task.response_seconds / 60)} мин {task.response_seconds % 60} сек</dd></div>}
     </dl>}
     {task.instructions && <p><strong>Указания</strong> · {task.instructions}</p>}
     <p><strong>Статус</strong> · {taskStages[task.stage]}</p>
+    {task.work_in_bot && task.stage !== 'done' && <p>Бригада передаёт результат в боте.</p>}
     {operator && task.stage !== 'done' && (editing ? <form className="dispatch-progress-form" onSubmit={submit} key={task.assignment_version}>
       <fieldset disabled={busy}>
         <legend>Назначение исполнителя</legend>
@@ -71,7 +73,7 @@ export function TaskAssignment({ task, operator, assignees, onAssign, onProgress
     </form> : <div className="dispatch-controls">
       <button type="button" className={task.assignee ? 'quiet' : undefined} disabled={busy}
         onClick={() => { setError(''); setEditing(true); }}>{task.assignee ? 'Изменить назначение' : 'Назначить исполнителя'}</button>
-      {task.assignee && <button type="button" className="quiet" disabled={busy} onClick={() => void update(async () => {
+      {task.assignee && !task.work_in_bot && <button type="button" className="quiet" disabled={busy} onClick={() => void update(async () => {
         const token = await onLink(task.id);
         const url = new URL('/assignment#' + task.id + '.' + token, location.origin).href;
         setLink({ version: task.assignment_version, url });
@@ -82,6 +84,7 @@ export function TaskAssignment({ task, operator, assignees, onAssign, onProgress
       <input readOnly value={link.url} onFocus={event => event.target.select()} />
     </label>}
     <TaskProgress task={task} dispatcher onProgress={operator && !editing ? draft => onProgress(task.id, draft) : undefined} />
+    <ResultPhotos ids={task.result_photo_ids} photoUrl={photoUrl} />
     <TaskHistory taskId={task.id} load={loadHistory} formatTime={formatTime} />
     {error && <p className="error" role="alert">{error}</p>}
   </div>;

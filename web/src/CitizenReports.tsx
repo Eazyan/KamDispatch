@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Icon } from './Icon';
 import './citizens.css';
 
-type Report = {
+export type Report = {
   id: string;
   description: string;
   district: string | null;
@@ -12,7 +12,7 @@ type Report = {
   created_at: string;
   tags: string[];
   suggested_tags: string[];
-  photo_url: string;
+  photo_url: string | null;
 };
 type Page = { items: Report[]; next_offset: number | null };
 type District = { id: string; name: string | null; parent_id?: string };
@@ -37,12 +37,13 @@ async function fetchReports(query: string, token: string, signal: AbortSignal): 
   }
 }
 
-function useReports(query: string, token: string, refresh: number, poll = false) {
+function useReports(query: string, token: string, refresh: number, poll = false, enabled = true) {
   const [result, setResult] = useState<Result>({});
   useEffect(() => {
+    setResult({});
+    if (!enabled) return;
     const controller = new AbortController();
     let timer: number;
-    setResult({});
     async function load() {
       const next = await fetchReports(query, token, controller.signal);
       if (controller.signal.aborted) return;
@@ -52,7 +53,7 @@ function useReports(query: string, token: string, refresh: number, poll = false)
     }
     void load();
     return () => { controller.abort(); window.clearTimeout(timer); };
-  }, [query, token, refresh, poll]);
+  }, [query, token, refresh, poll, enabled]);
   return result;
 }
 
@@ -60,22 +61,31 @@ function ReportTime({ value }: { value: string }) {
   return <time dateTime={value}>{dateFormat.format(new Date(value))}</time>;
 }
 
-export function RecentCitizenReports({ token, onOpen }: { token: string; onOpen: (reportId?: string) => void }) {
-  const { page, error } = useReports('limit=3', token, 0, true);
-  return <section className="citizen-recent" aria-labelledby="citizen-recent-title">
-    <div className="citizen-recent-head">
-      <h3 id="citizen-recent-title">Новые обращения жителей</h3>
-      <a href="#citizens" onClick={() => onOpen()}>Все обращения</a>
-    </div>
-    {error && <p role="status">{error}</p>}
-    {!error && !page && <p role="status">Загружаем обращения…</p>}
-    {page?.items.length === 0 && <p>Обращений пока нет.</p>}
+export function useRecentCitizenReports(token: string, enabled: boolean) {
+  return useReports('limit=3', token, 0, true, enabled);
+}
+
+export function RecentCitizenReports({ result, onOpen }: { result: Result; onOpen: (reportId?: string) => void }) {
+  const { page, error } = result;
+  return <section className="overview-card mood-amber citizen-recent" aria-labelledby="citizen-recent-title">
+    <h3 id="citizen-recent-title" className="card-title">
+      <span className="card-kind"><Icon name="reports" width="16" height="16" />Новые обращения жителей</span>
+    </h3>
+    {error && <p className="card-body citizen-recent-status" role="status">{error}</p>}
+    {!error && !page && <p className="card-body citizen-recent-status" role="status">Загружаем обращения…</p>}
+    {page?.items.length === 0 && <p className="card-body citizen-recent-status">Обращений пока нет.</p>}
     {page?.items.length ? <ul>{page.items.map(report => <li key={report.id}>
-      <a href="#citizens" onClick={() => onOpen(report.id)}>
-        <span className="citizen-recent-description">{report.description}</span>
-        <small>{report.district ?? 'Район не определён'} · <ReportTime value={report.created_at} /></small>
+      <a className="card-main" href="#citizens" onClick={() => onOpen(report.id)}>
+        <span className="card-kicker">
+          <span>{report.district ?? 'Район не определён'}</span><ReportTime value={report.created_at} />
+        </span>
+        <span className="citizen-recent-entry">
+          <span className="card-body citizen-recent-description">{report.description}</span>
+          <Icon name="chevron" width="15" height="15" />
+        </span>
       </a>
     </li>)}</ul> : null}
+    <div className="card-actions"><a href="#citizens" onClick={() => onOpen()}>Все обращения</a></div>
   </section>;
 }
 
@@ -83,6 +93,7 @@ function ReportPhoto({ report, token }: { report: Report; token: string }) {
   const [photo, setPhoto] = useState('');
   const [failed, setFailed] = useState(false);
   useEffect(() => {
+    if (!report.photo_url) return;
     const controller = new AbortController();
     let objectUrl = '';
     setPhoto('');
@@ -118,10 +129,10 @@ function ReportCard({ report, token, initiallyOpen }: { report: Report; token: s
     </p>
     {report.tags.length > 0 && <p className="citizen-tags">Теги {report.tags.map(tag => '#' + tag).join(' ')}</p>}
     {report.suggested_tags.length > 0 && <p className="citizen-tags">Автоматические теги {report.suggested_tags.map(tag => '#' + tag).join(' ')}</p>}
-    <button type="button" className="quiet" aria-expanded={showPhoto} onClick={() => setShowPhoto(!showPhoto)}>
+    {report.photo_url && <button type="button" className="quiet" aria-expanded={showPhoto} onClick={() => setShowPhoto(!showPhoto)}>
       {showPhoto ? 'Скрыть фото' : 'Показать фото'}
-    </button>
-    {showPhoto && <ReportPhoto report={report} token={token} />}
+    </button>}
+    {report.photo_url && showPhoto && <ReportPhoto report={report} token={token} />}
   </article>;
 }
 

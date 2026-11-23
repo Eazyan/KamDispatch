@@ -5,14 +5,26 @@ import type { CrewTask, ProgressDraft } from './types';
 
 const dateTime = new Intl.DateTimeFormat('ru', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Kamchatka' });
 
-async function request<T>(hash: string, draft?: ProgressDraft): Promise<T> {
+async function request<T>(hash: string, draft?: ProgressDraft, photos: File[] = []): Promise<T> {
   const credentials = /^#([0-9a-f-]{36})\.([a-zA-Z0-9_-]{43})$/.exec(hash);
   if (!credentials) throw new Error('Откройте ссылку на задание, которую передал диспетчер.');
-  const response = await fetch('/api/v1/crew/tasks/' + credentials[1], {
-    method: draft ? 'PUT' : 'GET',
-    headers: { Authorization: 'Bearer ' + credentials[2], 'Content-Type': 'application/json' },
-    body: draft && JSON.stringify(draft),
-  });
+  const headers: Record<string, string> = { Authorization: 'Bearer ' + credentials[2] };
+  let body: BodyInit | undefined;
+  let method = draft ? 'PUT' : 'GET';
+  let endpoint = '/api/v1/crew/tasks/' + credentials[1];
+  if (draft?.action === 'finish' && photos.length) {
+    const form = new FormData();
+    form.set('version', String(draft.version));
+    form.set('note', draft.note);
+    photos.forEach(photo => form.append('photos', photo));
+    body = form;
+    method = 'POST';
+    endpoint += '/result';
+  } else if (draft) {
+    headers['Content-Type'] = 'application/json';
+    body = JSON.stringify(draft);
+  }
+  const response = await fetch(endpoint, { method, headers, body });
   const data = await response.json().catch(() => null);
   if (!response.ok) throw new Error(typeof data?.detail === 'string' ? data.detail : 'Не удалось открыть задание.');
   return data;
@@ -65,8 +77,8 @@ function CrewTaskView({ hash }: { hash: string }) {
         {showMap ? 'Скрыть карту' : 'Показать участок на карте'}
       </button>}
       {task.map_section && showMap && <RoadPicker selection={{ points: task.map_section.coordinates }} />}
-      <TaskProgress task={task} dispatcher={false} onProgress={async draft => {
-        await request(hash, draft);
+      <TaskProgress task={task} dispatcher={false} allowPhotos onProgress={async (draft, photos) => {
+        await request(hash, draft, photos);
         await refresh();
       }} />
     </section> : <p role="status">Загружаю задание…</p>}

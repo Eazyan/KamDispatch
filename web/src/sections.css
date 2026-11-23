@@ -73,7 +73,7 @@
 .section-metrics svg { flex-shrink:0; width:17px; height:17px; color:#a4e6d7; }
 .section-metrics dd, .dispatch-metrics button > strong { margin: 0; font-size: clamp(1.15rem, 2.5vw, 1.95rem); letter-spacing: -.035em; line-height:1.15; overflow-wrap:anywhere; }
 .section-workspace .dispatch-panel { margin-bottom:0; }
-.section-workspace .dispatch-assignment, .section-workspace .dispatch-columns { background: #1a3644; }
+.section-workspace .dispatch-assignment, .section-workspace .dispatch-stage > h3 { background: #1a3644; }
 .section-workspace .dispatch-summary:hover, .section-workspace .dispatch-list details[open] > summary { background: #1e3c49; }
 .section-workspace .dispatch-list details { scroll-margin-top:1rem; }
 .section-workspace .dispatch-district-overview button { color:#eff6fa; background:#1c3947; }
@@ -82,6 +82,9 @@
 .section-workspace .dispatch-filter label { font-size:.84rem; color:var(--muted); }
 .section-workspace .dispatch-filter select { width:auto; max-width:100%; min-width:min(100%, 8rem); }
 .section-workspace .dispatch-filter { padding-block: .8rem; border-top:1px solid var(--line); }
+.camera-road-assessment, .camera-archive { padding: .75rem; border: 1px solid var(--line); border-radius: var(--radius); }
+.camera-archive > summary { cursor: pointer; font-weight: 650; }
+.camera-archive > a { display: inline-block; margin-top: .5rem; }
 .camera-console, .camera-secondary { display:grid; grid-template-columns:minmax(0,.82fr) minmax(0,2fr); gap:14px; align-items:start; }
 .camera-secondary { grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); }
 .camera-index-tools { padding: 11px; display:grid; gap:8px; border-bottom: 1px solid var(--line); }
@@ -151,9 +154,8 @@
   .section-workspace .page-tools { flex-direction:row; align-items:center; gap:5px; }
   .section-workspace .refresh-time { text-align:left; white-space:normal; }
   .section-workspace .page-tools .icon-button { width:35px; min-height:35px; }
-  .section-workspace .dispatch-columns { display:none; }
   .section-workspace .dispatch-summary { grid-template-columns:minmax(0,1fr) auto; gap: .35rem .6rem; }
-  .section-workspace .dispatch-source-count { grid-column:1; grid-row:2; }
+  .section-workspace .dispatch-reason { grid-column:1; grid-row:2; }
 }
 @media (max-width: 460px) {
   .section-metrics { gap: 5px; }

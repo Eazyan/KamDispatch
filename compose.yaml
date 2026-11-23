@@ -41,6 +41,9 @@ services:
     build: .
     environment:
       <<: *application-environment
+      DISPATCH_BOT_CREWS: ${DISPATCH_BOT_CREWS:-}
+      DISPATCH_TELEGRAM_ADMINS: ${DISPATCH_TELEGRAM_ADMINS:-}
+      DISPATCH_MAX_OPERATORS: ${DISPATCH_MAX_OPERATORS:-}
       BOT_TOKEN: ${BOT_TOKEN:-}
       CITIZEN_BOT_API_KEY: ${CITIZEN_BOT_API_KEY:-}
     ports:
@@ -57,8 +60,27 @@ services:
     command: [python, -m, monitoring.citizen_bot]
     environment:
       BOT_TOKEN: ${BOT_TOKEN:-}
+      DISPATCH_BOT_CREWS: ${DISPATCH_BOT_CREWS:-}
+      DISPATCH_TELEGRAM_ADMINS: ${DISPATCH_TELEGRAM_ADMINS:-}
       CITIZEN_BOT_API_KEY: ${CITIZEN_BOT_API_KEY:-}
       CITIZEN_API_URL: http://api:8080
+    depends_on:
+      api:
+        condition: service_healthy
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    restart: 'on-failure:5'
+
+  max-bot:
+    image: kamchatka-monitoring:${APP_VERSION:-dev}
+    command: [python, -m, monitoring.citizen_max_bot]
+    environment:
+      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN:-}
+      DISPATCH_BOT_CREWS: ${DISPATCH_BOT_CREWS:-}
+      CITIZEN_BOT_API_KEY: ${CITIZEN_BOT_API_KEY:-}
+      CITIZEN_API_URL: http://api:8080
+    volumes:
+      - ./runtime/max:/app/runtime/max:ro
     depends_on:
       api:
         condition: service_healthy

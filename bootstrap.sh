@@ -52,6 +52,44 @@ else:
         target.write(config)
 PY
 
+mkdir -p runtime/max
+docker compose config --format json | python3 -c '
+import json
+from pathlib import Path
+import ssl
+import sys
+from tempfile import NamedTemporaryFile
+from urllib.request import urlopen
+
+environment = json.load(sys.stdin)["services"]["max-bot"]["environment"]
+if not (environment.get("MAX_BOT_TOKEN") or "").strip():
+    sys.exit(0)
+
+base_url = "https://gu-st.ru/content/lending/"
+bundle = Path("runtime/max/ca.pem")
+context = ssl.create_default_context()
+try:
+    certificates = []
+    for kind in ("root", "sub"):
+        with urlopen(f"{base_url}russian_trusted_{kind}_ca_pem.crt", timeout=20) as response:
+            certificate = response.read(65537).decode("ascii").strip()
+        if len(certificate) > 65536:
+            raise ValueError("слишком большой файл сертификата")
+        context.load_verify_locations(cadata=certificate)
+        certificates.append(certificate)
+    with NamedTemporaryFile(mode="w", encoding="ascii", dir=bundle.parent, delete=False) as target:
+        target.write("\n".join(certificates) + "\n")
+    path = Path(target.name)
+    try:
+        path.chmod(0o644)
+        path.replace(bundle)
+    finally:
+        path.unlink(missing_ok=True)
+except (OSError, ValueError) as error:
+    sys.exit(f"Не удалось подготовить сертификаты MAX: {error}")
+print(f"Сертификаты MAX загружены в {bundle}")
+'
+
 if [[ ! -f runtime/demo/manifest.json ]]; then
   python3 fixtures/prepare_demo.py fixtures/sample/1.png fixtures/sample/2.png fixtures/sample/3.png fixtures/sample/4.png
 fi

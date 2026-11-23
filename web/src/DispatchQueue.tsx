@@ -4,7 +4,8 @@ import { dispatchKey } from './overviewWidgets';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { RoadPicker, type RoadSelection } from './RoadPicker';
 import { TaskAssignment } from './TaskAssignment';
-import { TaskHistory, taskStages, workLabels } from './TaskProgress';
+import { ResultPhotos, TaskHistory, taskStages, workLabels } from './TaskProgress';
+import { dispatchStage, dispatchStages } from './sectionViews';
 import type { ArchivedTask, AssignmentDraft, BusObservations, DispatchGroup, DispatchRoad, HistoryItem, IssueKind, MapSection, ProgressDraft, ReportDraft, TaskDraft, WorkKind } from './types';
 
 const issues: Record<IssueKind, string> = {
@@ -185,9 +186,9 @@ function ReportTaskLink({ tasks, onSave }: {
 }
 
 function QueueItem({ row, taskChoices, operator, assignees, onOpenSignal, onSave, onAssign, onProgress, onLink, onLinkReport,
-  loadHistory, frameUrl, formatTime }: AssignmentActions & {
+  loadHistory, frameUrl, formatTime, photoUrl, onCitizen }: AssignmentActions & {
   row: DispatchGroup; operator: boolean; onOpenSignal?: (id: string, trigger: HTMLButtonElement) => void;
-  taskChoices: DispatchGroup[];
+  taskChoices: DispatchGroup[]; photoUrl: (id: string) => string; onCitizen?: (id: string) => void;
   onSave: (draft: TaskDraft) => Promise<void>; frameUrl: (id: string) => string; formatTime: (at: string) => string;
 }) {
   const [busy, setBusy] = useState(false);
@@ -195,10 +196,11 @@ function QueueItem({ row, taskChoices, operator, assignees, onOpenSignal, onSave
   const [error, setError] = useState('');
   const [shownSection, setShownSection] = useState<MapSection | null>(null);
   const unlinked = [...row.signals, ...row.reports].some(item => !item.linked);
-  const sourceLabels = [
-    row.signals.length ? 'Сигналов камер · ' + row.signals.length : '',
-    row.reports.length ? 'Обращений · ' + row.reports.length : '',
-  ].filter(Boolean);
+  const reason = row.signals.find(item => item.active)?.reason ??
+    row.reports.find(item => item.active)?.description;
+  const openLabel = !operator ? 'Подробнее' : !row.task ? 'Разобрать сигнал'
+    : row.task.stage === 'draft' ? 'Назначить исполнителя'
+    : row.task.stage === 'done' ? 'Проверить результат' : 'Открыть задание';
 
   async function save(workKind?: WorkKind) {
     setBusy(true);
@@ -217,20 +219,27 @@ function QueueItem({ row, taskChoices, operator, assignees, onOpenSignal, onSave
   return <li><details id={rowId(row)}>
     <summary className="dispatch-summary">
       <span className="dispatch-place">
-        <strong>{row.address}</strong><small>{row.district} · {issues[row.kind]}</small>
+        <strong>{row.address}</strong><small>{row.district}</small>
       </span>
-      <span className="dispatch-source-count">{sourceLabels.join(' / ')}</span>
+      <span className="dispatch-reason">
+        <strong>{issues[row.kind]}</strong>{reason && <small>{reason}</small>}
+      </span>
       <span className={'status ' + row.severity}>{row.severity === 'urgent' ? 'Срочно' : 'Обычный'}</span>
       <span className="dispatch-task-cell">{row.task ? <>
         {work[row.task.work_kind]}
         <small>{taskStages[row.task.stage]}</small>
+        {row.task.due_at && <small>До {formatTime(row.task.due_at)}</small>}
         {row.task.overdue && <small className="urgent">Просрочено</small>}
       </> : 'Без задания'}</span>
-      <span className="dispatch-expand" aria-hidden="true"><span>Открыть</span><span>Свернуть</span></span>
+      <span className="dispatch-expand"><span>{openLabel}</span><span>Свернуть</span></span>
     </summary>
     <div className="dispatch-detail">
       {row.task && <TaskAssignment key={row.task.id} task={row.task} operator={operator} assignees={assignees} onAssign={onAssign}
-        onProgress={onProgress} onLink={onLink} loadHistory={loadHistory} formatTime={formatTime} />}
+        onProgress={onProgress} onLink={onLink} loadHistory={loadHistory} formatTime={formatTime} photoUrl={photoUrl} />}
+      {operator && !row.task && <div className="dispatch-controls">
+        <button disabled={busy} onClick={() => void save('inspect')}>Создать проверку</button>
+        <button className="quiet" disabled={busy} onClick={() => void save('clear')}>Создать уборку</button>
+      </div>}
       {row.signals.length > 0 && <>
         <h3>Сигналы камер</h3>
         <ul>{row.signals.map(signal => <li key={signal.id}>
@@ -249,6 +258,8 @@ function QueueItem({ row, taskChoices, operator, assignees, onOpenSignal, onSave
           <span>{report.description}</span>
           {report.address !== row.address && <span className="muted">{report.address}</span>}
           <small className="muted">{formatTime(report.last_seen)}{row.task && (report.linked ? ' · В задании' : ' · Новый источник')}</small>
+          {report.citizen_report_id && onCitizen && <button type="button" className="quiet"
+            onClick={() => onCitizen(report.citizen_report_id!)}>Открыть обращение жителя</button>}
           {report.map_section && <button type="button" className="quiet"
             onClick={() => setShownSection(report.map_section)}>Показать участок на карте</button>}
           {operator && taskChoices.length > 0 && !report.linked && report.active &&
@@ -259,11 +270,8 @@ function QueueItem({ row, taskChoices, operator, assignees, onOpenSignal, onSave
         <RoadPicker key={JSON.stringify(shownSection.coordinates)} selection={{ points: shownSection.coordinates }} />
         <button type="button" className="quiet" onClick={() => setShownSection(null)}>Скрыть карту</button>
       </div>}
-      {operator && <div className="dispatch-controls">
-        {row.task ? unlinked && <button disabled={busy} onClick={() => void save()}>Привязать новые источники</button> : <>
-          <button disabled={busy} onClick={() => void save('inspect')}>Создать проверку</button>
-          <button className="quiet" disabled={busy} onClick={() => void save('clear')}>Создать уборку</button>
-        </>}
+      {operator && row.task && unlinked && <div className="dispatch-controls">
+        <button className="quiet" disabled={busy} onClick={() => void save()}>Привязать новые источники</button>
       </div>}
       {notice && <p className="muted" role="status">{notice}</p>}
       {error && <p className="error" role="alert">{error}</p>}
@@ -272,13 +280,13 @@ function QueueItem({ row, taskChoices, operator, assignees, onOpenSignal, onSave
 }
 
 export function DispatchQueue({ rows, busObservations, cameraDistricts, loadRoads, operator, assignees, onRegister, onSaveTask, onAssign, onProgress, onLink, onLinkReport,
-  loadHistory, loadArchive, onOpenSignal, frameUrl, formatTime, target }: AssignmentActions & {
+  loadHistory, loadArchive, onOpenSignal, frameUrl, formatTime, target, photoUrl, onCitizen }: AssignmentActions & {
   target?: { key: string };
   busObservations?: BusObservations | null;
   rows: DispatchGroup[]; cameraDistricts: string[]; loadRoads: LoadRoads; operator: boolean;
   onRegister: (draft: ReportDraft) => Promise<void>; onSaveTask: (draft: TaskDraft) => Promise<void>;
   onOpenSignal?: (id: string, trigger: HTMLButtonElement) => void;
-  loadArchive: () => Promise<ArchivedTask[]>;
+  loadArchive: () => Promise<ArchivedTask[]>; photoUrl: (id: string) => string; onCitizen?: (id: string) => void;
   frameUrl: (id: string) => string; formatTime: (at: string) => string;
 }) {
   const [showForm, setShowForm] = useState(false);
@@ -289,11 +297,13 @@ export function DispatchQueue({ rows, busObservations, cameraDistricts, loadRoad
   const [jump, setJump] = useState<{ id: string }>();
   const [archive, setArchive] = useState<ArchivedTask[]>();
   const [archiveError, setArchiveError] = useState('');
+  const archiveRef = useRef<HTMLDetailsElement>(null);
+  const archiveRequest = useRef(0);
   const districts = [...new Set([...cameraDistricts, ...rows.map(item => item.district)])].sort((a, b) => a.localeCompare(b, 'ru'));
   const selected = districts.includes(district) ? district : '';
   const visible = rows.filter(row => (!selected || row.district === selected) &&
     (!priority || row.severity === priority) && hasStatus(row, status));
-  const urgentElsewhere = rows.filter(row => urgentToAssign(row) && (
+  const urgentElsewhere = rows.filter(row => row.severity === 'urgent' && (
     (selected && row.district !== selected) || priority === 'watch' || !hasStatus(row, status)
   ));
   const counts = new Map<string, { urgent: number; overdue: number }>();
@@ -306,6 +316,7 @@ export function DispatchQueue({ rows, busObservations, cameraDistricts, loadRoad
 
   useEffect(() => {
     if (!target) return;
+    setDistrict(''); setPriority(''); setStatus('all');
     setJump({ id: 'dispatch-' + encodeURIComponent(target.key) });
   }, [target]);
 
@@ -325,6 +336,17 @@ export function DispatchQueue({ rows, busObservations, cameraDistricts, loadRoad
     setStatus('all');
     setJump({ id: rowId(row) });
   }
+
+  async function refreshArchive() {
+    const request = ++archiveRequest.current;
+    setArchiveError('');
+    try {
+      const tasks = await loadArchive();
+      if (request === archiveRequest.current) setArchive(tasks);
+    } catch (err) {
+      if (request === archiveRequest.current) setArchiveError((err as Error).message);
+    }
+  }
   const counters = [
     { id: 'unassigned', icon: 'dispatch', label: 'Без исполнителя', count: rows.filter(row => hasStatus(row, 'unassigned')).length },
     { id: 'overdue', icon: 'clock', label: 'Просрочено', count: rows.filter(row => hasStatus(row, 'overdue')).length },
@@ -339,7 +361,6 @@ export function DispatchQueue({ rows, busObservations, cameraDistricts, loadRoad
           setDistrict(''); setPriority(''); setStatus(active ? 'all' : id);
         }}><span><Icon name={icon} />{label}</span><strong className={count && id === 'overdue' ? 'hot' : ''}>{count}</strong></button>)}
     </div>
-    {busObservations && <BusChecks data={busObservations} formatTime={formatTime} />}
     <section className="panel dispatch-panel" aria-labelledby="dispatch-heading">
     <div className="panel-head dispatch-heading">
       <h2 id="dispatch-heading">Очередь диспетчера</h2>
@@ -391,27 +412,49 @@ export function DispatchQueue({ rows, busObservations, cameraDistricts, loadRoad
       <span className="muted">В списке: {visible.length}</span>
     </div>
     {notice && <p className="dispatch-empty muted" role="status">{notice}</p>}
-    {visible.length ? <>
-      <div className="dispatch-columns" aria-hidden="true"><span>Участок</span><span>Источники</span><span>Приоритет</span><span>Задание</span></div>
-      <ul className="dispatch-list">{visible.map(row =>
-        <QueueItem key={rowKey(row)} row={row} operator={operator} assignees={assignees} onAssign={onAssign} onProgress={onProgress}
-          taskChoices={rows.filter(item => item.task && item.district.toLocaleLowerCase('ru') === row.district.toLocaleLowerCase('ru'))}
-          onLink={onLink} onLinkReport={onLinkReport} loadHistory={loadHistory}
-          onSave={onSaveTask} onOpenSignal={onOpenSignal} frameUrl={frameUrl} formatTime={formatTime} />
-      )}</ul>
-    </> : <p className="dispatch-empty muted">{selected || priority || status !== 'all' ? 'По выбранным фильтрам ничего нет.' :
-      'Очередь пуста. Здесь появятся сигналы камер и зарегистрированные обращения.'}</p>}
-    <details className="dispatch-archive" onToggle={event => {
-      if (event.currentTarget.open) {
-        setArchiveError('');
-        void loadArchive().then(setArchive).catch(err => setArchiveError((err as Error).message));
-      }
+    {Object.entries(dispatchStages).map(([stage, label]) => {
+      const stageRows = visible.filter(row => dispatchStage(row.task?.stage) === stage);
+      return <section className="dispatch-stage" key={stage} aria-labelledby={'dispatch-stage-' + stage}>
+        <h3 id={'dispatch-stage-' + stage}>{label} <span>{stageRows.length}</span></h3>
+        {stageRows.length > 0 && <ul className="dispatch-list">{stageRows.map(row =>
+          <QueueItem key={rowKey(row)} row={row} operator={operator} assignees={assignees}
+            onAssign={async (id, draft) => {
+              await onAssign(id, draft);
+              if (row.task?.stage === 'draft') setJump({ id: rowId(row) });
+            }}
+            onProgress={async (id, draft) => {
+              await onProgress(id, draft);
+              if (draft.action === 'close' || draft.action === 'followup') {
+                if (archiveRef.current?.open) void refreshArchive();
+                if (draft.action === 'close') {
+                  setNotice('Задание закрыто.');
+                  archiveRef.current?.querySelector('summary')?.focus();
+                  return;
+                }
+              }
+              if (draft.action === 'finish' || draft.action === 'return' || draft.action === 'followup') {
+                setJump({ id: rowId(row) });
+              }
+            }}
+            taskChoices={rows.filter(item => item.task && item.district.toLocaleLowerCase('ru') === row.district.toLocaleLowerCase('ru'))}
+            onLink={onLink} onLinkReport={onLinkReport} loadHistory={loadHistory}
+            onSave={onSaveTask} onOpenSignal={onOpenSignal} frameUrl={frameUrl} formatTime={formatTime}
+            photoUrl={photoUrl} onCitizen={onCitizen} />
+        )}</ul>}
+      </section>;
+    })}
+    {!visible.length && <p className="dispatch-empty muted">{selected || priority || status !== 'all'
+      ? 'По выбранным фильтрам ничего нет.' : 'Очередь пуста.'}</p>}
+    <details ref={archiveRef} className="dispatch-archive" onToggle={event => {
+      if (event.currentTarget.open) void refreshArchive();
     }}>
-      <summary>Архив заданий и обращений</summary>
+      <summary>Закрыто · архив заданий и обращений</summary>
       {archiveError ? <p className="error">{archiveError}</p> : archive ? (archive.length ? <ul>{archive.map(task =>
         <li key={task.id}>
           <strong>{task.address} · {workLabels[task.work_kind]}</strong> · {task.district} · {formatTime(task.closed_at)}
+          {task.claimed_by && <p>Принял · {task.claimed_by}</p>}
           {task.result && <p>{task.result}</p>}
+          <ResultPhotos ids={task.result_photo_ids} photoUrl={photoUrl} />
           {task.reports.map((report, index) => <p key={index}>
             {report.reference && <>Обращение № {report.reference} · </>}{report.description}
             {report.closed_at ? <> · Закрыто. {report.resolution}</> : <> · На исполнении</>}
@@ -420,5 +463,6 @@ export function DispatchQueue({ rows, busObservations, cameraDistricts, loadRoad
         </li>)}</ul> : <p className="muted">Закрытых заданий пока нет.</p>) : <p className="muted">Загружаю архив…</p>}
     </details>
     </section>
+    {busObservations && <BusChecks data={busObservations} formatTime={formatTime} />}
   </div>;
 }

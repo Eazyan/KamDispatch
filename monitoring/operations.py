@@ -152,7 +152,7 @@ def warning_window(periods, now, threshold):
             "snow_mm": sum(snow_values) if len(snow_values) == len(matching) else None}
 
 
-def save_forecast(conn, settings, run_id, point, periods, now):
+def save_forecast(conn, settings, run_id, point, periods, now, *, notify=True):
     conn.execute("INSERT INTO forecasts (run_id,point,fetched_at,periods) VALUES (%s,%s,%s,%s)",
                  (run_id, point, now, Jsonb(periods)))
     window = warning_window(periods, now, settings.snow_probability)
@@ -169,6 +169,8 @@ def save_forecast(conn, settings, run_id, point, periods, now):
     revision = saved["revision"] + 1
     conn.execute("UPDATE warnings SET payload=%s,revision=%s WHERE run_id=%s AND point=%s",
                  (Jsonb(window) if window else None, revision, run_id, point))
+    if not notify:
+        return
     if window:
         subject = f'{"Уточнение прогноза" if previous else "Предупреждение о снегопаде"} · {point}'
         start, stop = (local_time(datetime.fromisoformat(window[key])) for key in ("start", "end"))

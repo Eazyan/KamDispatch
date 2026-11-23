@@ -1,0 +1,123 @@
+{
+  "notice": "SYNTHETIC example: все объекты и координаты вымышлены; это не реальные реестры.",
+  "entities": [
+    {
+      "id": "street-k",
+      "type": "street",
+      "name": "улица Академика Королёва",
+      "source": "synthetic/example",
+      "coordinates": [
+        158.66,
+        53.05
+      ],
+      "aliases": [],
+      "updated_at": null,
+      "origin": "synthetic"
+    },
+    {
+      "id": "address20",
+      "type": "address",
+      "name": "улица Академика Королёва, 20",
+      "source": "synthetic/example",
+      "coordinates": [
+        158.66,
+        53.05
+      ],
+      "aliases": [],
+      "updated_at": null,
+      "origin": "synthetic"
+    },
+    {
+      "id": "bus20",
+      "type": "bus",
+      "name": "Автобус 20",
+      "source": "synthetic/example",
+      "coordinates": null,
+      "aliases": [],
+      "updated_at": null,
+      "origin": "synthetic"
+    },
+    {
+      "id": "equipment20",
+      "type": "equipment",
+      "name": "Снегоочиститель 20",
+      "source": "synthetic/example",
+      "coordinates": null,
+      "aliases": [],
+      "updated_at": null,
+      "origin": "synthetic"
+    },
+    {
+      "id": "camera20",
+      "type": "camera",
+      "name": "Камера 20",
+      "source": "synthetic/example",
+      "coordinates": null,
+      "aliases": [],
+      "updated_at": null,
+      "origin": "synthetic"
+    },
+    {
+      "id": "task20",
+      "type": "task",
+      "name": "Задание 20: Королёва",
+      "source": "synthetic/example",
+      "coordinates": null,
+      "aliases": [],
+      "updated_at": null,
+      "origin": "synthetic"
+    },
+    {
+      "id": "event20",
+      "type": "event",
+      "name": "Событие 20: снежный нанос",
+      "source": "synthetic/example",
+      "coordinates": null,
+      "aliases": [],
+      "updated_at": null,
+      "origin": "synthetic"
+    },
+    {
+      "id": "base20",
+      "type": "base",
+      "name": "База 20",
+      "source": "synthetic/example",
+      "coordinates": null,
+      "aliases": [],
+      "updated_at": null,
+      "origin": "synthetic"
+    },
+    {
+      "id": "snow20",
+      "type": "snow_site",
+      "name": "Снегоприёмная площадка 20",
+      "source": "synthetic/example",
+      "coordinates": null,
+      "aliases": [],
+      "updated_at": null,
+      "origin": "synthetic"
+    },
+    {
+      "id": "road20",
+      "type": "road_section",
+      "name": "Участок 20",
+      "source": "synthetic/example",
+      "coordinates": null,
+      "aliases": [],
+      "updated_at": null,
+      "origin": "synthetic"
+    }
+  ],
+  "states": [
+    {
+      "id": "bus20",
+      "type": "bus",
+      "coordinates": [
+        158.65,
+        53.06
+      ],
+      "status": "учебный пример",
+      "observed_at": "2026-11-23T10:00:00Z"
+    }
+  ]
+}
