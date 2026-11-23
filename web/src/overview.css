@@ -16,6 +16,8 @@
 .ops-overview {
   position: relative; isolation: isolate; height: 100dvh; min-height: 590px; overflow: hidden;
   color: #f1f7fa; --side: clamp(300px, 28vw, 370px); --edge: clamp(18px, 2vw, 30px);
+}
+.ops-overview, .overview-start {
   --panel: #142a37ed; --border: #b2d8e039; --subtle: #b8cdd9;
 }
 .overview-map, .overview-map-canvas, .city-frame, .ops-map-shade { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -59,7 +61,7 @@
 .ops-filters button { display: inline-flex; gap: 7px; align-items: center; padding: 3px 10px; min-height: 31px; border-radius: 8px; background: transparent; color: #bed1dc; font-size: 12px; }
 .ops-filters button[aria-pressed=true] { background: #2a4855; color: white; border-color: #7396a257; }
 .ops-filters button span { font-variant-numeric: tabular-nums; color: #c5deeb; }
-.ops-cards { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 9px; overflow: auto; min-height: 0; padding: 9px 1px 2px; scrollbar-width: thin; scrollbar-color: #6a8993 transparent; }
+.ops-cards { display: grid; grid-template-columns: minmax(0, 1fr); grid-auto-rows: max-content; align-content: start; gap: 9px; overflow: auto; min-height: 0; padding: 9px 1px 2px; scrollbar-width: thin; scrollbar-color: #6a8993 transparent; }
 .overview-card, .ops-empty { overflow: hidden; border: 1px solid var(--border); border-radius: 16px; background: var(--panel); color: #f2f8fb; }
 .overview-card { --tone: #a7dff3; }
 .overview-card.mood-red { --tone: #ffad9e; }
@@ -98,6 +100,18 @@
 .card-details p strong { display: block; margin-bottom: 2px; }
 .card-actions { display: flex; gap: 7px; flex-wrap: wrap; }
 .card-actions button, .card-actions a { border: 1px solid #7396a266; color: #eaf8ff; background: #284655; border-radius: 7px; padding: 5px 8px; min-height: 32px; font-size: 12px; text-decoration: none; }
+.citizen-recent > h3 { margin: 0; padding: 11px 12px; }
+.citizen-recent ul { list-style: none; padding: 0; margin: 0; }
+.citizen-recent li { border-top: 1px solid var(--border); }
+.citizen-recent .card-main { text-decoration: none; }
+.citizen-recent .card-kicker span { overflow-wrap: anywhere; }
+.citizen-recent-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+.citizen-recent-entry svg { color: var(--subtle); }
+.citizen-recent-description { white-space: pre-wrap; overflow-wrap: anywhere; }
+.citizen-recent-status { margin: 0; padding: 0 12px 10px; }
+.citizen-recent .card-actions { padding: 4px 12px 10px; }
+.citizen-recent .card-actions a { display: inline-flex; align-items: center; }
+.overview-start .citizen-recent { max-width: 370px; margin-top: 12px; }
 .ops-empty { display: flex; align-items: start; gap: 9px; padding: 13px; font-size: 13px; }
 .ops-empty svg { flex: none; color: #a3e2c5; }
 .ops-empty p { margin: 3px 0 0; color: var(--subtle); font-size: 12px; }

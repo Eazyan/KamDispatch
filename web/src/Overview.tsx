@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import type { Report } from './CitizenReports';
 import { Icon, type IconName } from './Icon';
 import { busDuration, busReasons } from './BusChecks';
 import { OverviewMap, type MapMarker } from './OverviewMap';
@@ -18,6 +19,8 @@ type Props = {
   onScenario: (scenario: DemoScenario | null) => void; phase: CleanupPhase; onPhase: (phase: CleanupPhase) => void; frameUrl: (id: string) => string;
   onDispatch: (row: DispatchGroup) => void; onSignal: (id: string, trigger: HTMLButtonElement) => void;
   recentCitizens?: ReactNode;
+  citizenReports?: Report[];
+  onCitizenReport: (id: string) => void;
   onCamera: (id: string) => void; onRefresh: () => void;
   loadRoads: (at: string, signal: AbortSignal) => Promise<SnowSegment[]>;
 };
@@ -118,7 +121,7 @@ function WidgetCard({ widget, selected, onSelect, onDispatch, onSignal, onCamera
   </article>;
 }
 
-export function Overview({ data, error, updatedAt, scenario, onScenario, phase, onPhase, frameUrl, onDispatch, onSignal, onCamera, onRefresh, loadRoads, recentCitizens }: Props) {
+export function Overview({ data, error, updatedAt, scenario, onScenario, phase, onPhase, frameUrl, onDispatch, onSignal, onCamera, onRefresh, loadRoads, recentCitizens, citizenReports, onCitizenReport }: Props) {
   const roads = useRoads(data, loadRoads);
   const cleanup = scenario === 'response';
   const clock = scenarioClock(scenario, phase);
@@ -158,9 +161,13 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
     return [{ id: 'bus:' + bus.id, label: 'Автобус · маршрут ' + route, kind: 'bus', badge: route,
       coordinates: [[bus.lon, bus.lat]], color: '#74edc5', priority: -1 }];
   }), [positions]);
+  const citizenMarkers = useMemo<MapMarker[]>(() => (citizenReports ?? []).map(report => ({
+    id: 'citizen:' + report.id, label: 'Обращение жителя · ' + fullTime(report.created_at),
+    coordinates: [[report.longitude, report.latitude]], color: '#e5a4ff', priority: 20,
+  })), [citizenReports]);
   const displayedMarkers = useMemo(() => [
-    ...(showMarkers ? markers : []), ...(showBuses ? busMarkers : []),
-  ], [markers, busMarkers, showMarkers, showBuses]);
+    ...(showMarkers ? [...markers, ...citizenMarkers] : []), ...(showBuses ? busMarkers : []),
+  ], [markers, citizenMarkers, busMarkers, showMarkers, showBuses]);
   const demoCoordinates = !scenario && busMap?.source === 'simulation'
     ? JSON.stringify(busMap.positions.map(bus => [bus.lon, bus.lat])) : '';
   const demoBusFocus = useMemo(() => demoCoordinates ? {
@@ -219,6 +226,11 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
       roads={validSnow ? roads : emptyRoads} markers={displayedMarkers} selection={selection ?? demoBusFocus}
       showSnow={showSnow} showMarkers={displayedMarkers.length > 0} onClientState={setState} onModelState={(status, progress) => { setModel(status); setModelProgress(progress); }}
       onSelect={id => {
+        const citizen = citizenMarkers.find(marker => marker.id === id);
+        if (citizen) {
+          onCitizenReport(id.slice('citizen:'.length));
+          return;
+        }
         if (id.startsWith('bus:')) {
           const busId = id.slice(4);
           setSelectedBusId(current => current === busId ? undefined : busId);
@@ -267,7 +279,7 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
           <button type="button" aria-pressed={onlyActions} onClick={() => setOnlyActions(true)}>К решению <span>{required}</span></button>
         </div>
         <div className="ops-cards">
-          {!onlyActions && recentCitizens}
+          {recentCitizens}
           {visible.map(widget => <div key={widget.id} ref={node => { if (node) cards.current.set(widget.id, node); else cards.current.delete(widget.id); }}>
             <WidgetCard widget={widget} selected={selected === widget.id} onSelect={() => select(widget)}
               {...{ onDispatch, onSignal, onCamera, frameUrl, scenario }} />

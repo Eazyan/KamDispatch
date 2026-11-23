@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } 
 import { createRoot } from 'react-dom/client';
 import { CameraMap } from './Map';
 import { Overview } from './Overview';
-import { CitizenReports, RecentCitizenReports } from './CitizenReports';
+import { CitizenReports, RecentCitizenReports, useRecentCitizenReports } from './CitizenReports';
 import { deliveryBucket, upcomingForecast } from './sectionViews';
 import { demoDashboard, demoFrameUrl, demoScenarios, parseCleanupPhase, parseScenario, scenarioClock, type CleanupPhase, type DemoScenario } from './overviewDemo';
 import { dispatchKey } from './overviewWidgets';
@@ -575,7 +575,7 @@ function App() {
   const page = {
     overview: ['Дорожная обстановка', 'Текущие сигналы и состояние камер'],
     dispatch: ['Диспетчерская', 'Сигналы камер, обращения жителей и задания на проверку или уборку'],
-    citizens: ['Обращения жителей', 'Поступившие сообщения с сайта и из Telegram'],
+    citizens: ['Обращения жителей', 'Сообщения с сайта, из Telegram и MAX'],
     cameras: ['Камеры', 'Последние кадры и оценки по каждому ракурсу'],
     forecast: ['Прогноз', 'Ожидаемые осадки, температура и ветер'],
     reports: ['Сводки и доставка', 'Журнал погодных предупреждений и действий'],
@@ -619,9 +619,14 @@ function App() {
 
   const showOverview = tab === 'overview';
   const showCitizens = tab === 'citizens';
-  const recentCitizens = !scenario && run !== 'demo' ? <RecentCitizenReports token={citizenToken} onOpen={id => {
-    setCitizenReport(id); window.scrollTo(0, 0);
-  }} /> : null;
+  const recentReports = useRecentCitizenReports(citizenToken, showOverview);
+  function openCitizenReport(id?: string) {
+    setCitizenReport(id);
+    location.hash = 'citizens';
+    window.scrollTo(0, 0);
+  }
+  const recentCitizens = showOverview
+    ? <RecentCitizenReports result={recentReports} onOpen={openCitizenReport} /> : null;
   const serviceMode = serviceData?.mode ?? data?.mode;
   const showBusDemoLink = tab === 'dispatch' && (serviceMode === 'preview' || serviceMode === 'demo') &&
     data?.bus_observations?.source !== 'simulation';
@@ -696,7 +701,8 @@ function App() {
       {showOverview && (data ? <Overview key={scenario ?? data.run_id} data={data} error={scenario && scenario !== 'response' ? '' : error} updatedAt={refreshAt}
         scenario={scenario} onScenario={changeScenario} phase={phase} onPhase={changeCleanupPhase} frameUrl={frameUrl} onDispatch={openDispatch}
         onSignal={(id, trigger) => { eventTrigger.current = trigger; setEventId(id); }}
-        onCamera={openCamera} onRefresh={refresh} loadRoads={loadSnowRoads} recentCitizens={recentCitizens} />
+        onCamera={openCamera} onRefresh={refresh} loadRoads={loadSnowRoads} recentCitizens={recentCitizens}
+        citizenReports={!scenario ? recentReports.page?.items : undefined} onCitizenReport={openCitizenReport} />
         : <section className="overview-start">
           <h1>Дорожная обстановка</h1>
           <p role={error ? 'alert' : 'status'}>{error || 'Подключаем данные мониторинга…'}</p>
