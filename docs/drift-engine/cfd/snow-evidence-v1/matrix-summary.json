@@ -1,0 +1,81 @@
+{
+  "status": "five_short_scenarios_NOT_grid_convergence_or_field_validation",
+  "dt_half_air_relative_L1": 0.003556544572676512,
+  "cases": {
+    "nominal": {
+      "time_s": 4.999999999999998,
+      "bed_initial_kg": 646529.3775141186,
+      "air_initial_kg": 0.0,
+      "bed_final_kg": 646522.4146821081,
+      "air_final_kg": 6.962832020079285,
+      "boundary_in_kg": 0.0,
+      "boundary_out_kg": 8.338308856970377e-13,
+      "explicit_loss_kg": 0.0,
+      "eroded_kg": 11.571523230844706,
+      "deposited_kg": 4.608691210764103,
+      "residual_kg": 9.66247171163559e-09,
+      "min_C_kg_m3": 8.780439899326844e-133,
+      "min_bed_kg": 0.0
+    },
+    "half-step": {
+      "time_s": 4.99999999999999,
+      "bed_initial_kg": 646529.3775141186,
+      "air_initial_kg": 0.0,
+      "bed_final_kg": 646522.436588164,
+      "air_final_kg": 6.940925966746046,
+      "boundary_in_kg": 0.0,
+      "boundary_out_kg": 1.5114151186972534e-13,
+      "explicit_loss_kg": 0.0,
+      "eroded_kg": 11.572289613571455,
+      "deposited_kg": 4.631363646824555,
+      "residual_kg": 1.210719347000122e-08,
+      "min_C_kg_m3": 9.528336509243183e-137,
+      "min_bed_kg": 0.0
+    },
+    "no-erosion": {
+      "time_s": 4.999999999999998,
+      "bed_initial_kg": 646529.3775141186,
+      "air_initial_kg": 0.0,
+      "bed_final_kg": 646529.3775141186,
+      "air_final_kg": 0.0,
+      "boundary_in_kg": 0.0,
+      "boundary_out_kg": 0.0,
+      "explicit_loss_kg": 0.0,
+      "eroded_kg": 0.0,
+      "deposited_kg": 0.0,
+      "residual_kg": 0.0,
+      "min_C_kg_m3": 0.0,
+      "min_bed_kg": 0.0
+    },
+    "depletion": {
+      "time_s": 4.999999999999998,
+      "bed_initial_kg": 646529.3775141186,
+      "air_initial_kg": 0.0,
+      "bed_final_kg": 269055.4681750193,
+      "air_final_kg": 377473.9093382984,
+      "boundary_in_kg": 0.0,
+      "boundary_out_kg": 7.714867283838702e-07,
+      "explicit_loss_kg": 0.0,
+      "eroded_kg": 805266.7663563114,
+      "deposited_kg": 427792.857017231,
+      "residual_kg": -2.9336661100387573e-08,
+      "min_C_kg_m3": 8.87826171768818e-127,
+      "min_bed_kg": 0.0
+    },
+    "boundary-pulse": {
+      "time_s": 4.999999999999998,
+      "bed_initial_kg": 646529.3775141186,
+      "air_initial_kg": 1513.6024226537281,
+      "bed_final_kg": 646546.4446384938,
+      "air_final_kg": 59.45028384478632,
+      "boundary_in_kg": 0.0,
+      "boundary_out_kg": 1437.0850144336794,
+      "explicit_loss_kg": 0.0,
+      "eroded_kg": 0.0,
+      "deposited_kg": 17.0671243752989,
+      "residual_kg": 8.571987564209849e-11,
+      "min_C_kg_m3": 2.6392268070785067e-217,
+      "min_bed_kg": 0.0
+    }
+  }
+}

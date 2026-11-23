@@ -52,7 +52,7 @@ class VectorWindTests(unittest.TestCase):
             original=d['U'][0][np.ix_(spec_y,spec_x)][::-1]
             np.testing.assert_allclose(field['vector_east_south_m_s'][...,1][~mask],-original[...,1][~mask])
         self.assertTrue((field['height_agl_m']>0).all())
-        self.assertEqual(len(field['provenance']['source_sha256']),3)
+        self.assertEqual(len(field['provenance']['source_sha256']),4)
         r=reproduce(ROOT)
         self.assertGreater(r['difference_l1_kg'],1)
         self.assertGreater(r['turning_difference_l1_kg'],1)

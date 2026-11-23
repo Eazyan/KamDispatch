@@ -1,0 +1,78 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d2-20251219 OPENFOAM=2512 version=2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : /runtime/kamchatkaSnowFoam -case /runtime/verified-matrix/depletion
+Date   : Nov 22 2026
+Time   : 13:23:09
+Host   : 33d318cebdf9
+PID    : 1341
+I/O    : uncollated
+Case   : /runtime/verified-matrix/depletion
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+DILUPBiCGStab:  Solving for C, Initial residual = 1, Final residual = 8.0644633624872223e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0071496983049037111, Final residual = 1.5208006545615778e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0037597898435983209, Final residual = 1.1984253644446294e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0036032154054631798, Final residual = 1.1409181404462647e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0034070565931487704, Final residual = 1.0762444510045143e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0032441079271277617, Final residual = 1.0350532031944537e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0030876747798798784, Final residual = 9.8592516021597682e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0029529856525092836, Final residual = 9.5040496535681492e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0028292189006479175, Final residual = 9.1776983028455687e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0027153808322121029, Final residual = 8.8861309620525077e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0026108236846238723, Final residual = 8.6246249765053957e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0025141383075845997, Final residual = 8.3825724782850065e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0024240108922936984, Final residual = 8.1501834876647978e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0023417215688569088, Final residual = 7.9336968694020494e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0022661069303925407, Final residual = 7.7334323791536087e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.002195555820673302, Final residual = 7.5391387028092998e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0021297310895083666, Final residual = 7.3624628845726817e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0020687066263592895, Final residual = 7.2093364916445282e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0020116954605515045, Final residual = 7.0864166519296771e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.001959025215321175, Final residual = 7.0017146091303435e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0019099049277335844, Final residual = 6.9734062097699841e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0018639518327367871, Final residual = 7.0107589926112112e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0018207115744127728, Final residual = 7.1281911376617379e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0017806883506150896, Final residual = 7.3562359528556316e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0017437514603366915, Final residual = 7.7535991951534521e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0017092275343256046, Final residual = 8.4088354965580541e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0016771433098206202, Final residual = 9.4623879489087055e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0016468670542416004, Final residual = 1.1098244711301057e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0016183459116175408, Final residual = 1.3669394556737353e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0015917041195644428, Final residual = 1.7940802181557151e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0015665415416145332, Final residual = 2.5835316684817485e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0015429925191183488, Final residual = 4.3860780125297634e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0015209025401519748, Final residual = 4.5628114962043331e-17, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0014999328094228927, Final residual = 9.8824668051587045e-17, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0014800815542708936, Final residual = 6.9284642108050679e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0014609251740083228, Final residual = 4.3677962140450874e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0014427365536004153, Final residual = 3.4065501463995632e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0014255446989858193, Final residual = 2.9511458051311823e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0014093145728956333, Final residual = 2.7337595561033969e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0013938868231456502, Final residual = 2.6635082070944783e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0013789710988450104, Final residual = 2.7113030540117943e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0013645763527876547, Final residual = 2.8830592666351289e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0013507675228012783, Final residual = 3.2215624449930902e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0013373944696374448, Final residual = 3.8447581733331055e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0013245925080360536, Final residual = 5.0899805454754913e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0013122725979014258, Final residual = 8.3265472955138846e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0013004319380610677, Final residual = 1.2253931261190006e-16, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0012890023160185146, Final residual = 5.5281184141717595e-17, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.0012780384310860256, Final residual = 5.5030381587631788e-15, No Iterations 3
+DILUPBiCGStab:  Solving for C, Initial residual = 0.001267378973492707, Final residual = 3.2703439162784685e-15, No Iterations 3
+Audited transient snow transport complete

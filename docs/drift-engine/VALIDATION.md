@@ -56,3 +56,30 @@ RANS -1.164e-10 kg (relative 1.801e-16); минимум неотрицателе
 CI 6b601f3 run 45005028332 success; новый head проверяется после push.
 
 22.11.2026 · ПУБЛИКАЦИЯ ПРОВЕРЕНА: код 9c7a2e3c60923a67c96e2a3b12d6789d8e5498cd опубликован в Eazyan/KamDispatch feature/kamchatka-drift-engine. PR #3 draft/open, не merged; main d9893ed не изменён. GitHub Actions run 45005587147 success, включая 89 tests, core, baseline и новый static RANS coupling. Memory checkpoint/verify выполнены на этом кодовом SHA; финальный документационный коммит будет его потомком (снимок — проверенная историческая точка, не самоссылочный SHA). Далее единая сцена и CFD снежная фаза; DRIFT-003 остаётся in_progress.
+
+22.11.2026 · ФАКТ/РАСЧЁТ: общая сцена квартала drift-scene-1 (49×48) экспортирована и подключена к cfd_wind. DSM, estimated ground, здания, снег и static RANS разделены; measured DTM и наблюдения unknown. Hash b5237a92e4695c7de892cb96cb688beb36886db4fc20843bba0b920f5cdc36f1. Начальный запас 646529.377514 kg; это initialization-only, не CFD snow budget. 91 city_sim + 5 core OK, пять целевых tests OK; прежний coupling результат сохранён. Источник/контракт: docs/drift-engine/SCENE.md, cfd/scene-v1. Следующий шаг DRIFT-003: Kamchatka driftScalar case с ограничением эрозии запасом и bed/air/boundary ledger; upstream stationary TEqn не содержит ddt. Новый CFD runtime не запускался. Вход: HEAD 421169a, main d9893ed, PR #3 draft/open, CI 45005772558 success; checkout был чист.
+
+23.11.2026 · ФАКТ: добавлен консервативный контракт bed/air обмена и полного
+бюджета (`city_sim.cfd_snow_budget`), пять новых tests; полная suite 96 OK.
+Общие доноры ограничены начальным запасом; пропущенный граничный поток обнаруживается.
+Это подготовка адаптера, не CFD snow runtime. Далее transient уравнение, mapping
+реальных объёмов/граней и интегральные boundary fluxes. [Контракт](CFD_SNOW_BUDGET.md).
+
+23.11.2026 · ФАКТ/РАСЧЁТ: выполнен настоящий временной CFD снег на квартальной
+геометрии (194581 cells), собственный kamchatkaSnowFoam v2512, пять сценариев по 5 s,
+300 audited steps; max mass residual 3.074e-8 kg, массы неотрицательны. dt/2 даёт
+0.355654% relative air L1; это чувствительность, не полная сходимость. Offline
+replay добавлен в tests. [Постановка и ограничения](CFD_SNOW_CASE.md). Ветер/mesh
+статичны, параметры E/D сценарные, полевая точность unknown. Далее длинный горизонт,
+несколько dt/сеток, затем geometry/mesh/air feedback; переносимый тяжёлый CI открыт.
+
+23.11.2026 · ФАКТ/РАСЧЁТ: выполнены три CFD-опыта по 60 s при dt=0.2/0.1/0.05,
+2100 шагов. Max mass residual 1.665e-8 kg, массы неотрицательны; air L1 order
+0.978968, relative L1 для 0.1→0.05 равна 0.0142435%. Это временная проверка одного
+фиксированного mesh/ветра, не пространственная/полевая валидация. Поля ячеек и
+ledger сохранены для offline replay. [Результат](CFD_TIME_REFINEMENT.md).
+Следующее: согласованные пространственные сетки и консервативный перенос bed.
+
+Итог временного этапа: 103 city_sim + 5 core OK; pinned legacy root для локальной
+suite задавался CITY_SIM_DANIL. Первый запуск без него дал missing legacy engine
+и skip; после настройки повтор без skips. Численная схема не менялась.

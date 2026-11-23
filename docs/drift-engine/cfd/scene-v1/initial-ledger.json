@@ -1,0 +1,10 @@
+{
+  "scene_sha256": "b5237a92e4695c7de892cb96cb688beb36886db4fc20843bba0b920f5cdc36f1",
+  "bed_initial_kg": 646529.3775141313,
+  "air_initial_kg": 0.0,
+  "boundary_in_kg": 0.0,
+  "boundary_out_kg": 0.0,
+  "explicit_loss_kg": 0.0,
+  "status": "initialization_only_NOT_CFD_snow_budget",
+  "roof_snow": "not_modelled"
+}
