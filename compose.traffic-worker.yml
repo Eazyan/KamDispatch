@@ -1,0 +1,36 @@
+services:
+  capture:
+    image: kamdispatch-traffic:pilot
+    build:
+      context: .
+      dockerfile: containers/traffic-worker/Dockerfile
+    init: true
+    shm_size: 1gb
+    mem_limit: 6g
+    cpus: 3
+    pids_limit: 512
+    security_opt:
+      - seccomp=containers/traffic-worker/seccomp_profile.json
+    volumes:
+      - ./spool:/spool
+    restart: "no"
+    stop_grace_period: 15s
+  retention:
+    image: kamdispatch-traffic:pilot
+    init: true
+    entrypoint: ["python", "/app/scripts/prune_traffic_spool.py"]
+    command: ["/spool", "--watch"]
+    network_mode: none
+    mem_limit: 128m
+    cpus: 0.25
+    pids_limit: 32
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    volumes:
+      - ./spool:/spool
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 2m
+        max-file: "2"

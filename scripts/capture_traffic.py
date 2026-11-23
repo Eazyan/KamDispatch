@@ -63,10 +63,14 @@ def chrome_page(executable, viewport=(1440, 1000)):
                 process.wait(timeout=5)
 
 
+class ProviderBlocked(RuntimeError):
+    """Provider rejection stops the entire finite capture run."""
+
+
 def check_block(page, response=None):
     title = page.title().lower()
     if (response and response.status in (403, 429)) or any(s in title for s in ("captcha", "капча", "доступ ограничен")):
-        raise RuntimeError("2GIS blocked the request; capture stopped without bypass")
+        raise ProviderBlocked(f"2GIS blocked the request (HTTP {response.status if response else 'unknown'}, title={title!r}); capture stopped without bypass")
     if response and not response.ok:
         raise RuntimeError(f"2GIS returned HTTP {response.status}")
 
@@ -79,7 +83,7 @@ def navigate(page, url):
     check_block(page)
 
 
-def capture(output, chrome, center, zoom, viewport=(1440, 1000)):
+def capture(output, chrome, center, zoom, viewport=(1440, 1000), page_factory=None):
     from monitoring.traffic_image import calibration, mercator
     mercator(center)
     if not 14 <= zoom <= 18:
@@ -87,7 +91,7 @@ def capture(output, chrome, center, zoom, viewport=(1440, 1000)):
     output.mkdir(parents=True, exist_ok=False)
     url = f"https://2gis.ru/p_kamchatskiy?m={center[0]}%2C{center[1]}%2F{zoom}"
     try:
-        with chrome_page(chrome, viewport) as page:
+        with (page_factory or chrome_page)(chrome, viewport) as page:
             controls = []
             for x, y in ((600, 300), (viewport[0]-240, 300), (600, viewport[1]-250), (viewport[0]-240, viewport[1]-250)):
                 navigate(page, url)
