@@ -1,5 +1,6 @@
 export type Scene = {
   falling_snow: string; intensity: string; visibility: string; snow_on_ground: string;
+  view_quality?: string;
   large_snowdrifts: string; road_coverage: string; evidence: string; format_valid: boolean;
   model: string; prompt_version: string; snow_source?: 'scene' | 'snow' | null;
   details?: { blowing_snow: string; snowdrift_on_road: string; slush_on_road: string; road_obstruction: string;
@@ -9,6 +10,7 @@ export type Camera = {
   id: string; name: string; area: string; road: boolean; coordinates: [number, number] | null;
   district: string | null; section_name: string | null;
   analyzed_frame_id: string | null; analyzed_frame_at: string | null;
+  archived_analysis?: { frame_id: string; at: string; scene: Scene };
   analysis_stage: 'pending' | 'running' | 'done' | 'failed' | 'skipped' | null;
   location_note: string | null; status: string; last_frame: string | null; last_poll: string | null; source_at: string | null; frame_id: string | null; scene: Scene | null;
 };
@@ -50,7 +52,7 @@ export type DispatchTask = {
   id: string; work_kind: WorkKind; created_at: string; assignee: string | null; due_at: string | null;
   assigned_at: string | null; accepted_at: string | null; response_seconds: number | null;
   overdue: boolean; assignment_version: number;
-  stage: TaskStage; instructions: string; result: string; return_note: string | null;
+  stage: TaskStage; instructions: string; result: string; return_note: string | null; result_photo_ids?: string[];
 };
 export type CrewTask = Pick<DispatchTask, 'id' | 'work_kind' | 'assignee' | 'due_at' | 'assignment_version' | 'stage' | 'instructions' | 'result' | 'return_note'> & {
   address: string; district: string; severity: 'urgent' | 'watch'; map_section: MapSection | null;
@@ -60,14 +62,14 @@ export type HistoryItem = {
   due_at: string | null; created_at: string; work_kind: WorkKind;
 };
 export type ArchivedTask = {
-  id: string; address: string; district: string; result: string; work_kind: WorkKind; closed_at: string;
+  id: string; address: string; district: string; result: string; work_kind: WorkKind; closed_at: string; result_photo_ids?: string[];
   reports: { reference: string; description: string; resolution: string; closed_at: string | null }[];
 };
 type DispatchSource = { id: string; active: boolean; linked: boolean; last_seen: string };
 export type DispatchGroup = DispatchLocation & {
   kind: IssueKind; severity: 'urgent' | 'watch'; last_seen: string;
-  signals: (DispatchSource & { name: string; reason: string; road_priority_reason: string | null; frame_id: string | null })[];
-  reports: (DispatchSource & { address: string; description: string; channel: string; reference: string; map_section: MapSection | null })[];
+  signals: (DispatchSource & { camera_id?: string; name: string; reason: string; road_priority_reason: string | null; frame_id: string | null })[];
+  reports: (DispatchSource & { address: string; description: string; channel: string; reference: string; citizen_report_id?: string | null; map_section: MapSection | null })[];
   task: DispatchTask | null;
 };
 export type BusObservation = {
@@ -75,6 +77,7 @@ export type BusObservation = {
   coordinates?: RoadPoint[];
   status: 'check' | 'observed' | 'insufficient'; reason: 'buses' | 'camera' | 'report' | null;
   usual_seconds: number | null; observed_seconds: number | null; vehicle_count: number; last_seen: string | null;
+  valid_until?: string | null;
 };
 export type BusObservations = {
   source: 'simulation';
@@ -117,6 +120,7 @@ export type SnowForecast = {
 export type SnowRaster = { bbox_wgs84: [number, number, number, number]; png: string };
 export type Dashboard = {
   mode: 'live' | 'preview' | 'demo' | 'replay'; run_id: string; role: 'viewer' | 'operator';
+  forecast_points?: string[];
   cameras: Camera[]; events: EventItem[]; forecasts: { point: string; fetched_at: string; periods: Period[]; source?: string }[];
   warnings: Warning[]; summaries: Summary[]; deliveries: Delivery[];
   checks: { name: string; status: string; observed_at: string }[];

@@ -12,7 +12,7 @@ type Report = {
   created_at: string;
   tags: string[];
   suggested_tags: string[];
-  photo_url: string;
+  photo_url: string | null;
 };
 type Page = { items: Report[]; next_offset: number | null };
 type District = { id: string; name: string | null; parent_id?: string };
@@ -83,6 +83,7 @@ function ReportPhoto({ report, token }: { report: Report; token: string }) {
   const [photo, setPhoto] = useState('');
   const [failed, setFailed] = useState(false);
   useEffect(() => {
+    if (!report.photo_url) return;
     const controller = new AbortController();
     let objectUrl = '';
     setPhoto('');
@@ -118,10 +119,10 @@ function ReportCard({ report, token, initiallyOpen }: { report: Report; token: s
     </p>
     {report.tags.length > 0 && <p className="citizen-tags">Теги {report.tags.map(tag => '#' + tag).join(' ')}</p>}
     {report.suggested_tags.length > 0 && <p className="citizen-tags">Автоматические теги {report.suggested_tags.map(tag => '#' + tag).join(' ')}</p>}
-    <button type="button" className="quiet" aria-expanded={showPhoto} onClick={() => setShowPhoto(!showPhoto)}>
+    {report.photo_url && <button type="button" className="quiet" aria-expanded={showPhoto} onClick={() => setShowPhoto(!showPhoto)}>
       {showPhoto ? 'Скрыть фото' : 'Показать фото'}
-    </button>
-    {showPhoto && <ReportPhoto report={report} token={token} />}
+    </button>}
+    {report.photo_url && showPhoto && <ReportPhoto report={report} token={token} />}
   </article>;
 }
 

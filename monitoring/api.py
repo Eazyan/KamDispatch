@@ -3,12 +3,12 @@ from dataclasses import replace
 from datetime import datetime, timezone, timedelta
 import hmac
 import re
-from typing import Literal
+from typing import Annotated, Literal
 from uuid import UUID
 
 import jwt
 import psycopg
-from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, FastAPI, File, Form, Header, HTTPException, Request, Response, UploadFile
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
@@ -19,6 +19,7 @@ from .bus_worker import dashboard_rnis, map_rnis
 from .config import ROOT, Settings
 from .db import connect, migrate
 from .districts import load_districts
+from .forecast_sites import forecast_sites
 from .dispatch import comparison, inspection_queue
 from . import citizens, dispatch_queue
 from .snow import city_roads, snow_forecast, snow_raster
@@ -30,6 +31,10 @@ TRANSITIONS = {
     "en_route": {"deferred", "resolved"},
     "resolved": set(),
 }
+
+
+class TaskResultRoute(citizens.ReportRoute):
+    max_upload_bytes = 3 * citizens.MAX_PHOTO_BYTES + 64 * 1024
 
 
 class Action(BaseModel):
@@ -166,7 +171,7 @@ def create_app(settings=None):
         return {"status": "ready"}
 
     @app.get("/api/v1/dashboard")
-    def dashboard(run: str | None = None, user=Depends(identity)):
+    def dashboard(request: Request, run: str | None = None, user=Depends(identity)):
         with connect(settings) as conn:
             run_id = selected_run(conn, run)
             camera_rows = conn.execute(
@@ -190,6 +195,8 @@ def create_app(settings=None):
                     if row["last_frame"] and row["last_frame"] < cutoff:
                         row["status"] = "stale" if row["status"] != "error" else row["status"]
                     if row["analyzed_frame_at"] and row["analyzed_frame_at"] < cutoff:
+                        row["archived_analysis"] = {"frame_id": row["analyzed_frame_id"],
+                                                    "at": row["analyzed_frame_at"], "scene": row["scene"]}
                         row.update(scene=None, analyzed_frame_id=None, analyzed_frame_at=None)
             events = conn.execute(
                 """SELECT e.id,e.kind,e.severity,e.reason,e.state,e.version,e.opened_at,e.last_seen,e.ended_at,
@@ -229,7 +236,9 @@ def create_app(settings=None):
             bus_map = map_demo() if run_id == "demo" else map_rnis(conn, settings, run_id, now)
         mode = run_id if run_id in {"live", "preview", "demo"} else "replay"
         return {"mode": mode, "run_id": run_id, "role": user[1], "cameras": camera_rows, "events": events,
-                "forecasts": forecasts, "warnings": warnings, "summaries": summaries, "checks": checks, "deliveries": deliveries, "queue": queue,
+                "forecasts": forecasts,
+                "forecast_points": list(forecast_sites(request.app.state.citizen_districts)) if mode in {"live", "preview"} else [],
+                "warnings": warnings, "summaries": summaries, "checks": checks, "deliveries": deliveries, "queue": queue,
                 "inspection_queue": inspection_queue(events), "feedback_counts": {row["verdict"]: row["count"] for row in feedback},
                 "dispatch_queue": dispatch_rows, "dispatch_locations": dispatch_locations,
                 "bus_observations": buses,
@@ -349,6 +358,34 @@ def create_app(settings=None):
         with connect(settings) as conn:
             task = dispatch_queue.crew_task(conn, task_id, token)
             return dispatch_queue.progress_task(conn, task["run_id"], task_id, f"Исполнитель: {task['assignee']}", draft, token)
+
+    result_router = APIRouter(route_class=TaskResultRoute)
+
+    @result_router.post("/api/v1/crew/tasks/{task_id}/result")
+    def finish_crew_task(task_id: UUID, version: Annotated[int, Form(ge=1)],
+                         note: Annotated[str, Form(max_length=1500)],
+                         photos: Annotated[list[UploadFile], File(min_length=1, max_length=3)],
+                         token=Depends(crew_token)):
+        draft = dispatch_queue.ProgressDraft(action="finish", version=version, note=note)
+        with connect(settings) as conn:
+            task = dispatch_queue.crew_task(conn, task_id, token)
+            images = [citizens.photo_jpeg(photo.file) for photo in photos]
+            return dispatch_queue.finish_with_photos(
+                conn, task["run_id"], task_id, f"Исполнитель: {task['assignee']}", draft, images, token,
+            )
+
+    app.include_router(result_router)
+
+    @app.get("/api/v1/dispatch/result-photos/{photo_id}")
+    def dispatch_result_photo(photo_id: UUID, run: str | None = None, user=Depends(identity)):
+        with connect(settings) as conn:
+            photo = conn.execute(
+                "SELECT photo_jpeg FROM dispatch_result_photos WHERE run_id=%s AND id=%s",
+                (selected_run(conn, run), photo_id),
+            ).fetchone()
+        if photo is None:
+            raise HTTPException(404, "Фото не найдено")
+        return Response(photo["photo_jpeg"], media_type="image/jpeg")
 
     @app.get("/api/v1/snow-raster/{segment_id}")
     def forecast_raster(segment_id: str, calculated_at: datetime, run: str | None = None, user=Depends(identity)):

@@ -1,19 +1,19 @@
 import { useId, useState, type FormEvent } from 'react';
-import { TaskHistory, TaskProgress, taskStages } from './TaskProgress';
+import { ResultPhotos, TaskHistory, TaskProgress, taskStages } from './TaskProgress';
 import type { AssignmentDraft, DispatchTask, HistoryItem, ProgressDraft } from './types';
 
 const kamchatkaInput = new Intl.DateTimeFormat('sv-SE', {
   timeZone: 'Asia/Kamchatka', dateStyle: 'short', timeStyle: 'short',
 });
 
-export function TaskAssignment({ task, operator, assignees, onAssign, onProgress, onLink, loadHistory, formatTime }: {
+export function TaskAssignment({ task, operator, assignees, onAssign, onProgress, onLink, loadHistory, formatTime, photoUrl }: {
   task: DispatchTask; operator: boolean; onAssign: (id: string, draft: AssignmentDraft) => Promise<void>;
   assignees: string[];
   onProgress: (id: string, draft: ProgressDraft) => Promise<void>;
   onLink: (id: string) => Promise<string>; loadHistory: (id: string) => Promise<HistoryItem[]>;
-  formatTime: (value: string) => string;
+  formatTime: (value: string) => string; photoUrl: (id: string) => string;
 }) {
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(operator && task.stage === 'draft');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [link, setLink] = useState<{ version: number; url: string }>();
@@ -82,6 +82,7 @@ export function TaskAssignment({ task, operator, assignees, onAssign, onProgress
       <input readOnly value={link.url} onFocus={event => event.target.select()} />
     </label>}
     <TaskProgress task={task} dispatcher onProgress={operator && !editing ? draft => onProgress(task.id, draft) : undefined} />
+    <ResultPhotos ids={task.result_photo_ids} photoUrl={photoUrl} />
     <TaskHistory taskId={task.id} load={loadHistory} formatTime={formatTime} />
     {error && <p className="error" role="alert">{error}</p>}
   </div>;

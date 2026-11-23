@@ -68,6 +68,7 @@ def update_city(settings, client, stop=None):
         )
         check(conn, settings.mode, "snow_city", payload["status"])
     LOGGER.info("Published city forecast in %.1fs, coverage %s", monotonic() - started, payload["counts"])
+    return summary
 
 
 def forecast_delay(settings, forecast, now):
@@ -104,7 +105,9 @@ def main():
             try:
                 with connect(settings) as conn:
                     check(conn, settings.mode, "snow_city", "running")
-                update_city(settings, client, stop)
+                summary = update_city(settings, client, stop)
+                if settings.snow_city_remote_url and not summary.get("remote_run_id"):
+                    delay = RETRY_SECONDS
             except Exception as error:
                 LOGGER.warning("City forecast unavailable (%s)", type(error).__name__)
                 delay = RETRY_SECONDS

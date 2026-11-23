@@ -21,6 +21,7 @@ Tag = Literal["снег", "дождь", "пробка", "сугроб"]
 LOGGER = logging.getLogger("uvicorn.error.citizens")
 REPORTS_PATH = "/api/v1/citizens/reports"
 REPORT_COLUMNS = "id, district_id, district, description, latitude, longitude, tags, suggested_tags, created_at, address"
+REPORT_SELECT = REPORT_COLUMNS + ", (photo_jpeg IS NOT NULL) AS has_photo"
 
 
 class Report(BaseModel):
@@ -34,7 +35,7 @@ class Report(BaseModel):
     suggested_tags: list[str]
     address: str
     created_at: AwareDatetime
-    photo_url: str
+    photo_url: str | None
 
 
 class ReportPage(BaseModel):
@@ -49,6 +50,8 @@ class DistrictOption(BaseModel):
 
 
 class ReportRoute(APIRoute):
+    max_upload_bytes = MAX_UPLOAD_BYTES
+
     def get_route_handler(self):
         handle = super().get_route_handler()
         if "POST" not in self.methods:
@@ -59,7 +62,7 @@ class ReportRoute(APIRoute):
                 nonlocal received
                 message = await request.receive()
                 received += len(message.get("body", b""))
-                if received > MAX_UPLOAD_BYTES:
+                if received > self.max_upload_bytes:
                     raise HTTPException(413, "Превышен максимальный размер запроса")
                 return message
 
@@ -95,7 +98,7 @@ def photo_jpeg(file, *, max_bytes=MAX_PHOTO_BYTES, max_pixels=MAX_PHOTO_PIXELS) 
 
 
 def serialize(row, request: Request):
-    photo_path = request.url_for("citizen_report_photo", report_id=row["id"]).path
+    photo_path = request.url_for("citizen_report_photo", report_id=row["id"]).path if row["has_photo"] else None
     return Report(**row, photo_url=photo_path)
 
 
@@ -108,7 +111,7 @@ def save_report(conn, *, mode, actor, districts, image, description, latitude, l
                                          address, request_id, created_at)
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,COALESCE(%s,now()))
             ON CONFLICT (mode, submitted_by, request_id) DO UPDATE
-            SET request_id=EXCLUDED.request_id RETURNING {REPORT_COLUMNS}""",
+            SET request_id=EXCLUDED.request_id RETURNING {REPORT_SELECT}""",
         (uuid4(), mode, actor, district.name if district else None, district.id if district else UNASSIGNED,
          description, latitude, longitude, list(dict.fromkeys(tags)), list(analyze_description(description)),
          image, address, request_id, created_at),
@@ -147,13 +150,13 @@ def router(settings, citizen_identity, staff_identity):
     def submit(
         request: Request,
         actor: Annotated[str, Depends(citizen_identity)],
-        photo: Annotated[UploadFile, File()],
         description: Annotated[str, Form(min_length=1, max_length=2000)],
         latitude: Annotated[float, Form(ge=-90, le=90)],
         longitude: Annotated[float, Form(ge=-180, le=180)],
         tags: Annotated[list[Tag] | None, Form(max_length=4)] = None,
         address: Annotated[str, Form(max_length=240)] = "",
         request_id: Annotated[UUID | None, Form()] = None,
+        photo: Annotated[UploadFile | None, File()] = None,
     ) -> Report:
         description = description.strip()
         if not description or "\x00" in description:
@@ -161,8 +164,22 @@ def router(settings, citizen_identity, staff_identity):
 
         if "\x00" in address:
             raise HTTPException(422, "Проверьте адрес")
-        image = photo_jpeg(photo.file)
+        image = photo_jpeg(photo.file) if photo else None
         with connect(settings) as conn:
+            conn.execute("SELECT pg_advisory_xact_lock(hashtext(%s), hashtext(%s))", (settings.mode, actor))
+            if request_id is not None:
+                saved = conn.execute(
+                    f"SELECT {REPORT_SELECT} FROM citizen_reports WHERE mode=%s AND submitted_by=%s AND request_id=%s",
+                    (settings.mode, actor, request_id),
+                ).fetchone()
+                if saved:
+                    return serialize(saved, request)
+            recent = conn.execute(
+                """SELECT count(*) AS count FROM citizen_reports WHERE mode=%s AND submitted_by=%s
+                   AND created_at > now() - interval '1 hour'""", (settings.mode, actor),
+            ).fetchone()
+            if recent["count"] >= 30:
+                raise HTTPException(429, "Слишком много обращений. Повторите позже.", headers={"Retry-After": "3600"})
             row = save_report(conn, mode=settings.mode, actor=actor,
                               districts=request.app.state.citizen_districts, image=image,
                               description=description, latitude=latitude, longitude=longitude,
@@ -194,7 +211,7 @@ def router(settings, citizen_identity, staff_identity):
                 values.append(value)
         with connect(settings) as conn:
             rows = conn.execute(
-                f"""SELECT {REPORT_COLUMNS} FROM citizen_reports
+                f"""SELECT {REPORT_SELECT} FROM citizen_reports
                     WHERE {" AND ".join(conditions)}
                     ORDER BY created_at DESC, id DESC LIMIT %s OFFSET %s""",
                 (*values, limit + 1, offset),
@@ -216,7 +233,7 @@ def router(settings, citizen_identity, staff_identity):
             raise HTTPException(403, "Требуется личный аккаунт")
         with connect(settings) as conn:
             rows = conn.execute(
-                f"""SELECT {REPORT_COLUMNS} FROM citizen_reports
+                f"""SELECT {REPORT_SELECT} FROM citizen_reports
                     WHERE mode=%s AND submitted_by=%s AND
                     (%s::uuid IS NULL OR (created_at, id) < (
                         SELECT created_at, id FROM citizen_reports
@@ -244,7 +261,7 @@ def router(settings, citizen_identity, staff_identity):
             raise HTTPException(403, "Требуется личный аккаунт")
         with connect(settings) as conn:
             row = conn.execute(
-                f"SELECT {REPORT_COLUMNS} FROM citizen_reports WHERE mode=%s AND submitted_by=%s AND id=%s",
+                f"SELECT {REPORT_SELECT} FROM citizen_reports WHERE mode=%s AND submitted_by=%s AND id=%s",
                 (settings.mode, actor, report_id),
             ).fetchone()
         if not row:
@@ -261,7 +278,7 @@ def router(settings, citizen_identity, staff_identity):
                    AND (submitted_by=%s OR %s)""",
                 (settings.mode, report_id, actor, staff),
             ).fetchone()
-        if not row:
+        if not row or row["photo_jpeg"] is None:
             raise HTTPException(404, "Фото не найдено")
         return Response(row["photo_jpeg"], media_type="image/jpeg")
 

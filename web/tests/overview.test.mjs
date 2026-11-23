@@ -13,6 +13,15 @@ const [scenarios, ranking] = await Promise.all([loadModule('../src/overviewDemo.
 const getWidgets = data => ranking.overviewWidgets(data, data.snow_forecast?.segments ?? [], Date.parse(data.run_id === 'design-demo' && data.forecasts[0]?.source
   ? scenarios.scenarioClock('response', 'work') : scenarios.demoClock));
 
+test('a new or unavailable camera frame never inherits the previous snowfall assessment', () => {
+  const camera = scenarios.demoDashboard('snowfall').cameras[0];
+  assert.equal(ranking.cameraShowsSnow(camera), true);
+  assert.equal(ranking.cameraShowsSnow({ ...camera, frame_id: 'new-frame' }), false);
+  assert.equal(ranking.cameraShowsSnow({ ...camera, status: 'error' }), false);
+  assert.equal(ranking.cameraShowsSnow({ ...camera, scene: { ...camera.scene, view_quality: 'unusable' } }), false);
+  assert.equal(ranking.cameraShowsSnow({ ...camera, scene: { ...camera.scene, snow_on_ground: 'yes', falling_snow: 'no' } }), false);
+});
+
 test('calm shift stays quiet and snowfall includes one corroborated bus delay', () => {
   assert.deepEqual(getWidgets(scenarios.demoDashboard('calm')), []);
   const widgets = getWidgets(scenarios.demoDashboard('snowfall'));
@@ -27,6 +36,18 @@ test('calm shift stays quiet and snowfall includes one corroborated bus delay', 
   assert.equal(bus.observation.vehicle_count, 2);
   assert.equal(ranking.actionRequired(bus), true);
   assert.equal(widgets.filter(ranking.actionRequired).length, 3);
+});
+
+test('the overview highlights a published RNIS delay and drops it after expiry', () => {
+  const data = scenarios.demoDashboard('snowfall');
+  const onlyDelay = data.bus_observations.scenarios[0].rows.find(row => row.status === 'check');
+  const expires = Date.parse(scenarios.demoClock) + 60_000;
+  data.bus_observations = { source: 'rnis', state: 'ready', as_of: scenarios.demoClock,
+    rows: [{ ...onlyDelay, valid_until: new Date(expires).toISOString() }] };
+  const before = ranking.overviewWidgets(data, [], expires - 1).find(item => item.type === 'bus');
+  assert.equal(before.source, 'rnis');
+  assert.deepEqual(before.coordinates, onlyDelay.coordinates);
+  assert.equal(ranking.overviewWidgets(data, [], expires).some(item => item.type === 'bus'), false);
 });
 
 test('overdue work and acceptance precede new non-urgent reports and running work', () => {

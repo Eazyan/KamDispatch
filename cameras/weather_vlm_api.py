@@ -156,7 +156,8 @@ SCENE_VALUES = {
     "road_coverage": ("clear", "partial", "mostly_covered", "not_visible", "uncertain"),
 }
 SCENE_PROMPT = (
-    "Describe visible winter conditions from one image. Separate airborne snow from existing cover. "
+    "Describe visible winter conditions from one image. Mark falling_snow as yes only with visible airborne flakes or streaks. "
+    "Snow already on the ground or on the road is not evidence of falling snow. "
     "Use heavy for dense streaks or flakes that obscure the view, light for clearly visible sparse flakes, "
     "and uncertain if glare, rain or windblown snow could explain the scene. "
     "Visibility is how well objects through the scene can be seen, not the image resolution. "
@@ -175,7 +176,7 @@ def interpret_scene(text):
         value = value.partition("\n")[2].removesuffix("```").strip()
     response = {
         "schema_version": "1",
-        "prompt_version": "snow-scene-1",
+        "prompt_version": "snow-scene-2",
         "model": "deepguess/weather-vlm-qwen2.5-7b",
     }
     try:

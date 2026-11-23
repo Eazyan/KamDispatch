@@ -256,6 +256,30 @@ def progress_task(conn, run_id, task_id, actor, draft, token=None):
     return {"stage": stage}
 
 
+def finish_with_photos(conn, run_id, task_id, actor, draft, images, token):
+    task = conn.execute(
+        """SELECT stage,assignment_version,completed_at,result FROM dispatch_tasks
+           WHERE (run_id,id)=(%s,%s) AND crew_token=%s FOR UPDATE""", (run_id, task_id, token),
+    ).fetchone()
+    if task is None:
+        raise HTTPException(404, "Задание по этой ссылке недоступно")
+    if task["stage"] == "done" and task["assignment_version"] == draft.version + 1:
+        saved = conn.execute(
+            """SELECT photo_jpeg FROM dispatch_result_photos WHERE (run_id,task_id,completed_at)=(%s,%s,%s)
+               ORDER BY position""", (run_id, task_id, task["completed_at"]),
+        ).fetchall()
+        if task["result"] == draft.note and [row["photo_jpeg"] for row in saved] == images:
+            return {"stage": task["stage"]}
+    result = progress_task(conn, run_id, task_id, actor, draft, token)
+    for position, image in enumerate(images, start=1):
+        conn.execute(
+            """INSERT INTO dispatch_result_photos (id,run_id,task_id,completed_at,position,photo_jpeg)
+               SELECT %s,run_id,id,completed_at,%s,%s FROM dispatch_tasks WHERE (run_id,id)=(%s,%s)""",
+            (uuid4(), position, image, run_id, task_id),
+        )
+    return result
+
+
 def task_history(conn, run_id, task_id):
     return conn.execute(
         """SELECT h.action,h.actor,h.note,h.assignee,h.due_at,h.created_at,t.work_kind
@@ -270,6 +294,9 @@ def task_history(conn, run_id, task_id):
 def archive(conn, run_id):
     return conn.execute(
         """SELECT id,address,district,result,work_kind,closed_at,
+                 (SELECT ARRAY(SELECT p.id FROM dispatch_result_photos p
+                      WHERE (p.run_id,p.task_id,p.completed_at)=(t.run_id,t.id,t.completed_at)
+                      ORDER BY p.position)) AS result_photo_ids,
                  (SELECT COALESCE(jsonb_agg(jsonb_build_object('reference',r.reference,'description',r.description,
                             'resolution',r.resolution,'closed_at',r.closed_at) ORDER BY r.created_at),'[]')
                   FROM dispatch_task_reports s JOIN dispatch_reports r ON (s.run_id,s.report_id)=(r.run_id,r.id)
@@ -368,6 +395,9 @@ def queue(conn, run_id, now, freshness):
     tasks = conn.execute(
         """SELECT id,location_key,kind,district,address,work_kind,created_at,assignee,due_at,stage,instructions,severity,
                   result,completed_at,assigned_at,accepted_at,response_seconds,assignment_version,
+                  (SELECT ARRAY(SELECT p.id FROM dispatch_result_photos p
+                      WHERE (p.run_id,p.task_id,p.completed_at)=(t.run_id,t.id,t.completed_at)
+                      ORDER BY p.position)) AS result_photo_ids,
                   COALESCE(COALESCE(completed_at,%s) > due_at,false) AS overdue,
                   (SELECT note FROM dispatch_task_history h WHERE (h.run_id,h.task_id)=(t.run_id,t.id)
                    AND action='return' ORDER BY id DESC LIMIT 1) AS return_note
@@ -392,7 +422,7 @@ def queue(conn, run_id, now, freshness):
                WHERE e.run_id=%s AND e.ended_at IS NULL AND e.state IN ('new','acknowledged','en_route')
                UNION SELECT event_id FROM attached
            )
-           SELECT e.id,e.kind,e.severity,e.reason,e.last_seen,e.latest_frame AS frame_id,
+           SELECT e.id,e.camera_id,e.kind,e.severity,e.reason,e.last_seen,e.latest_frame AS frame_id,
                   c.name,c.road_priority,c.road_priority_reason,COALESCE(l.location_key,'camera:' || c.id) AS location_key,
                   COALESCE(l.district,c.district,c.area) AS district,COALESCE(l.address,c.name) AS address,attached.task_id,
                   (l.location_key IS NOT NULL AND e.ended_at IS NULL AND e.state IN ('new','acknowledged','en_route') AND (
@@ -415,7 +445,7 @@ def queue(conn, run_id, now, freshness):
                UNION SELECT report_id FROM attached
            )
            SELECT r.id,r.kind,r.location_key,r.district,r.address,r.description,r.channel,r.reference,r.severity,r.map_section,
-                  r.created_at AS last_seen,r.closed_at IS NULL AS active,attached.task_id,0 AS road_priority
+                  r.created_at AS last_seen,r.closed_at IS NULL AS active,attached.task_id,0 AS road_priority,r.citizen_report_id
            FROM candidates JOIN dispatch_reports r ON r.run_id=%s AND r.id=candidates.id
            LEFT JOIN attached ON attached.report_id=r.id
            ORDER BY r.created_at DESC, r.id""", (run_id, run_id, run_id),

@@ -110,15 +110,14 @@ def event_signals(rows, road, freshness):
     elif snow[:3] == ["no"] * 3:
         result["snowfall"] = "end"
     if road and len(recent) >= 3:
-        coverage = [scene["road_coverage"] for scene in recent]
-        if coverage[:3] == ["mostly_covered"] * 3:
+        coverage = ["not_visible" if (scene.get("details") or {}).get("road_view") == "unusable"
+                    else scene["road_coverage"] for scene in recent[:3]]
+        if coverage == ["mostly_covered"] * 3:
             result["coverage"] = "urgent" if severe else "watch"
-        elif all(value in {"clear", "partial"} for value in coverage[:3]):
+        elif all(value in {"clear", "partial"} for value in coverage):
             result["coverage"] = "end"
         drifts = [scene["large_snowdrifts"] for scene in recent[:3]]
-        if drifts == ["yes"] * 3 and all(
-            scene["road_coverage"] not in {"uncertain", "not_visible"} for scene in recent[:3]
-        ):
+        if drifts == ["yes"] * 3 and all(value not in {"uncertain", "not_visible"} for value in coverage):
             result["drift"] = "watch"
         elif drifts == ["no"] * 3:
             result["drift"] = "end"

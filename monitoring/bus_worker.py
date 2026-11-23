@@ -267,8 +267,8 @@ def dashboard_rnis(conn, settings, run_id, now):
     ).fetchone()
     fresh = snapshot and now - MAX_SOURCE_AGE <= snapshot["observed_at"] <= now
     state = snapshot["state"] if fresh else "unavailable"
-    section_ids = {section.id for section in sections}
-    rows = [row for row in (snapshot["rows"] if fresh else []) if row["section_id"] in section_ids]
+    geometry = {section.id: section.coordinates for section in sections}
+    rows = [row for row in (snapshot["rows"] if fresh else []) if row["section_id"] in geometry]
     if not rows:
         rows = observations([section.geometry() for section in sections], (), {}, (), now, None)
     elif state == "ready":
@@ -277,6 +277,8 @@ def dashboard_rnis(conn, settings, run_id, now):
             if row["valid_until"] and datetime.fromisoformat(row["valid_until"]) <= now:
                 row.update(status="insufficient", reason=None, last_seen=None, observed_seconds=None,
                            vehicle_count=0, valid_until=None)
+    for row in rows:
+        row["coordinates"] = geometry[row["section_id"]]
     return {"source": "rnis", "state": state, "as_of": snapshot["observed_at"] if fresh else None, "rows": rows}
 
 

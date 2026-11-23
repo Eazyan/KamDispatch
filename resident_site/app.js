@@ -120,9 +120,12 @@ form.addEventListener("submit", async event => {
     }
     const body = new FormData();
     for (const [key, value] of Object.entries({
-      request_id: requestId, photo: file, description: text,
+      request_id: requestId, description: text,
       latitude: lat, longitude: lon, address: address.value.trim(),
     })) body.append(key, value);
+    if (file) body.append("photo", file);
+    const tag = document.querySelector("#problem-tag").value;
+    if (tag) body.append("tags", tag);
     const headers = {};
     if (config.requires_token) headers.Authorization = "Bearer " + accessToken.value.trim();
     const response = await fetch(api + "/reports", {method: "POST", headers, body});

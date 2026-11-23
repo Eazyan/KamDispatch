@@ -1,6 +1,8 @@
 **
 !city_sim/
 !city_sim/*.py
+!city_sim/web/
+!city_sim/web/drift.html
 !city_sim/data/
 !city_sim/data/**
 !snowops/

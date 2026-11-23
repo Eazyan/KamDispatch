@@ -285,3 +285,29 @@ def test_city_filter_includes_microdistricts_and_refines_existing_reports(tmp_pa
             result = client.get(REPORTS, params={"id": report["id"], "district": district}).json()
             assert result["items"] == [report]
         assert not client.get(REPORTS, params={"id": report["id"], "district": "pk-center"}).json()["items"]
+
+
+def test_citizen_report_without_photo_reaches_dispatch_once(tmp_path):
+    database = os.getenv("TEST_DATABASE_URL")
+    if not database:
+        pytest.skip("Set TEST_DATABASE_URL to a temporary PostgreSQL database")
+    settings = Settings(database=database, mode="preview", media_dir=tmp_path)
+    request_id = str(uuid4())
+    fields = {"request_id": request_id, "description": "Нужно убрать снег у перекрёстка",
+              "latitude": 53.02, "longitude": 158.65, "tags": "снег"}
+    with TestClient(api.create_app(settings)) as client:
+        initial = client.post(REPORTS, data=fields)
+        assert initial.status_code == 201, initial.text
+        report = initial.json()
+        assert report["photo_url"] is None
+        assert client.post(REPORTS, data=fields).json()["id"] == report["id"]
+        rows = client.get("/api/v1/dashboard").json()["dispatch_queue"]
+        [row] = [row for row in rows if row["location_key"] == f"citizen:{report['id']}"]
+        [source] = row["reports"]
+        assert source["citizen_report_id"] == report["id"]
+        assert source["map_section"]["coordinates"] == [[158.65, 53.02]]
+        assert row["kind"] == "coverage"
+        assert client.get(f"{REPORTS}/{report['id']}/photo").status_code == 404
+    with connect(settings) as conn:
+        conn.execute("DELETE FROM dispatch_reports WHERE citizen_report_id=%s", (report["id"],))
+        conn.execute("DELETE FROM citizen_reports WHERE id=%s", (report["id"],))

@@ -1,10 +1,11 @@
+import { MapSearch } from './MapSearch';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Icon, type IconName } from './Icon';
 import { busDuration, busReasons } from './BusChecks';
 import { OverviewMap, type MapMarker } from './OverviewMap';
 import { cleanupPhases, demoScenarios, scenarioClock, type CleanupPhase, type DemoScenario } from './overviewDemo';
 import { actionRequired, overviewWidgets, taskStages, type Widget } from './overviewWidgets';
-import type { Dashboard, DispatchGroup, RoadPoint, SnowSegment } from './types';
+import type { Dashboard, DispatchGroup, DispatchRoad, RoadPoint, SnowSegment } from './types';
 
 const emptyRoads: SnowSegment[] = [];
 const issueNames = { snowfall: 'Снегопад', coverage: 'Снег на дороге', drift: 'Снежный нанос', other: 'Дорожная проблема' };
@@ -20,6 +21,7 @@ type Props = {
   recentCitizens?: ReactNode;
   onCamera: (id: string) => void; onRefresh: () => void;
   loadRoads: (at: string, signal: AbortSignal) => Promise<SnowSegment[]>;
+  loadSearchRoads: (signal: AbortSignal) => Promise<DispatchRoad[]>;
 };
 
 function useRoads(data: Dashboard, load: Props['loadRoads']) {
@@ -105,7 +107,7 @@ function WidgetCard({ widget, selected, onSelect, onDispatch, onSignal, onCamera
       {row && report && (signal || task) && <p><strong>Обращение {report.reference && '№ ' + report.reference}</strong>{report.description}</p>}
       {task?.result && task.assignee && <p>{task.assignee}{task.due_at && ' · Срок ' + fullTime(task.due_at)}</p>}
       {widget.type === 'model' && <p>Избыток свежего снега относительно фонового снегопада. Участок рекомендуется проверить.</p>}
-      {widget.type === 'bus' && <p><strong>{widget.observation.direction_label} · Имитация</strong>
+      {widget.type === 'bus' && <p><strong>{widget.observation.direction_label} · {widget.source === 'rnis' ? 'РНИС' : 'Имитация'}</strong>
         {widget.observation.reason && busReasons[widget.observation.reason]}</p>}
       <div className="card-actions">
         {row && <button type="button" onClick={() => onDispatch(row)}>{task ? 'Открыть задание' : 'Открыть в очереди'}</button>}
@@ -118,16 +120,17 @@ function WidgetCard({ widget, selected, onSelect, onDispatch, onSignal, onCamera
   </article>;
 }
 
-export function Overview({ data, error, updatedAt, scenario, onScenario, phase, onPhase, frameUrl, onDispatch, onSignal, onCamera, onRefresh, loadRoads, recentCitizens }: Props) {
+export function Overview({ data, error, updatedAt, scenario, onScenario, phase, onPhase, frameUrl, onDispatch, onSignal, onCamera, onRefresh, loadRoads, loadSearchRoads, recentCitizens }: Props) {
   const roads = useRoads(data, loadRoads);
   const cleanup = scenario === 'response';
   const clock = scenarioClock(scenario, phase);
   const snow = data.snow_forecast;
   const validSnow = snow?.status === 'ready' || snow?.status === 'partial';
-  const widgets = useMemo(() => overviewWidgets(data, roads, Date.parse(scenario ? clock : updatedAt) || Date.now()),
-    [data, roads, scenario, updatedAt, clock]);
+  const [busClock, setBusClock] = useState(Date.now);
+  const widgets = useMemo(() => overviewWidgets(data, roads, scenario ? Date.parse(clock) : Math.max(Date.parse(updatedAt) || 0, busClock)),
+    [data, roads, scenario, updatedAt, clock, busClock]);
   const markers = useMemo<MapMarker[]>(() => widgets.flatMap(widget => {
-    if (widget.type === 'bus') return [];
+    if (widget.type === 'bus' && widget.source === 'simulation') return [];
     const coordinates = widget.coordinates;
     if (!coordinates?.some(([lon, lat]) => lon >= 158.48 && lon <= 158.80 && lat >= 52.91 && lat <= 53.16)) return [];
     return [{ id: widget.id, label: widget.title, coordinates, priority: widget.priority,
@@ -143,13 +146,12 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
   const [showMarkers, setShowMarkers] = useState(true);
   const [showBuses, setShowBuses] = useState(true);
   const [selectedBusId, setSelectedBusId] = useState<string>();
-  const [busClock, setBusClock] = useState(Date.now);
   const busMap = data.bus_map;
   useEffect(() => {
-    if (busMap?.source !== 'rnis') return;
+    if (busMap?.source !== 'rnis' && data.bus_observations?.source !== 'rnis') return;
     const timer = window.setInterval(() => setBusClock(Date.now()), 5000);
     return () => window.clearInterval(timer);
-  }, [busMap?.source]);
+  }, [busMap?.source, data.bus_observations?.source]);
   const positions = useMemo(() => busMap?.positions.filter(bus =>
     busMap.source === 'simulation' || Date.parse(bus.measured_at) > busClock - 90_000), [busMap, busClock]);
   const busMarkers = useMemo<MapMarker[]>(() => (positions ?? []).flatMap(bus => {
@@ -237,12 +239,38 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
       </p>
       {error && <p className="ops-error" role="alert">{error} <button onClick={onRefresh}>Повторить</button></p>}
     </header>
-    <div className="ops-demo">
-      <label htmlFor="ops-demo-select"><Icon name="overview" width="15" height="15" /> Демо</label>
-      <select id="ops-demo-select" value={scenario ?? ''} onChange={e => onScenario((e.target.value || null) as DemoScenario | null)}>
-        <option value="">Данные сервиса</option>
-        {Object.entries(demoScenarios).map(([code, title]) => <option key={code} value={code}>{title}</option>)}
-      </select>
+    <div className="ops-topbar" aria-label="Инструменты карты">
+      <div className="ops-demo">
+        <label htmlFor="ops-demo-select"><Icon name="overview" width="15" height="15" /> Демо</label>
+        <select id="ops-demo-select" aria-label="Демосценарий" value={scenario ?? ''} onChange={e => onScenario((e.target.value || null) as DemoScenario | null)}>
+          <option value="">Данные сервиса</option>
+          {Object.entries(demoScenarios).map(([code, title]) => <option key={code} value={code}>{title}</option>)}
+        </select>
+      </div>
+      <MapSearch cameras={data.cameras} buses={positions ?? []} dispatch={data.dispatch_queue} loadRoads={loadSearchRoads}
+        onCamera={onCamera} onDispatch={onDispatch} onRoad={road => {
+          setSelected(undefined);
+          setSelection({ id: road.id, coordinates: road.coordinates, revision: ++revision.current });
+        }} onBus={(id, point) => {
+          setSelected(undefined); setShowBuses(true); setSelectedBusId(id);
+          setSelection({ id: 'bus:' + id, coordinates: [point], revision: ++revision.current });
+        }} />
+      <details className="ops-profile" onBlur={event => {
+        if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
+      }} onKeyDown={event => {
+        if (event.key === 'Escape' && event.currentTarget.open) {
+          event.currentTarget.open = false;
+          event.currentTarget.querySelector('summary')?.focus();
+        }
+      }}>
+        <summary className="ops-topbar-button ops-profile-avatar" aria-label="Профиль" title="Профиль">
+          <Icon name="profile" />
+        </summary>
+        <div className="ops-profile-panel ops-toolbar-panel">
+          <strong>Диспетчер</strong>
+          <span>Демонстрационный профиль</span>
+        </div>
+      </details>
     </div>
     <aside className={'ops-events' + (hidden ? ' ops-events-collapsed' : '')} aria-label="Виджеты обстановки">
       <div className="ops-events-head">

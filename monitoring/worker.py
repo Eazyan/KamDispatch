@@ -13,13 +13,13 @@ from .adapters import AmbiguousDelivery, Media, analyze, deliver, fetch_camera, 
 from .bus_worker import load_sections as load_bus_sections, run_collection
 from .config import Settings
 from .db import check, connect, migrate, prepare_run
+from .districts import load_districts
+from .forecast_sites import CITY_POINTS, forecast_sites
 from .operations import record_observation, save_forecast, save_summary, store_frame
 from .scene import Scene, unknown
 from .snow import REFRESH_SECONDS, read_segments, snow_tick
 
 LOGGER = logging.getLogger(__name__)
-# Forecast reference points at city scale. These are independent of camera geometry.
-POINTS = {"Петропавловск-Камчатский": (53.045, 158.648), "Елизово": (53.189, 158.381)}
 
 
 def capture_tick(settings, run_id, cameras, media, ffmpeg, pool, due, failures):
@@ -155,7 +155,7 @@ def forecast_tick(settings, run_id, client):
         with connect(settings) as conn:
             check(conn, run_id, "forecast", "unconfigured")
         return
-    for point, (latitude, longitude) in POINTS.items():
+    for point, (latitude, longitude) in forecast_sites(load_districts(settings.citizen_districts_path)).items():
         try:
             data = forecast(client, settings.weather_key, latitude, longitude)
         except (httpx.HTTPError, KeyError, TypeError, ValueError, OverflowError) as exc:
@@ -164,7 +164,7 @@ def forecast_tick(settings, run_id, client):
                 check(conn, run_id, f"forecast:{point}", "unavailable")
             continue
         with connect(settings) as conn:
-            save_forecast(conn, settings, run_id, point, data, datetime.now(timezone.utc))
+            save_forecast(conn, settings, run_id, point, data, datetime.now(timezone.utc), notify=point in CITY_POINTS)
             check(conn, run_id, f"forecast:{point}", "three_hourly" if data[0]["horizon"] == "three_hourly" else "ready")
 
 

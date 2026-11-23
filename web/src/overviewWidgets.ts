@@ -6,13 +6,23 @@ export const taskStages: Record<DispatchTask['stage'], string> = {
 };
 export const dispatchKey = (row: DispatchGroup) => JSON.stringify([row.location_key, row.kind]);
 
+export function currentCameraScene(camera: Camera) {
+  return camera.frame_id && camera.frame_id === camera.analyzed_frame_id &&
+    ['available', 'unchanged'].includes(camera.status) ? camera.scene : null;
+}
+
+export function cameraShowsSnow(camera: Camera) {
+  const scene = currentCameraScene(camera);
+  return scene?.format_valid === true && scene.view_quality !== 'unusable' && scene.falling_snow === 'yes';
+}
+
 type WidgetBase = { id: string; priority: number; at: string; coordinates?: RoadPoint[] };
 export type Widget =
   | WidgetBase & { type: 'dispatch'; row: DispatchGroup; segment?: SnowSegment; title: string }
   | WidgetBase & { type: 'model'; segment: SnowSegment; title: string }
   | WidgetBase & { type: 'forecast'; warning: Warning; title: string }
   | WidgetBase & { type: 'camera'; camera: Camera; title: string }
-  | WidgetBase & { type: 'bus'; observation: BusObservation; title: string };
+  | WidgetBase & { type: 'bus'; observation: BusObservation; source: 'rnis' | 'simulation'; title: string };
 
 const score = { urgent: 100, overdue: 90, review: 80, assign: 70, report: 65, bus: 64, camera: 60, work: 45, forecast: 35, model: 25 };
 const normalized = (value: string) => value.toLowerCase().replace(/ё/g, 'е').trim();
@@ -44,12 +54,14 @@ export function overviewWidgets(data: Dashboard, segments: SnowSegment[], now: n
       (b.excess_cm ?? 0) - (a.excess_cm ?? 0) || a.id.localeCompare(b.id)) : [];
   const claimed = new Set<string>();
   const widgets: Widget[] = [];
-  const busDemo = data.bus_observations?.source === 'simulation' ? data.bus_observations.scenarios[0] : undefined;
-  for (const observation of busDemo?.rows ?? []) {
-    if (observation.status !== 'check') continue;
+  const buses = data.bus_observations;
+  const busRows = buses?.source === 'simulation' ? buses.scenarios[0] : buses?.state === 'ready' ? buses : undefined;
+  for (const observation of busRows?.rows ?? []) {
+    if (observation.status !== 'check' || (buses?.source === 'rnis' &&
+      !(Date.parse(observation.valid_until ?? '') > now))) continue;
     widgets.push({ type: 'bus', id: 'bus-delay:' + observation.section_id + ':' + observation.direction,
-      priority: score.bus, title: observation.name, at: observation.last_seen ?? busDemo?.as_of ?? '',
-      coordinates: observation.coordinates, observation });
+      priority: score.bus, title: observation.name, at: observation.last_seen ?? busRows?.as_of ?? '',
+      coordinates: observation.coordinates, observation, source: buses?.source === 'rnis' ? 'rnis' : 'simulation' });
   }
   const featuredFrames = new Set<string>();
   for (const row of data.dispatch_queue) {
@@ -72,10 +84,9 @@ export function overviewWidgets(data: Dashboard, segments: SnowSegment[], now: n
       at: row.last_seen, row, title: row.address, coordinates: road ?? segment?.coordinates ?? coordinates, segment });
   }
   for (const camera of data.cameras) {
-    const goodFrame = ['available', 'unchanged'].includes(camera.status);
     const frameId = camera.analyzed_frame_id;
-    if (!localCamera(camera) || !goodFrame || !frameId || featuredFrames.has(frameId) || featuredFrames.has(camera.frame_id ?? '') ||
-      camera.scene?.format_valid !== true || camera.scene.falling_snow !== 'yes') continue;
+    if (!localCamera(camera) || !frameId || featuredFrames.has(frameId) ||
+      !cameraShowsSnow(camera)) continue;
     widgets.push({ type: 'camera', id: 'camera:' + camera.id, title: camera.name, priority: score.camera - 5,
       at: camera.analyzed_frame_at ?? camera.last_frame ?? '', camera, coordinates: camera.coordinates ? [camera.coordinates] : undefined });
   }
