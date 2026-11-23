@@ -294,10 +294,19 @@ def analyze_city(output, require_full=False):
             invalid.append({'tile_id':tile['id'],'error':str(exc)});continue
         result=None
         if (folder/'roads.geojson').exists():
-            cached=json.loads((folder/'roads.geojson').read_text());meta=cached.get('metadata',{})
+            try:
+                cached=json.loads((folder/'roads.geojson').read_text())
+                if (not isinstance(cached,dict) or cached.get('type')!='FeatureCollection'
+                        or not isinstance(cached.get('features'),list) or not isinstance(cached.get('metadata'),dict)):
+                    raise ValueError('Invalid analysis cache structure')
+            except (ValueError,OSError) as exc:
+                print('INVALID_CACHE',tile['id'],type(exc).__name__,flush=True)
+                cached={}
+            meta=cached.get('metadata',{})
             if (meta.get('algorithm_sha256')==algorithm_sha and meta.get('roads_sha256')==plan['roads_sha256']
                     and meta.get('image_sha256')==capture['image_sha256'] and meta.get('capture_sha256')==digest(folder/'capture.json')
                     and meta.get('analysis_pipeline_sha256')==digest(ROOT/'scripts/capture_traffic.py')
+                    and isinstance(meta.get('artifact_sha256'),dict)
                     and 'review.html' in meta.get('artifact_sha256',{})
                     and all(Path(name).name==name and (folder/name).is_file() and digest(folder/name)==expected
                             for name,expected in meta.get('artifact_sha256',{}).items())):

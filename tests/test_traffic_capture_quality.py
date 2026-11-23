@@ -34,3 +34,16 @@ def test_partially_unloaded_reference_is_rejected_even_when_rest_has_texture():
     ImageDraw.Draw(before).rectangle((0,0,199,299),fill=(245,242,224))
     with pytest.raises(ValueError,match='basemap|loading'):
         traffic_image.validate_basemap_pair(before,after,[0,0,400,300])
+
+
+def test_green_loading_content_cannot_mask_a_blank_reference_block():
+    # Independent reviewer reproduction: traffic-like green must not suppress loading checks.
+    import numpy as np
+    yy,xx=np.indices((256,256));values=(180+(xx+yy)%50).astype(np.uint8)
+    before=np.repeat(values[...,None],3,axis=2);after=before.copy()
+    before[64:192,64:192]=[245,242,224]
+    after[64:192,64:192,0]=120
+    after[64:192,64:192,1]=180+(xx[64:192,64:192]%24)
+    after[64:192,64:192,2]=90
+    with pytest.raises(ValueError,match='basemap|loading'):
+        traffic_image.validate_basemap_pair(Image.fromarray(before),Image.fromarray(after),[0,0,256,256])

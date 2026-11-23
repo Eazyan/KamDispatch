@@ -88,13 +88,13 @@ def chrome_page(executable):
 def check_block(page, response=None):
     if response and response.status in (403,429):
         raise CaptureBlockedError("2GIS blocked the request; capture stopped without bypass")
+    title=page.title().lower()
+    if any(marker in title for marker in ("captcha","капча","доступ ограничен")):
+        raise CaptureBlockedError("2GIS blocked the request; capture stopped without bypass")
     if response and response.status >= 500:
         raise CaptureTransientError(f"2GIS returned HTTP {response.status}")
     if response and not response.ok:
         raise RuntimeError(f"2GIS returned HTTP {response.status}")
-    title=page.title().lower()
-    if any(marker in title for marker in ("captcha","капча","доступ ограничен")):
-        raise CaptureBlockedError("2GIS blocked the request; capture stopped without bypass")
 
 
 def navigate(page, url):

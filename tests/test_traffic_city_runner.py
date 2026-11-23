@@ -226,3 +226,22 @@ def test_actual_zoom_change_cannot_hide_behind_unchanged_zoom_metadata(job,monke
     monkeypatch.setattr(transport,'capture',zoom_changed)
     with pytest.raises(ValueError,match='scale|zoom'):city.capture_city(job.output,'unused-fake-browser')
     assert not (job.output/'captures/tile-01').exists()
+
+
+@pytest.mark.parametrize('broken',['{"type":','[]','{"metadata": [], "features": []}'])
+def test_broken_analysis_cache_is_rebuilt_from_verified_pngs(job,broken):
+    job.views(1);city.analyze_city(job.output,require_full=True)
+    cached=job.output/'captures/seed/roads.geojson';cached.write_text(broken)
+    report=city.analyze_city(job.output,require_full=True)
+    assert report['full_capture_passed']
+    assert len(json.loads(cached.read_text())['features'])==1
+
+
+def test_captcha_with_http503_is_not_a_retryable_server_outage():
+    with pytest.raises(transport.CaptureBlockedError):
+        transport.check_block(SimpleNamespace(title=lambda:'captcha'),SimpleNamespace(status=503,ok=False))
+
+
+def test_plain_http503_remains_a_bounded_retryable_outage():
+    with pytest.raises(transport.CaptureTransientError):
+        transport.check_block(SimpleNamespace(title=lambda:'2GIS service unavailable'),SimpleNamespace(status=503,ok=False))

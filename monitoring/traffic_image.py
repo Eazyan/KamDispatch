@@ -416,14 +416,13 @@ def validate_basemap_pair(before, after, region):
         for col in range(8):
             window = (slice(row*32,(row+1)*32),slice(col*32,(col+1)*32))
             counts = [len(np.unique(array[window].reshape(-1,3),axis=0)) for array in arrays]
-            fraction = float(np.mean(unexplained[window]))
-            if counts[0] == 1 and counts[1] > 1 and fraction > .1:
-                raise ValueError("Incomplete basemap loading in a reference block")
+            if min(counts) == 1 and float(np.mean(changed[window])) > .1:
+                raise ValueError("Incomplete basemap loading in an image block")
             if max(counts) < 4:
                 low_detail.append([col,row])
     if float(np.mean(unexplained)) > .25:
         raise ValueError("Basemap pair changed outside traffic colors; loading or camera mismatch")
-    return {"status":"passed","method":"paired_basemap_block_audit_v1",
+    return {"status":"passed","method":"paired_basemap_block_audit_v2",
             "before_unique_colors":unique[0],"after_unique_colors":unique[1],
             "unexplained_changed_fraction":round(float(np.mean(unexplained)),6),
             "block_grid":[8,8],"low_detail_blocks":low_detail,
