@@ -61,6 +61,7 @@
     "skill": "local-skills:prod-code-review",
     "round_1": "3 confirmed HIGH",
     "fixes": "implemented and reproduced offline",
-    "round_2": "pending focused verification"
+    "round_2": "passed: all 3 blockers closed, 24 independent targeted tests passed, 7 saved real pairs reverified",
+    "reviewed_fix_commit": "c4265fa"
   }
 }
