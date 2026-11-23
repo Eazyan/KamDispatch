@@ -185,7 +185,10 @@ async function start() {
     if (state.selection?.revision !== revision) {
       revision = state.selection?.revision;
       const points = state.selection?.coordinates?.filter(coordinate) ?? [];
-      map.getSource('dispatch-focus').setData({ ...empty(), features: points.length > 1 && !state.selection?.fitOnly ? [line(points)] : [] });
+      const feature = points.length > 1 ? line(points) : points.length === 1
+        ? { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: points[0] } }
+        : null;
+      map.getSource('dispatch-focus').setData({ ...empty(), features: feature && !state.selection?.fitOnly ? [feature] : [] });
       if (points.length) {
         const bounds = points.reduce((box, point) => box.extend(point), new maplibregl.LngLatBounds(points[0], points[0]));
         const right = window.innerWidth > 800 ? 340 : 28;
@@ -209,6 +212,10 @@ function underlay(map) {
     map.addSource(id, { type: 'geojson', data: empty() });
     map.addLayer({ id, type: 'line', source: id, paint: { 'line-color': color, 'line-width': width } }, 'structures');
   }
+  map.addLayer({ id: 'dispatch-focus-point', type: 'circle', source: 'dispatch-focus',
+    filter: ['==', ['geometry-type'], 'Point'],
+    paint: { 'circle-radius': 7, 'circle-color': '#163842', 'circle-stroke-color': '#fff', 'circle-stroke-width': 3 } });
+
 }
 
 start().catch(error => {

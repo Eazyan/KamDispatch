@@ -16,7 +16,7 @@ from .traffic_graph import aware, export_graph
 
 GRAPH_FILE = ROOT / "snegoplan/mapprep/out/graph_v3.json"
 CLASSES = {"free", "slow", "congested"}
-MAX_GAP_M = 100
+MAX_GAP_M = 250
 MAX_FEED_BYTES = 12 * 1024 * 1024
 
 
@@ -24,9 +24,11 @@ MAX_FEED_BYTES = 12 * 1024 * 1024
 def graph():
     raw = GRAPH_FILE.read_bytes()
     corridors = export_graph(raw)
-    edges = {edge["id"]: (edge["u"], edge["v"]) for edge in json.loads(raw)["edges"]}
+    edges = {edge["id"]: edge for edge in json.loads(raw)["edges"]}
     for road in corridors["segments"]:
-        road["nodes"] = edges[road["id"]]
+        edge = edges[road["id"]]
+        road["nodes"] = (edge["u"], edge["v"])
+        road["street"] = (edge.get("name") or "").casefold().strip()
     return corridors
 
 
@@ -55,8 +57,16 @@ def road_chains(roads):
         chain = deque([(index, False)])
         for side, node in enumerate(road.get("nodes", ())):
             current = index
-            while len(adjacency[node]) == 2:
-                continuation = [entry for entry in adjacency[node] if entry[0] != current]
+            while True:
+                branches = adjacency[node]
+                street = roads[current].get("street")
+                if len(branches) != 2:
+                    if not street:
+                        break
+                    branches = [entry for entry in branches if roads[entry[0]].get("street") == street]
+                if len(branches) != 2:
+                    break
+                continuation = [entry for entry in branches if entry[0] != current]
                 if len(continuation) != 1:
                     break
                 neighbor, near_end = continuation[0]
@@ -86,7 +96,8 @@ def interpolated_intervals(roads, observations):
                 if previous is not None and start > cursor:
                     pending.append((index, reverse, cursor, start))
                 size = sum(end_m - start_m for _, _, start_m, end_m in pending)
-                if previous is not None and 1e-6 < size <= MAX_GAP_M:
+                limit = MAX_GAP_M if all(roads[edge].get("street") for edge, *_ in pending) else 100
+                if previous is not None and 1e-6 < size <= limit:
                     split = size if previous == color else size / 2
                     for edge, backwards, left, right in pending:
                         edge_length = roads[edge]["length_m"]

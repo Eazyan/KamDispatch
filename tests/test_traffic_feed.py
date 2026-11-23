@@ -81,3 +81,19 @@ def test_fills_across_reversed_edges_with_no_guess_at_intersections():
         {"id": "spur", "nodes": (2, 5), "length_m": 8, "coordinates": [[157, 53], [157, 54]]}
     )
     assert not any(row.get("estimated") for row in project(latest, roads)["segments"])
+
+
+def test_passes_through_junction_only_along_unique_same_street():
+    roads = {"graph_sha256": "fixture", "segments": [
+        {"id": "left", "street": "главная", "nodes": (1, 2), "length_m": 150, "coordinates": [[156, 53], [157, 53]]},
+        {"id": "right", "street": "главная", "nodes": (2, 3), "length_m": 150, "coordinates": [[157, 53], [158, 53]]},
+        {"id": "spur", "street": "боковая", "nodes": (2, 4), "length_m": 20, "coordinates": [[157, 53], [157, 54]]},
+    ]}
+    latest = {**PUBLICATION, "segments": {
+        "left": [{"status": "free", "interval_m": [0, 60], "timestamp": AT}],
+        "right": [{"status": "slow", "interval_m": [90, 150], "timestamp": AT}],
+    }}
+    estimated = [row for row in project(latest, roads)["segments"] if row.get("estimated")]
+    assert [(row["corridor_id"], row["status"]) for row in estimated] == [("left", "free"), ("right", "slow")]
+    roads["segments"][2]["street"] = "главная"
+    assert not any(row.get("estimated") for row in project(latest, roads)["segments"])

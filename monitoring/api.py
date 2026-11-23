@@ -276,12 +276,20 @@ def create_app(settings=None):
         with connect(settings) as conn:
             run_id = selected_run(conn, run)
             cameras = conn.execute(
-                "SELECT id,name,area,district,section_name FROM cameras WHERE run_id=%s", (run_id,)
+                "SELECT id,name,area,district,section_name,coordinates FROM cameras WHERE run_id=%s", (run_id,)
             ).fetchall()
             bus_map = map_demo() if run_id == "demo" else map_rnis(conn, settings, run_id, now)
             dispatch = dispatch_queue.queue(conn, run_id, now, settings.freshness)
+            reports = conn.execute(
+                """SELECT id,report_number,address,district,description,tags,longitude,latitude
+                   FROM citizen_reports WHERE mode=%s ORDER BY created_at DESC, id DESC LIMIT 500""",
+                (settings.mode,),
+            ).fetchall() if run_id == settings.mode else []
+        camera_catalog = {camera["id"]: camera for camera in cameras}
+        for camera in settings.cameras():
+            camera_catalog.setdefault(camera["id"], camera)
         try:
-            return map_search.search(q, cameras, bus_map["positions"] if bus_map else [], dispatch)
+            return map_search.search(q, camera_catalog.values(), bus_map["positions"] if bus_map else [], dispatch, reports)
         except ValueError:
             raise HTTPException(422, "Сократите поисковый запрос") from None
 

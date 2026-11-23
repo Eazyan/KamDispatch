@@ -5,11 +5,13 @@ import type { Camera, DispatchGroup, DispatchRoad, RoadPoint } from './types';
 type Bus = { id: string; route: string | null; lon: number; lat: number };
 type Result = { id: string; title: string; label?: string; open: () => void };
 export type SearchHit = {
-  id: string; type: 'street' | 'camera' | 'bus' | 'task' | 'event'; name: string;
+  id: string; type: 'street' | 'address' | 'camera' | 'bus' | 'task' | 'event' | 'page'; name: string;
+  page?: string | null;
   coordinates: RoadPoint[] | RoadPoint | null;
 };
 type Props = {
   cameras: Camera[];
+  scenario: boolean;
   buses: Bus[];
   dispatch: DispatchGroup[];
   search: (query: string, signal: AbortSignal) => Promise<SearchHit[]>;
@@ -17,9 +19,13 @@ type Props = {
   onCamera: (id: string) => void;
   onBus: (id: string, coordinates: RoadPoint) => void;
   onDispatch: (row: DispatchGroup) => void;
+  onCitizen: (id: string) => void;
 };
 
-export function MapSearch({ cameras, buses, dispatch, search, onRoad, onCamera, onBus, onDispatch }: Props) {
+const normalize = (value: string) => value.toLocaleLowerCase('ru').replaceAll('ё', 'е')
+  .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+
+export function MapSearch({ cameras, buses, dispatch, scenario, search, onRoad, onCamera, onBus, onDispatch, onCitizen }: Props) {
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState<{ term: string; hits?: SearchHit[] }>();
   const [active, setActive] = useState(false);
@@ -43,29 +49,68 @@ export function MapSearch({ cameras, buses, dispatch, search, onRoad, onCamera, 
 
   const current = response?.term === term ? response : undefined;
   const streets: Result[] = [];
+  const addresses: Result[] = [];
   const cameraResults: Result[] = [];
   const busResults: Result[] = [];
   const dispatchResults: Result[] = [];
-  for (const hit of current?.hits ?? []) {
+  const pages: Result[] = [];
+  const hits = [...(current?.hits ?? [])];
+  if (scenario && term) {
+    const words = normalize(term).split(' ').map(word =>
+      ({ камеры: 'камера', автобусы: 'автобус', маршруты: 'маршрут', задания: 'задание',
+        обращения: 'обращение' } as Record<string, string>)[word] ?? word);
+    const matches = (text: string) => {
+      const normalized = normalize(text);
+      return words.every(word => /\d/.test(word) ? normalized.split(' ').includes(word) : normalized.includes(word));
+    };
+    const scenarios: SearchHit[] = [
+      ...cameras.filter(camera => matches(['Камера', camera.name, camera.area, camera.district].join(' ')))
+        .map((camera): SearchHit => ({ id: camera.id, type: 'camera', name: camera.name, coordinates: camera.coordinates ?? null })),
+      ...buses.filter(bus => bus.route && matches('Автобус Маршрут ' + bus.route))
+        .map((bus): SearchHit => ({ id: bus.id, type: 'bus', name: 'Маршрут ' + bus.route, coordinates: [bus.lon, bus.lat] })),
+      ...dispatch.filter(row => matches([row.task ? 'Задание' : 'Обращение', row.address, row.district,
+        ...row.reports.map(report => report.description)].join(' ')))
+        .map((row): SearchHit => ({ id: row.location_key + '/' + row.kind, type: row.task ? 'task' : 'event',
+          name: row.address, coordinates: null })),
+    ];
+    hits.unshift(...scenarios.filter(row => !hits.some(hit => hit.id === row.id && hit.type === row.type)));
+  }
+  const point = (coordinates: SearchHit['coordinates']): coordinates is RoadPoint =>
+    !!coordinates && coordinates.length === 2 && coordinates.every(Number.isFinite);
+  for (const hit of hits) {
     if (hit.type === 'street' && Array.isArray(hit.coordinates?.[0])) {
       const coordinates = hit.coordinates as RoadPoint[];
       streets.push({ id: hit.id, title: hit.name, open: () => onRoad({ id: hit.id, name: hit.name, coordinates }) });
+    } else if (hit.type === 'address' && point(hit.coordinates)) {
+      const coordinates = hit.coordinates;
+      addresses.push({ id: hit.id, title: hit.name, open: () => onRoad({ id: hit.id, name: hit.name, coordinates: [coordinates] }) });
     } else if (hit.type === 'camera') {
       const camera = cameras.find(item => item.id === hit.id);
-      if (camera) cameraResults.push({ id: hit.id, title: hit.name, label: camera.district ?? camera.area,
-        open: () => onCamera(hit.id) });
+      const coordinates = hit.coordinates;
+      cameraResults.push({ id: hit.id, title: hit.name, label: camera?.district ?? camera?.area,
+        open: () => {
+          if (camera || !point(coordinates)) onCamera(hit.id);
+          else onRoad({ id: hit.id, name: hit.name, coordinates: [coordinates] });
+        } });
     } else if (hit.type === 'bus') {
       const bus = buses.find(item => item.id === hit.id);
-      if (bus) busResults.push({ id: hit.id, title: hit.name, open: () => onBus(hit.id, [bus.lon, bus.lat]) });
+      const coordinates = bus ? [bus.lon, bus.lat] as RoadPoint : hit.coordinates;
+      if (point(coordinates)) busResults.push({ id: hit.id, title: hit.name, open: () => onBus(hit.id, coordinates) });
     } else if (hit.type === 'task' || hit.type === 'event') {
       const row = dispatch.find(item => item.location_key + '/' + item.kind === hit.id);
-      if (row) dispatchResults.push({ id: hit.id, title: hit.name,
-        label: row.task ? 'Задание · ' + row.district : row.district, open: () => onDispatch(row) });
+      dispatchResults.push({ id: hit.id, title: hit.name, label: row?.district, open: () => {
+        if (hit.id.startsWith("citizen:")) onCitizen(hit.id.slice("citizen:".length));
+        else if (row) onDispatch(row);
+        else if (hit.page) location.hash = hit.page;
+      } });
+    } else if (hit.type === 'page' && hit.page) {
+      const page = hit.page;
+      pages.push({ id: hit.id, title: hit.name, open: () => { location.hash = page; } });
     }
   }
   const groups: [string, Result[]][] = [
-    ['Улицы и участки', streets], ['Камеры', cameraResults], ['Автобусы', busResults],
-    ['Обращения и задания', dispatchResults],
+    ['Адреса', addresses], ['Улицы и участки', streets], ['Камеры', cameraResults], ['Автобусы', busResults],
+    ['Обращения и задания', dispatchResults], ['Разделы', pages],
   ];
 
   function open() {
@@ -99,8 +144,8 @@ export function MapSearch({ cameras, buses, dispatch, search, onRoad, onCamera, 
       }}>
       <div className="ops-search-field">
         <Icon name="search" width="18" height="18" />
-        <input autoFocus autoComplete="off" type="search" maxLength={120} aria-label="Улица, камера, автобус или задание"
-          placeholder="Улица, камера, автобус, задание" value={query} onChange={event => setQuery(event.target.value)} />
+        <input autoFocus autoComplete="off" type="search" maxLength={120} aria-label="Адрес, камера, автобус или раздел"
+          placeholder="Адрес, камера, автобус, раздел" value={query} onChange={event => setQuery(event.target.value)} />
         <button className="ops-search-close" type="button" aria-label="Закрыть поиск" onClick={close}>
           <Icon name="close" width="17" height="17" />
         </button>

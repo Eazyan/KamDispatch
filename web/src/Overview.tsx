@@ -271,8 +271,8 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
           {Object.entries(demoScenarios).map(([code, title]) => <option key={code} value={code}>{title}</option>)}
         </select>
       </div>
-      <MapSearch cameras={data.cameras} buses={positions ?? []} dispatch={data.dispatch_queue} search={search}
-        onCamera={onCamera} onDispatch={onDispatch} onRoad={road => {
+      <MapSearch scenario={Boolean(scenario)} cameras={data.cameras} buses={positions ?? []} dispatch={data.dispatch_queue} search={search}
+        onCamera={onCamera} onDispatch={onDispatch} onCitizen={onCitizenReport} onRoad={road => {
           setSelected(undefined);
           setSelection({ id: road.id, coordinates: road.coordinates, revision: ++revision.current });
         }} onBus={(id, point) => {
