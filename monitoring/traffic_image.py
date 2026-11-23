@@ -279,3 +279,115 @@ def analyze_roads(before, after, capture, roads):
             "metadata": {"calibration_holdout_error_px": round(residual,4),
                          "method": "source_lines_geometry_match_v3", "source_line_count": len(lines),
                          "speed_estimate": None, "direction": "unresolved", "not_for_automatic_dispatch": True}}
+
+
+def estimate_traffic(roads, result):
+    """Graph smoothing with an explicit sample-prior fallback, never an observation.
+
+    Road-adjacency distances approximate center-to-center distance via shared OSM
+    vertices. Normalized class weights are uncalibrated scores, not probabilities.
+    """
+    import heapq
+    statuses = tuple(LABELS.values())
+    indices = {road["id"]: i for i, road in enumerate(roads)}
+    observations = {f["id"]: f["properties"] for f in result["features"]}
+    sections = {}
+    for feature in result.get("matched_sections", {}).get("features", []):
+        prop = feature["properties"]
+        points = feature["geometry"]["coordinates"]
+        length = sum(float(np.linalg.norm(mercator(b)-mercator(a))) for a,b in zip(points,points[1:]))
+        vector = sections.setdefault(prop["road_id"], np.zeros(3))
+        vector[statuses.index(prop["traffic_status"])] += length
+    sources = {}
+    for road_id, prop in observations.items():
+        if road_id not in indices:
+            continue
+        if prop["traffic_status"] in statuses:
+            vector = np.array([float(status == prop["traffic_status"]) for status in statuses])
+        elif road_id in sections and sum(sections[road_id]) > 0:
+            vector = sections[road_id]/sum(sections[road_id])
+        else:
+            continue
+        sources[indices[road_id]] = (vector, prop.get("coverage_fraction", 1.))
+    empty = {"type": "FeatureCollection", "features": []}
+    if not sources:
+        return empty
+    groups = [road.get("osm_way") or road["id"] for road in roads]
+    grouped = {}
+    for index, (vector, _) in sources.items():
+        grouped.setdefault(groups[index], []).append(vector)
+    # One vote per OSM way prevents segmentation from multiplying its prior weight.
+    prior = np.ones(3)+sum((np.mean(v,axis=0) for v in grouped.values()), np.zeros(3))
+    prior /= sum(prior)
+    vertices, lengths = {}, []
+    for i, road in enumerate(roads):
+        points = road["coordinates"]
+        length = 0.
+        for a,b in zip(points,points[1:]):
+            latitude = math.radians((a[1]+b[1])/2)
+            length += 6371008.8*math.cos(latitude)*float(np.linalg.norm(mercator(b)-mercator(a)))
+        lengths.append(length)
+        for point in {tuple(p) for p in points}:
+            vertices.setdefault(point, []).append(i)
+    adjacency = [{} for _ in roads]
+    for connected in vertices.values():
+        for a in connected:
+            for b in connected:
+                if a != b:
+                    adjacency[a][b] = (lengths[a]+lengths[b])/2
+    targets = {indices[key] for key,prop in observations.items()
+               if key in indices and prop["traffic_status"] == "unknown"}
+    neighbors = {index: {} for index in targets}
+    for source, (vector, strength) in sources.items():
+        distances, queue = {source: 0.}, [(0.,source)]
+        while queue:
+            distance,index = heapq.heappop(queue)
+            if distance != distances[index]:
+                continue
+            if index in targets:
+                previous = neighbors[index].get(groups[source])
+                if previous is None or distance < previous[0]:
+                    neighbors[index][groups[source]] = (distance,source,vector,strength)
+            for other,length in adjacency[index].items():
+                candidate = distance+length
+                if candidate <= 1000 and candidate < distances.get(other, math.inf):
+                    distances[other] = candidate
+                    heapq.heappush(queue,(candidate,other))
+    features = []
+    for index in sorted(targets):
+        nearby = sorted(neighbors[index].values(), key=lambda row:(row[0],row[1]))[:3]
+        scores = prior.copy()
+        evidence_weight = 0.
+        for distance,source,vector,strength in nearby:
+            weight = 4*math.exp(-distance/250)*strength
+            scores += weight*vector
+            evidence_weight += weight
+        scores /= sum(scores)
+        basis = ("partial_observation_and_graph" if any(row[1] == index for row in nearby)
+                 else "graph_neighbors" if nearby else "sample_prior_only")
+        graph_share = evidence_weight/(1+evidence_weight)
+        supported = bool(nearby) and graph_share >= .1
+        road = roads[index]
+        features.append({"type":"Feature", "id":road["id"],
+            "geometry":{"type":"LineString","coordinates":road["coordinates"]},
+            "properties":{"road_id":road["id"],"name":road.get("name",road["id"]),
+                "estimated_status":statuses[int(np.argmax(scores))] if supported else "unknown",
+                "graph_evidence_share":round(graph_share,4),
+                "abstention_reason":None if supported else "weak_graph_support" if nearby else "no_local_graph_support",
+                "class_scores":{status:round(float(value),6) for status,value in zip(statuses,scores)},
+                "basis":basis,"source":"traffic_graph_model","direction":"unresolved",
+                "source_road_ids":[roads[row[1]]["id"] for row in nearby],
+                "nearest_observation_m":round(nearby[0][0],1) if nearby else None,
+                "based_on_observations_at":result.get("metadata",{}).get("captured_at"),
+                "validation":"experimental_unvalidated","score_interpretation":"uncalibrated_class_weights",
+                "not_for_automatic_dispatch":True}})
+    return {"type":"FeatureCollection","features":features,
+            "metadata":{"method":"osm_adjacency_smoothing_v1","prior_scores":dict(zip(statuses,prior.tolist())),
+                "prior_source_road_ids":[roads[i]["id"] for i in sources],"prior_osm_way_count":len(grouped),
+                "minimum_graph_evidence_share":.1,
+                "input_image_sha256":result.get("metadata",{}).get("image_sha256"),
+                "input_roads_sha256":result.get("metadata",{}).get("roads_sha256"),
+                "based_on_observations_at":result.get("metadata",{}).get("captured_at"),
+                "max_network_distance_m":1000,"distance_decay_m":250,"max_neighbor_ways":3,
+                "sample_prior_warning":"Selected roads with visible traffic are not representative of all streets",
+                "validation":"experimental_unvalidated","not_for_automatic_dispatch":True}}

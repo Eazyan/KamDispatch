@@ -135,7 +135,7 @@ REVIEW_HTML = r'''<!doctype html>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>body{margin:0;font:16px system-ui;color:#182c35}header{padding:14px 22px;background:#f2f5f6}h1{font-size:20px;margin:0 0 8px}p{margin:6px 0}#map{height:76vh}.legend{display:flex;gap:16px;flex-wrap:wrap}.swatch{display:inline-block;width:20px;height:5px;vertical-align:middle}</style>
 <header><h1>Пробки на дорожном графе OSM · учебная оценка</h1>
-<p id="capture"></p><p>Статичный снимок. Тонкие линии — выделенные фрагменты 2ГИС, толстые — подтверждённые фрагменты OSM. Оценка всей дороги доступна отдельным слоем. Направление и скорость неизвестны.</p>
+<p id="capture"></p><p>Статичный снимок. Тонкие линии — выделенные фрагменты 2ГИС, толстые — подтверждённые фрагменты OSM. Пунктир — модельная оценка по связанным дорогам, не наблюдение 2ГИС. Направление и скорость неизвестны.</p>
 <p class="legend"><span>🟢 Свободно</span><span>🟡 Замедление</span><span>🔴 Сильное замедление</span><span>⚪ Нет надёжной оценки</span></p><p id="counts"></p></header><div id="map"></div>
 <script id="data" type="application/json">__DATA__</script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -144,25 +144,31 @@ const data=JSON.parse(document.getElementById('data').textContent);
 const labels={free:'Свободно',slow:'Замедление',congested:'Сильное замедление',unknown:'Нет надёжной оценки'};
 const colors={free:'#26863c',slow:'#d29b00',congested:'#d53939',unknown:'#88939a'};
 const counts={};for(const f of data.features){const s=f.properties.traffic_status;counts[s]=(counts[s]||0)+1;}
-document.getElementById('counts').textContent=Object.entries(counts).map(([k,v])=>labels[k]+': '+v).join(' · ')+' · Фрагментов 2ГИС: '+(data.traffic_lines?.features.length??0)+' · Дорог с локальным сигналом: '+new Set((data.matched_sections?.features??[]).map(f=>f.properties.road_id)).size;
+const modelFeatures=data.model_estimates?.features??[];
+const supportedModel=modelFeatures.filter(f=>f.properties.estimated_status!=='unknown'&&f.properties.basis!=='sample_prior_only');
+const observedCount=data.features.filter(f=>f.properties.traffic_status!=='unknown').length;
+document.getElementById('counts').textContent='Оценены: '+(observedCount+supportedModel.length)+' / '+data.features.length+' · Наблюдаемые целиком: '+observedCount+' · Модельные: '+supportedModel.length+' · Без оценки: '+(data.features.length-observedCount-supportedModel.length);
 document.getElementById('capture').textContent='Получено: '+data.metadata.captured_at+' · Контроль геопривязки: '+data.metadata.calibration_holdout_error_px+' px';
 const map=L.map('map').setView([53.045,158.65],16);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);
+map.createPane('model');map.getPane('model').style.zIndex=390;
 const roads=L.geoJSON(data,{style:f=>({color:colors[f.properties.traffic_status],weight:5,opacity:.85}),onEachFeature:(f,layer)=>{
  const p=f.properties,box=document.createElement('div');
  box.textContent=p.name+' · '+labels[p.traffic_status]+' · Покрытие цветовым сигналом '+Math.round(p.coverage_fraction*100)+'% · '+p.reason;
  layer.bindPopup(box);
 }});
 const matched=L.geoJSON(data.matched_sections??{type:'FeatureCollection',features:[]},{style:f=>({color:colors[f.properties.traffic_status],weight:6,opacity:.95}),onEachFeature:(f,layer)=>{const p=f.properties,box=document.createElement('div');box.textContent=p.name+' · '+labels[p.traffic_status]+' · Только показанный фрагмент · '+p.road_id;layer.bindPopup(box);}}).addTo(map);
-const source=L.geoJSON(data.traffic_lines??{type:'FeatureCollection',features:[]},{style:f=>({color:colors[f.properties.traffic_status],weight:2,opacity:.9}),onEachFeature:(f,layer)=>{const box=document.createElement('div');box.textContent='Выделенный фрагмент 2ГИС · '+labels[f.properties.traffic_status]+' · '+f.id;layer.bindPopup(box);}}).addTo(map);
-L.control.layers({}, {'Подтверждённые фрагменты OSM':matched,'Оценка всей дороги OSM':roads,'Выделенные линии 2ГИС':source},{collapsed:false}).addTo(map);
+const basisLabels={graph_neighbors:'По соседним дорогам графа',partial_observation_and_graph:'По частичному наблюдению и соседям',sample_prior_only:'Нет локальной опоры'};
+const model=L.geoJSON({type:'FeatureCollection',features:modelFeatures},{pane:'model',style:f=>({color:colors[f.properties.estimated_status],weight:4,dashArray:'8 6',opacity:f.properties.estimated_status==='unknown'?.5:.7}),onEachFeature:(f,layer)=>{const p=f.properties,box=document.createElement('div');box.textContent=p.name+' · МОДЕЛЬ: '+labels[p.estimated_status]+' · '+basisLabels[p.basis]+' · Расстояние по графу: '+(p.nearest_observation_m===null?'нет':p.nearest_observation_m+' м')+' · Влияние локальных наблюдений: '+Math.round(p.graph_evidence_share*100)+'% (не вероятность точности) · Веса классов: '+Object.entries(p.class_scores).map(([k,v])=>labels[k]+' '+Math.round(v*100)+'%').join(', ')+' · По снимку '+p.based_on_observations_at;layer.bindPopup(box);}}).addTo(map);
+const source=L.geoJSON(data.traffic_lines??{type:'FeatureCollection',features:[]},{style:f=>({color:colors[f.properties.traffic_status],weight:2,opacity:.9}),onEachFeature:(f,layer)=>{const box=document.createElement('div');box.textContent='Выделенный фрагмент 2ГИС · '+labels[f.properties.traffic_status]+' · '+f.id;layer.bindPopup(box);}});
+L.control.layers({}, {'Наблюдаемые фрагменты OSM':matched,'Модельные оценки OSM (пунктир)':model,'Оценка всей дороги OSM':roads,'Выделенные линии 2ГИС':source},{collapsed:false}).addTo(map);
 if(data.features.length)map.fitBounds(roads.getBounds(),{padding:[24,24],maxZoom:17});
 </script></html>'''
 
 
 def analyze(output, roads_file):
     from PIL import Image
-    from monitoring.traffic_image import analyze_roads
+    from monitoring.traffic_image import analyze_roads, estimate_traffic
     metadata = json.loads((output / "capture.json").read_text())
     if metadata.get("schema_version") != 1:
         raise ValueError("Unsupported capture schema")
@@ -179,9 +185,24 @@ def analyze(output, roads_file):
     result["metadata"].update(captured_at=metadata["captured_at"], source_url=metadata["source_url"],
                               roads_sha256=hashlib.sha256(raw).hexdigest(), image_sha256=metadata["image_sha256"],
                               analysis_region=metadata["analysis_region"])
+    result["model_estimates"] = estimate_traffic(roads,result)
+    if "target_road_ids" in metadata:
+        targets = metadata["target_road_ids"]
+        if (not isinstance(targets,list) or not targets or not all(isinstance(i,str) for i in targets)
+                or len(set(targets)) != len(targets)):
+            raise ValueError("Invalid target road IDs")
+        targets = set(targets)
+        if targets - {f["id"] for f in result["features"]}:
+            raise ValueError("Requested target roads are missing from the captured analysis region")
+        result["metadata"]["original_view_road_count"] = len(result["features"])
+        result["metadata"]["target_ids_sha256"] = hashlib.sha256(json.dumps(sorted(targets),separators=(",",":")).encode()).hexdigest()
+        result["features"] = [f for f in result["features"] if f["id"] in targets]
+        result["matched_sections"]["features"] = [f for f in result["matched_sections"]["features"] if f["properties"]["road_id"] in targets]
+        result["model_estimates"]["features"] = [f for f in result["model_estimates"]["features"] if f["id"] in targets]
     write_json(output / "roads.geojson", result)
     write_json(output / "traffic-lines.geojson", result["traffic_lines"])
     write_json(output / "matched-sections.geojson", result["matched_sections"])
+    write_json(output / "model-estimates.geojson", result["model_estimates"])
     encoded = json.dumps(result, ensure_ascii=False).replace("<", "\\u003c")
     (output / "review.html").write_text(REVIEW_HTML.replace("__DATA__", encoded), encoding="utf-8")
     counts = Counter(f["properties"]["traffic_status"] for f in result["features"])

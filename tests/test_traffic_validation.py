@@ -115,3 +115,23 @@ def test_device_pixel_screenshots_cannot_use_css_control_points():
     retina = before.resize((400, 320))
     with pytest.raises(ValueError, match="CSS viewport"):
         analyze_roads(retina, retina, capture, [road])
+
+
+def test_explicit_target_ids_preserve_the_original_evaluation_denominator(tmp_path):
+    import json
+    from scripts.capture_traffic import analyze, digest, write_json
+    before,capture,road=scene()
+    for name in ('traffic-off.png','traffic-on.png'):
+        before.save(tmp_path/name)
+    capture.update(schema_version=1,source_url='https://2gis.ru/p_kamchatskiy',target_road_ids=['road'],
+                   image_sha256={name:digest(tmp_path/name) for name in ('traffic-off.png','traffic-on.png')})
+    write_json(tmp_path/'capture.json',capture)
+    roads_file=tmp_path/'roads.json'
+    write_json(roads_file,{'segments':[road,{**road,'id':'extra-boundary-road'}]})
+    analyze(tmp_path,roads_file)
+    result=json.loads((tmp_path/'roads.geojson').read_text())
+    assert [f['id'] for f in result['features']]==['road'], 'Boundary sampling changes must not change the target IDs'
+    capture['target_road_ids']=['absent-target']
+    write_json(tmp_path/'capture.json',capture)
+    with pytest.raises(ValueError,match='target'):
+        analyze(tmp_path,roads_file)
