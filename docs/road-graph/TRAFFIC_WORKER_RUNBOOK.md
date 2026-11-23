@@ -82,3 +82,22 @@ Retention: `kam-traffic-pilot-retention-1` runs, checks every minute, TTL 10800 
 Runtime self-test deleted an artificially old PNG and preserved fresh PNG/JSON.
 The provider challenge screenshot was visually inspected; no attempt was made
 to submit or bypass it. Local QA screenshot copy was deleted immediately.
+
+## Windows attach and alternative-source probe
+
+23.11.2026. Python 3.10.11 was already installed. Dedicated venv:
+D:\traffic-worker\venv (playwright 1.64.1, numpy 2.2.6, Pillow 11.3.0).
+`scripts/traffic_yandex_worker.py` attaches to the existing dedicated Yandex
+context via localhost:9223, reuses the open 2GIS tab, restores viewport and
+never closes the browser/context. Shared finite plan validation is in
+scripts/traffic_capture_plan.py. Two tests verify browser survival and viewport
+restoration on success/failure. Windows first attempt got four UI controls but
+timed out because the provider's traffic button was disabled. No complete pair
+was accepted. The user confirmed manual use of the same window during diagnostics
+and that the traffic button also did not work manually.
+
+By explicit user request, Yandex Maps is checked as an alternative in a separate
+tab. `scripts/probe_yandex_maps.py` is one finite raw off/on probe, not a production
+provider adapter: no georeferencing, graph matching or source-colour validation.
+Do not feed these PNGs through the 2GIS matcher and claim equivalent observations.
+The existing three-hour cleanup covers all files under the same spool.

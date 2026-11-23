@@ -116,7 +116,7 @@ def capture(output, chrome, center, zoom, viewport=(1440, 1000), page_factory=No
                     raise RuntimeError("Cannot read UI control-point coordinates")
                 controls.append({"pixel": [x, y], "lon_lat": [float(point[1]), float(point[2])]})
                 print(f"UI control point {len(controls)}/4", flush=True)
-            metadata = {"schema_version": 1, "source": "2gis_screenshot", "source_url": url,
+            metadata = {"browser_version": page.context.browser.version, "schema_version": 1, "source": "2gis_screenshot", "source_url": url,
                         "center": center, "zoom": zoom, "viewport": list(viewport),
                         "analysis_region": [460, 220, viewport[0]-560, viewport[1]-540], "control_points": controls,
                         "provider_updated_at": None, "direction": "unresolved",
