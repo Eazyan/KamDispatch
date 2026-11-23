@@ -1,5 +1,5 @@
 import { $, empty, request } from '../api.js';
-import { createMap } from '../map.js?v=trackpad-rotation';
+import { createMap } from '../map.js?v=twist';
 import { raster } from '../raster_motion.js';
 import { createSnowVolume } from '../snow_volume.js';
 
@@ -157,10 +157,11 @@ async function start() {
     if (trafficData !== nextTraffic) {
       map.getSource('dispatch-traffic').setData({ ...empty(), features: (state.traffic ?? [])
         .filter(row => Object.hasOwn(trafficColors, row.status) && validLine(row.coordinates))
-        .map(row => ({ ...line(row.coordinates), properties: { color: trafficColors[row.status] } })) });
+        .map(row => ({ ...line(row.coordinates), properties: { color: trafficColors[row.status], estimated: row.estimated === true } })) });
       trafficData = nextTraffic;
     }
-    map.setPaintProperty('dispatch-traffic', 'line-opacity', state.trafficStale ? .46 : .95);
+    const opacity = state.trafficStale ? .46 : .95;
+    map.setPaintProperty('dispatch-traffic', 'line-opacity', ['case', ['get', 'estimated'], opacity * .68, opacity]);
     const nextMarkers = JSON.stringify(state.showMarkers && state.markers);
     if (markerData !== nextMarkers) {
       markerObjects.forEach(marker => marker.remove());

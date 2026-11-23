@@ -42,7 +42,7 @@ function FallbackMap({ roads, traffic, trafficStale, markers, selection, showSno
     L.imageOverlay('/overview/city.webp', cityBounds).addTo(map);
     L.control.zoom({ position: 'bottomleft' }).addTo(map);
     L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
-    L.control.attribution({ position: 'bottomright', prefix: false }).addTo(map)
+    map.attributionControl = L.control.attribution({ position: 'bottomright', prefix: false }).addTo(map)
       .addAttribution('© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · <a href="https://registry.opendata.aws/copernicus-dem/">Copernicus WorldDEM-30</a>');
     for (const [coords, title, style] of labels) {
       L.marker(coords, { interactive: false, keyboard: false, icon: L.divIcon({
@@ -76,11 +76,13 @@ function FallbackMap({ roads, traffic, trafficStale, markers, selection, showSno
     pane.style.pointerEvents = 'none';
     const canvas = L.canvas({ padding: .25, pane: 'traffic' });
     const layer = L.layerGroup().addTo(map);
+    const attribution = 'Пробки © Яндекс Карты';
+    map.attributionControl.addAttribution(attribution);
     for (const segment of traffic) {
       L.polyline(segment.coordinates.map(latLng), { renderer: canvas, color: trafficColors[segment.status],
-        weight: 4, opacity: trafficStale ? .46 : .95, interactive: false }).addTo(layer);
+        weight: 4, opacity: (trafficStale ? .46 : .95) * (segment.estimated ? .68 : 1), interactive: false }).addTo(layer);
     }
-    return () => { layer.remove(); canvas.remove(); };
+    return () => { layer.remove(); canvas.remove(); map.attributionControl.removeAttribution(attribution); };
   }, [traffic, trafficStale]);
 
   useEffect(() => {

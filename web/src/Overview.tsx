@@ -1,4 +1,4 @@
-import { trafficColors, useTraffic } from './traffic';
+import { useTraffic } from './traffic';
 import { MapSearch, type SearchHit } from './MapSearch';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { Report } from './CitizenReports';
@@ -150,6 +150,13 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
   const [showTraffic, setShowTraffic] = useState(false);
   const traffic = useTraffic(showTraffic);
   const trafficSegments = showTraffic ? traffic.publication?.segments : undefined;
+  const publication = traffic.publication;
+  const trafficTitle = !showTraffic ? 'Пробки' : traffic.unavailable ? 'Пробки · источник недоступен'
+    : publication === undefined ? 'Пробки · загружаем'
+    : !publication || !trafficSegments?.length ? 'Пробки · нет наблюдений'
+    : ['Пробки', 'Яндекс Карты', fullTime(publication.published_at),
+      traffic.stale && 'данные устарели', publication.status === 'partial' && 'частичное покрытие',
+      'приглушённые линии — интерполяция'].filter(Boolean).join(' · ');
   const [showMarkers, setShowMarkers] = useState(true);
   const [showBuses, setShowBuses] = useState(true);
   const [selectedBusId, setSelectedBusId] = useState<string>();
@@ -329,19 +336,8 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
         <button type="button" aria-label="Закрыть сведения об автобусе" onClick={() => setSelectedBusId(undefined)}>
           <Icon name="close" width="16" height="16" /></button>
       </div>}
-      {showTraffic && <div className="ops-traffic-status" role="status">
-        {traffic.publication ? <>
-          <span>{traffic.unavailable ? 'Связь с источником потеряна · ' :
-            traffic.stale ? 'Данные устарели · ' : ''}{traffic.publication.status === 'partial' ? 'Частичное покрытие · ' : ''}
-            {fullTime(traffic.publication.published_at)} · <a href="https://yandex.ru/maps/78/petropavlovsk/probki/"
-              target="_blank" rel="noreferrer">Яндекс Карты</a></span>
-          {trafficSegments?.length ? <span className="ops-traffic-legend">
-            {([['free', 'Свободно'], ['slow', 'Замедление'], ['congested', 'Затор']] as const).map(([key, label]) =>
-              <span key={key}><i style={{ background: trafficColors[key] }} />{label}</span>)}
-          </span> : <span>Нет наблюдений на дорогах</span>}
-        </> : <span>{traffic.unavailable ? 'Пробки недоступны' : traffic.publication === null ? 'Наблюдений пока нет' : 'Загружаем пробки…'}</span>}
-      </div>}
-      <button type="button" aria-pressed={showTraffic} onClick={() => setShowTraffic(value => !value)}>
+      <button type="button" aria-pressed={showTraffic} title={trafficTitle}
+        aria-label={showTraffic ? trafficTitle : 'Пробки'} onClick={() => setShowTraffic(value => !value)}>
         <Icon name="traffic" width="16" height="16" />Пробки
       </button>
       <button type="button" aria-pressed={showSnow} onClick={() => setShowSnow(!showSnow)}><Icon name="forecast" width="16" height="16" />Снег</button>

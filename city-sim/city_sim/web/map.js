@@ -228,6 +228,44 @@ function installDataLoading(map, metadata) {
   return load;
 }
 
+export function installTrackpadGestures(map, container) {
+  let gesture;
+  let touching = false;
+  container.addEventListener('touchstart', () => { touching = true; }, { passive: true });
+  for (const type of ['touchend', 'touchcancel']) {
+    container.addEventListener(type, event => { touching = event.touches.length > 0; }, { passive: true });
+  }
+  container.addEventListener('gesturestart', event => {
+    if (touching || !Number.isFinite(event.rotation)) return;
+    event.preventDefault();
+    gesture = { bearing: map.getBearing(), zoom: map.getZoom() };
+  }, { passive: false });
+  container.addEventListener('gesturechange', event => {
+    if (!gesture || touching || !Number.isFinite(event.rotation) || !(event.scale > 0)) return;
+    event.preventDefault();
+    map.jumpTo({
+      bearing: gesture.bearing - event.rotation,
+      zoom: gesture.zoom + Math.log2(event.scale),
+    });
+  }, { passive: false });
+  container.addEventListener('gestureend', () => { gesture = undefined; });
+  container.addEventListener('wheel', event => {
+    if (gesture) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
+    if (event.ctrlKey || event.metaKey || !event.deltaY ||
+        Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+    const trackpadPitch = event.deltaMode === WheelEvent.DOM_DELTA_PIXEL && Math.abs(event.deltaY) < 100;
+    if (!event.altKey && !trackpadPitch) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const delta = Math.max(-55, Math.min(55, event.deltaY));
+    map.setPitch(Math.max(0, Math.min(map.getMaxPitch(), map.getPitch() + delta * .22)));
+  }, { capture: true, passive: false });
+}
+
 export function createMap(metadata, onAreaChange, snowDetails) {
   const { bbox } = metadata;
   const [first] = areas;
@@ -263,26 +301,7 @@ export function createMap(metadata, onAreaChange, snowDetails) {
   }
   map.on('pitch', updatePitch);
   const mapContainer = map.getContainer();
-  let trackpadUntil = 0;
-  mapContainer.addEventListener('wheel', event => {
-    if (event.ctrlKey || event.metaKey) return;
-    const horizontal = Math.abs(event.deltaX);
-    const vertical = Math.abs(event.deltaY);
-    const magnitude = Math.max(horizontal, vertical);
-    const now = performance.now();
-    const pixelScroll = event.deltaMode === WheelEvent.DOM_DELTA_PIXEL &&
-      (horizontal > vertical || magnitude < 100 || now < trackpadUntil);
-    if (!magnitude || (!event.altKey && !pixelScroll)) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    if (pixelScroll) trackpadUntil = now + 160;
-    // A trackpad reports two-finger swipes as wheel deltas, not touch rotation.
-    const clamp = value => Math.max(-55, Math.min(55, value));
-    map.jumpTo({
-      bearing: map.getBearing() + clamp(event.deltaX) * .35,
-      pitch: Math.max(0, Math.min(map.getMaxPitch(), map.getPitch() + clamp(event.deltaY) * .22))
-    });
-  }, { capture: true, passive: false });
+  installTrackpadGestures(map, mapContainer);
   updatePitch();
 
   const areaSelect = $('area');

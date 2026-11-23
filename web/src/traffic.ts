@@ -4,6 +4,7 @@ import type { RoadPoint } from './types';
 export const trafficColors = { free: '#52cf73', slow: '#f6be48', congested: '#f46c67' };
 export type TrafficSegment = {
   corridor_id: string;
+  estimated?: boolean;
   coordinates: RoadPoint[];
   status: keyof typeof trafficColors;
 };
