@@ -3,6 +3,7 @@ import argparse
 from datetime import datetime, timezone
 import json
 import math
+import os
 from pathlib import Path
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
@@ -18,10 +19,18 @@ def plan(graph, probe):
     points=np.array([mercator(p) for s in graph['segments'] for p in s['coordinates']])
     minimum=points.min(axis=0);maximum=points.max(axis=0);extent=hi-lo;step=extent*.9
     count=np.maximum(1,np.ceil((maximum-minimum-extent+extent*.04)/step).astype(int)+1)
+    segment_boxes=[]
+    for s in graph['segments']:
+        coords=np.array([mercator(p) for p in s['coordinates']])
+        segment_boxes.append((*coords.min(axis=0),*coords.max(axis=0)))
     tiles=[]
     for row in range(int(count[1])):
         for col in range(int(count[0])):
             lower=minimum+np.array([col,row])*step-extent*.02
+            upper=lower+extent
+            if not any(a<=upper[0] and c>=lower[0] and b<=upper[1] and d>=lower[1]
+                       for a,b,c,d in segment_boxes):
+                continue
             # Requested center can be displaced from screenshot center by side panel.
             shift=mercator(c['center'])-lo
             requested=lower+shift
@@ -57,7 +66,7 @@ def footprint_coverage(graph, boxes):
 def combine(graph, inputs):
     by={s['id']:[] for s in graph['segments']};captures=[]
     for directory in inputs:
-        d=json.loads((directory/'observations.json').read_text());captures.append(dict(path=str(directory),timestamp=d['observations'][0]['timestamp'] if d['observations'] else None))
+        d=json.loads((directory/'observations.json').read_text());captures.append(dict(path=str(directory),timestamp=d['observations'][0]['timestamp'] if d['observations'] else None,raster_bounds=d.get('raster_bounds'),raster_path=str(directory/'ribbons.png')))
         for o in d['observations']:
             if o['graph_sha256']!=graph['graph_sha256']:raise ValueError('Graph hash mismatch')
             if o['edge_id']!=o['corridor_id'] or o['reason']=='outside_capture':continue
@@ -89,7 +98,10 @@ def combine(graph, inputs):
 def main():
     p=argparse.ArgumentParser();p.add_argument('command',choices=['plan','combine']);p.add_argument('graph',type=Path);p.add_argument('output',type=Path);p.add_argument('inputs',nargs='+',type=Path);a=p.parse_args();graph=export_graph(a.graph.read_bytes())
     if a.command=='plan':result=plan(graph,a.inputs[0])
-    else:result=combine(graph,a.inputs)
+    else:
+        result=combine(graph,a.inputs)
+        for capture in result['captures']:
+            capture['raster_path']=os.path.relpath(capture['raster_path'],a.output.parent)
     a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps(result,ensure_ascii=False))
     if a.command=='combine':a.output.with_suffix('.html').write_text(Path(__file__).with_name('traffic_city_review.html').read_text().replace('__DATA__',json.dumps(result,ensure_ascii=False).replace('<','\\u003c')))
     print(json.dumps(result.get('coverage',{'tiles':len(result['tiles'])}) if a.command=='plan' else result['coverage']))

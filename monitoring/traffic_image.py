@@ -56,7 +56,7 @@ def color_mask(before, after):
     labels = np.zeros(r.shape, dtype=np.uint8)
     labels[changed & (g > 100) & (g > r * 1.18) & (g > b * 1.18)] = 1
     labels[changed & (r > 190) & (g > 135) & (b < 135) & (r > g * .95)] = 2
-    labels[changed & (r > 170) & (g < 135) & (b < 135)] = 3
+    labels[changed & (r > 110) & (g < 135) & (b < 135) & (r > g * 1.5) & (r > b * 1.3)] = 3
     return labels
 
 
