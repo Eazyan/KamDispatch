@@ -91,3 +91,4 @@ def test_two_competing_parallel_roads_are_not_both_painted():
     second = {"id":"second","coordinates":[offset(p) for p in road['coordinates']]}
     result=analyze_roads(before,after,capture,[first,second])
     assert all(f['properties']['traffic_status']=='unknown' for f in result['features'])
+    assert not result['matched_sections']['features'], 'Ambiguity must not leak into local evidence'

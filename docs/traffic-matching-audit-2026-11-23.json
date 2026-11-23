@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-23",
+  "timezone": "Asia/Kamchatka",
+  "baseline_code": "37fe2cac1b6cac8275f0b4cb4424039c41d8244f",
+  "current_method": "source_lines_geometry_match_v3",
+  "verification": "Offline frozen captures and synthetic regression; not citywide traffic accuracy",
+  "image_sha256": {
+    "traffic-off.png": "a42fc2986c93e8f976fa50741317560677d745917e10d6d0ff386f1ff47671c4",
+    "traffic-on.png": "fb9e0af51360bdff0f81fd9638e1ca73c92d3021dd1784613d1e2d30707898a9"
+  },
+  "roads_sha256": "1688c8b8facea60b188908f7aeaa97431aaa9849a46c37128ce02ea8ffe6dffd",
+  "baseline_common_road_count": 184,
+  "baseline_loss_reasons": {
+    "mixed_classes": 1,
+    "partial_potential_support": 20,
+    "recognized": 27,
+    "no_parallel_source_within_radius": 100,
+    "mostly_outside_capture": 20,
+    "lost_to_winner_or_road_ambiguity": 12,
+    "color_ambiguity": 4
+  },
+  "baseline_source_sample_flow": {
+    "assigned": 6349,
+    "ambiguous_roads": 741,
+    "angle_rejected": 1936,
+    "no_near_road": 19
+  },
+  "classification_precedence": [
+    "recognized",
+    "mostly_outside_capture",
+    "no_parallel_source_within_radius",
+    "partial_potential_support",
+    "lost_to_winner_or_road_ambiguity",
+    "color_ambiguity",
+    "mixed_classes"
+  ],
+  "audit_script_sha256": "35d09735fb36d27a4a47652f8ed90d0187d3684465b7fc2934a42c50fa7ca537",
+  "current_common184": {
+    "whole_road_known": 27,
+    "roads_with_local_sections": 45,
+    "additional_partial_roads": 19,
+    "roads_with_any_evidence": 46,
+    "without_usable_evidence": 138
+  },
+  "current_section_count": 51,
+  "remaining_checks": [
+    "Exhaustive independent labels for roads and source lines",
+    "Provider coverage across the full city",
+    "Direction-specific matching and real-world traffic observations"
+  ]
+}

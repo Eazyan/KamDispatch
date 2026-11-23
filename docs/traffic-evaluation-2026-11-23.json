@@ -1,0 +1,434 @@
+{
+  "method": "manual_reference_audit_v1",
+  "scope": "Selected non-exhaustive references on two saved screenshots; not citywide accuracy or global precision.",
+  "annotations_sha256": "9d424f57a528f9422d418b6cea74871fdf0401e57c226af8983eb34250cadb5d",
+  "algorithm_sha256": "dca61eabd5d5d2a80031ed76fc74ace6acf49300058635d959ae066f8c992310",
+  "roads_sha256": "1688c8b8facea60b188908f7aeaa97431aaa9849a46c37128ce02ea8ffe6dffd",
+  "captures": [
+    {
+      "id": "pilot-2",
+      "role": "development",
+      "image_sha256": "7782914a9e539776d5cff46c79baf07b41319c9938930b390fea05c99435b258",
+      "current": {
+        "road_classes": {
+          "unknown": 95,
+          "free": 22
+        },
+        "roads_with_matched_sections": 41,
+        "matched_section_length_recall": 0.8725,
+        "source_line_count": 500,
+        "positive_reference_count": 9,
+        "positive_reference_length_px": 617.54,
+        "source_length_recall": 0.8124,
+        "osm_transfer_length_recall": 0.8145,
+        "negative_reference_count": 6,
+        "negative_false_positive_cases": 1,
+        "references": [
+          {
+            "id": "2-left-1",
+            "class": "free",
+            "length_px": 51.41,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "2-left-2",
+            "class": "free",
+            "length_px": 89.11,
+            "source_recall": 0.3799,
+            "osm_transfer_recall": 0.4009
+          },
+          {
+            "id": "2-bottom-1",
+            "class": "free",
+            "length_px": 78.53,
+            "source_recall": 0.8775,
+            "osm_transfer_recall": 0.7811
+          },
+          {
+            "id": "2-vertical-2",
+            "class": "free",
+            "length_px": 59.08,
+            "source_recall": 0.8669,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "2-diagonal-1",
+            "class": "free",
+            "length_px": 75.7,
+            "source_recall": 0.7916,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "2-diagonal-2",
+            "class": "free",
+            "length_px": 45.8,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "2-main-1",
+            "class": "free",
+            "length_px": 76.64,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "2-main-2",
+            "class": "free",
+            "length_px": 99.63,
+            "source_recall": 0.7258,
+            "osm_transfer_recall": 0.7454
+          },
+          {
+            "id": "2-main-north",
+            "class": "free",
+            "length_px": 41.65,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 0.5526
+          }
+        ],
+        "negative_controls": [
+          {
+            "id": "2-temple-text",
+            "covered_fraction": 0.0541
+          },
+          {
+            "id": "2-gai-text",
+            "covered_fraction": 0.0
+          },
+          {
+            "id": "2-logo",
+            "covered_fraction": 0.3846
+          },
+          {
+            "id": "2-green-park",
+            "covered_fraction": 0.0
+          },
+          {
+            "id": "2-uncolored-road",
+            "covered_fraction": 0.0
+          },
+          {
+            "id": "2-building",
+            "covered_fraction": 0.0
+          }
+        ]
+      },
+      "baseline": {
+        "road_classes": {
+          "unknown": 96,
+          "free": 21
+        },
+        "roads_with_matched_sections": 0,
+        "matched_section_length_recall": 0.0,
+        "positive_reference_count": 9,
+        "positive_reference_length_px": 617.54,
+        "osm_transfer_length_recall": 0.8145,
+        "negative_reference_count": 6,
+        "references": [
+          {
+            "id": "2-left-1",
+            "class": "free",
+            "length_px": 51.41,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "2-left-2",
+            "class": "free",
+            "length_px": 89.11,
+            "osm_transfer_recall": 0.4009
+          },
+          {
+            "id": "2-bottom-1",
+            "class": "free",
+            "length_px": 78.53,
+            "osm_transfer_recall": 0.7811
+          },
+          {
+            "id": "2-vertical-2",
+            "class": "free",
+            "length_px": 59.08,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "2-diagonal-1",
+            "class": "free",
+            "length_px": 75.7,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "2-diagonal-2",
+            "class": "free",
+            "length_px": 45.8,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "2-main-1",
+            "class": "free",
+            "length_px": 76.64,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "2-main-2",
+            "class": "free",
+            "length_px": 99.63,
+            "osm_transfer_recall": 0.7454
+          },
+          {
+            "id": "2-main-north",
+            "class": "free",
+            "length_px": 41.65,
+            "osm_transfer_recall": 0.5526
+          }
+        ]
+      }
+    },
+    {
+      "id": "pilot-4",
+      "role": "holdout",
+      "image_sha256": "fb9e0af51360bdff0f81fd9638e1ca73c92d3021dd1784613d1e2d30707898a9",
+      "current": {
+        "road_classes": {
+          "unknown": 161,
+          "congested": 3,
+          "free": 24
+        },
+        "roads_with_matched_sections": 45,
+        "matched_section_length_recall": 0.9508,
+        "source_line_count": 666,
+        "positive_reference_count": 14,
+        "positive_reference_length_px": 956.23,
+        "source_length_recall": 0.9312,
+        "osm_transfer_length_recall": 0.8123,
+        "negative_reference_count": 6,
+        "negative_false_positive_cases": 0,
+        "references": [
+          {
+            "id": "4-upper-west",
+            "class": "free",
+            "length_px": 92.74,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 0.8932
+          },
+          {
+            "id": "4-upper-middle",
+            "class": "free",
+            "length_px": 81.08,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-upper-east",
+            "class": "free",
+            "length_px": 68.97,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-upper-junction",
+            "class": "free",
+            "length_px": 74.36,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-lower-west",
+            "class": "free",
+            "length_px": 92.73,
+            "source_recall": 0.4923,
+            "osm_transfer_recall": 0.0
+          },
+          {
+            "id": "4-lower-middle",
+            "class": "free",
+            "length_px": 79.6,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-lower-east",
+            "class": "free",
+            "length_px": 76.82,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-red",
+            "class": "congested",
+            "length_px": 52.0,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-main-south",
+            "class": "free",
+            "length_px": 53.33,
+            "source_recall": 0.6842,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-bottom-east",
+            "class": "free",
+            "length_px": 76.16,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-bottom-far-east",
+            "class": "free",
+            "length_px": 76.59,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-north",
+            "class": "free",
+            "length_px": 55.05,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-east-connector",
+            "class": "free",
+            "length_px": 43.07,
+            "source_recall": 1.0,
+            "osm_transfer_recall": 0.0
+          },
+          {
+            "id": "4-side-access",
+            "class": "free",
+            "length_px": 33.74,
+            "source_recall": 0.9445,
+            "osm_transfer_recall": 0.0
+          }
+        ],
+        "negative_controls": [
+          {
+            "id": "4-orange-label",
+            "covered_fraction": 0.0
+          },
+          {
+            "id": "4-uncolored-street",
+            "covered_fraction": 0.0
+          },
+          {
+            "id": "4-park",
+            "covered_fraction": 0.0
+          },
+          {
+            "id": "4-building",
+            "covered_fraction": 0.0
+          },
+          {
+            "id": "4-label-university",
+            "covered_fraction": 0.0
+          },
+          {
+            "id": "4-medical-icon",
+            "covered_fraction": 0.0
+          }
+        ]
+      },
+      "baseline": {
+        "road_classes": {
+          "unknown": 161,
+          "congested": 3,
+          "free": 24
+        },
+        "roads_with_matched_sections": 0,
+        "matched_section_length_recall": 0.0,
+        "positive_reference_count": 14,
+        "positive_reference_length_px": 956.23,
+        "osm_transfer_length_recall": 0.8123,
+        "negative_reference_count": 6,
+        "references": [
+          {
+            "id": "4-upper-west",
+            "class": "free",
+            "length_px": 92.74,
+            "osm_transfer_recall": 0.8932
+          },
+          {
+            "id": "4-upper-middle",
+            "class": "free",
+            "length_px": 81.08,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-upper-east",
+            "class": "free",
+            "length_px": 68.97,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-upper-junction",
+            "class": "free",
+            "length_px": 74.36,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-lower-west",
+            "class": "free",
+            "length_px": 92.73,
+            "osm_transfer_recall": 0.0
+          },
+          {
+            "id": "4-lower-middle",
+            "class": "free",
+            "length_px": 79.6,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-lower-east",
+            "class": "free",
+            "length_px": 76.82,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-red",
+            "class": "congested",
+            "length_px": 52.0,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-main-south",
+            "class": "free",
+            "length_px": 53.33,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-bottom-east",
+            "class": "free",
+            "length_px": 76.16,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-bottom-far-east",
+            "class": "free",
+            "length_px": 76.59,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-north",
+            "class": "free",
+            "length_px": 55.05,
+            "osm_transfer_recall": 1.0
+          },
+          {
+            "id": "4-east-connector",
+            "class": "free",
+            "length_px": 43.07,
+            "osm_transfer_recall": 0.0
+          },
+          {
+            "id": "4-side-access",
+            "class": "free",
+            "length_px": 33.74,
+            "osm_transfer_recall": 0.0
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -61,6 +61,9 @@ def evaluate(reference, result, capture):
     origin, transform, _ = calibration(capture)
     roads = [{**f,"properties":{**f["properties"],"pixels":[project(p,origin,transform).tolist() for p in f["geometry"]["coordinates"]]}} for f in result["features"]]
     osm = segments(roads)
+    matched = segments([{**f,"properties":{**f["properties"],"pixels":[project(p,origin,transform).tolist() for p in f["geometry"]["coordinates"]]}}
+                        for f in result.get("matched_sections",{}).get("features",[])])
+    section_hit = 0.
     extracted = segments(result.get("traffic_lines",{}).get("features",[]))
     details, source_hit, road_hit, total = [],0.,0.,0.
     x,y,w,h = capture['analysis_region']
@@ -72,6 +75,8 @@ def evaluate(reference, result, capture):
             continue
         sh,length = coverage(clipped,extracted[item['class']],5)
         rh,_ = coverage(clipped,osm[item['class']],12)
+        mh,_ = coverage(clipped,matched[item['class']],12)
+        section_hit+=mh
         source_hit+=sh;road_hit+=rh;total+=length
         details.append({'id':item['id'],'class':item['class'],'length_px':round(length,2),
                         'source_recall':round(sh/length,4),'osm_transfer_recall':round(rh/length,4)})
@@ -81,6 +86,8 @@ def evaluate(reference, result, capture):
         hit,length=coverage(item['pixels'],all_source,3,aligned=False)
         negatives.append({'id':item['id'],'covered_fraction':round(hit/length,4) if length else 0})
     return {'road_classes':dict(Counter(f['properties']['traffic_status'] for f in result['features'])),
+            'roads_with_matched_sections':len({f['properties']['road_id'] for f in result.get('matched_sections',{}).get('features',[])}),
+            'matched_section_length_recall':round(section_hit/total,4) if total else None,
             'source_line_count':sum(len(v) for v in extracted.values()),
             'positive_reference_count':len(details),'positive_reference_length_px':round(total,2),
             'source_length_recall':round(source_hit/total,4) if total else None,

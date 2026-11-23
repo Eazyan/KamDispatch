@@ -144,7 +144,11 @@ def match_traffic_lines(lines, projected, roads, region):
                 alignment = abs(float(tangent @ direction))
                 if alignment < math.cos(math.radians(20)):
                     continue
-                along = float(np.clip((point-start) @ direction, 0, part_length))
+                raw_along = float((point-start) @ direction)
+                # A parallel ribbon beyond an endpoint does not observe that road.
+                if raw_along < -2 or raw_along > part_length+2:
+                    continue
+                along = float(np.clip(raw_along, 0, part_length))
                 distance = float(np.linalg.norm(point-(start+direction*along)))
                 if distance > radius:
                     continue
@@ -167,6 +171,7 @@ def match_traffic_lines(lines, projected, roads, region):
     for index, parts in enumerate(road_parts):
         votes, total, visible, matched_ids = Counter(), lengths[index], 0., set()
         assigned = assignments[index]
+        sections = []
         for start, end, direction, length, offset, _ in parts:
             count = max(1, math.ceil(length/2))
             weight = length/count
@@ -185,8 +190,24 @@ def match_traffic_lines(lines, projected, roads, region):
                 ranked = sorted(by_class, key=by_class.get)
                 if len(ranked)>1 and by_class[ranked[1]]-by_class[ranked[0]] <= 3:
                     continue
-                votes[ranked[0]] += weight
-                matched_ids.update(p[3] for p in nearby if p[1] == ranked[0])
+                status = ranked[0]
+                votes[status] += weight
+                ids = {p[3] for p in nearby if p[1] == status}
+                matched_ids.update(ids)
+                first = start+direction*(along-weight/2)
+                last = start+direction*(along+weight/2)
+                # Export only bins fully inside the analyzed image region.
+                if all(x <= q[0] < x+width and y <= q[1] < y+height for q in (first,last)):
+                    begin, finish = offset+along-weight/2, offset+along+weight/2
+                    if (sections and sections[-1]["traffic_status"] == status
+                            and abs(sections[-1]["end"]-begin) < 1e-6):
+                        section = sections[-1]
+                        section["pixels"].append(last.tolist())
+                        section["end"] = finish
+                        section["source_line_ids"].update(ids)
+                    else:
+                        sections.append({"traffic_status": status, "start": begin, "end": finish,
+                                         "pixels": [first.tolist(),last.tolist()], "source_line_ids": ids})
         if not visible:
             results.append(None)
             continue
@@ -201,7 +222,10 @@ def match_traffic_lines(lines, projected, roads, region):
         results.append({"traffic_status": status, "reason": reason,
                         "coverage_fraction": round(coverage,4),
                         "visible_fraction": round(visible/total,4) if total else 0,
-                        "source_line_ids": sorted(matched_ids)})
+                        "source_line_ids": sorted(matched_ids),
+                        "matched_sections": [{"traffic_status": s["traffic_status"], "pixels": s["pixels"],
+                                              "source_line_ids": sorted(s["source_line_ids"])}
+                                             for s in sections if s["end"]-s["start"] >= 6]})
     return results
 
 
@@ -224,10 +248,18 @@ def analyze_roads(before, after, capture, roads):
     if any(len(points)<2 or any(np.linalg.norm(b-a)>100000 for a,b in zip(points,points[1:])) for points in projected):
         raise ValueError("Invalid road geometry")
     observations = match_traffic_lines(lines, projected, roads, (x,y,width,height))
-    features = []
+    features, matched_sections = [], []
     for road, observed in zip(roads, observations):
         if observed is None:
             continue
+        for section_index, section in enumerate(observed.pop("matched_sections")):
+            matched_sections.append({"type": "Feature", "id": f"{road['id']}-observed-{section_index}",
+                "geometry": {"type": "LineString", "coordinates": [unproject(p,origin,transform) for p in section["pixels"]]},
+                "properties": {"road_id": road["id"], "name": road.get("name",road["id"]),
+                               "traffic_status": section["traffic_status"], "source_line_ids": section["source_line_ids"],
+                               "direction": "unresolved", "evidence_scope": "matched_road_section",
+                               "source": "2gis_screenshot", "observed_at": capture["captured_at"],
+                               "validation": "experimental_unvalidated"}})
         features.append({"type": "Feature", "id": road["id"],
                          "geometry": {"type": "LineString", "coordinates": road["coordinates"]},
                          "properties": {"id": road["id"], "name": road.get("name", road["id"]),
@@ -243,6 +275,7 @@ def analyze_roads(before, after, capture, roads):
                         "observed_at": capture["captured_at"], "validation": "experimental_unvalidated",
                         "evidence_scope": "extracted_display_ribbon"}} for line in lines]}
     return {"type": "FeatureCollection", "features": features, "traffic_lines": source,
+            "matched_sections": {"type": "FeatureCollection", "features": matched_sections},
             "metadata": {"calibration_holdout_error_px": round(residual,4),
-                         "method": "source_lines_geometry_match_v2", "source_line_count": len(lines),
+                         "method": "source_lines_geometry_match_v3", "source_line_count": len(lines),
                          "speed_estimate": None, "direction": "unresolved", "not_for_automatic_dispatch": True}}
