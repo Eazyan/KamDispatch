@@ -1,10 +1,11 @@
 # Карта источников
-Updated: 2026-11-22 · Asia/Kamchatka (UTC+12)
+Updated: 2026-11-23 · Asia/Kamchatka (UTC+12)
 
 Сначала STATE, HANDOFF, TASKS; далее только выбранный трек. Пути в Markdown относительны к файлу. Не читать inventory целиком в контекст.
 
 | Тема | Первоисточники | Статус |
 |---|---|---|
+| City Sim: управление 3D-картой | [Код](../../city_sim/web/map.js), [Управление](../../README_CITY_SIM.md) | 23.11.2026: 87d9d78; два пальца горизонтально — поворот, вертикально — наклон; browser smoke OK |
 | Погода / ночные алерты | [Атлас](../../weather_coverage/heatmaps/REPORT_HEATMAP_VIDEO_RU.md), [код и команды](../../weather_coverage/README.md), [возможности API](../../weather_coverage/API_CAPABILITIES.md), [вечерние гипотезы, §22/29](../KAMCHATKA_KNOWLEDGE_BASE.md) | 298 точек запросов; прогноз, не датчики; алерты — гипотеза |
 | Drift Engine / новый репозиторий | [Продолжение Drift Engine](https://github.com/Eazyan/KamDispatch/blob/feature/kamchatka-drift-engine/docs/drift-engine/NEXT_CHAT.md), [Правила](../../GIT_INSTRUCTIONS.md), [код массового переноса](../../city_sim/snow_state.py) | Новый рабочий checkout /private/tmp/kamdispatch-city-sim-upload; docs/drift-engine там; связанная CFD-модель ещё не завершена |
 | Снежные наносы | [Динамический backend](../../research/dynamic-backend-2026-11-22/REPORT.md), [API](../DYNAMIC_SNOW_API.md), [полевая проверка](../../research/reality-validation-2026-11-21/REPORT.md), [адреса](../../research/address-snow-2026-11-22/REPORT.md) | Вычислительные контроли есть; полевая точность not_testable |

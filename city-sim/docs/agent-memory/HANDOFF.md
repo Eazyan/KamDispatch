@@ -1,6 +1,8 @@
 # Передача следующей сессии
 Updated: 2026-11-23 · Asia/Kamchatka (UTC+12)
 
+23.11.2026 · OPS-009 · ФАКТ: вращение City Sim двумя пальцами готово, код 87d9d78 в /private/tmp/kamdispatch-cfd-snow, feature/kamchatka-drift-engine; публикация далее. Горизонталь — bearing, вертикаль — pitch, щипок — zoom; 2D/3D сохраняет направление. Node gesture smoke и браузер: оба поворота, наклон, 2D/3D OK; JS errors 0. DRIFT-003 сохранён. Далее: push, проверить PR #6/CI. Развёртывание и физический трекпад пользователя здесь не проверены.
+
 ## Активный трек и выполненный шаг
 
 Пользователь попросил продолжать Kamchatka Drift Engine. DRIFT-003 остаётся
