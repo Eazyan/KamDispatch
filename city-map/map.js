@@ -2,7 +2,7 @@ import { $, empty, request } from '../api.js';
 import { createMap } from '../map.js?v=twist';
 import { raster } from '../raster_motion.js';
 import { createSnowVolume } from '../snow_volume.js';
-import { createTrafficVolume, trafficColors } from './traffic-volume.js?v=7';
+import { createTrafficVolume, trafficColors } from './traffic-volume.js?v=8';
 
 const parentOrigin = new URLSearchParams(location.search).get('parent');
 const send = (type, fields) => {
@@ -161,13 +161,13 @@ async function start() {
       trafficVolume.setData(rows);
       map.getSource('dispatch-traffic').setData({ ...empty(), features: rows.map(row => ({
         ...line(row.coordinates),
-        properties: { color: trafficColors[row.status], estimated: row.estimated === true },
+        properties: { color: trafficColors[row.status] },
       })) });
       trafficData = nextTraffic;
     }
     trafficVolume.setStale(Boolean(state.trafficStale));
     const opacity = state.trafficStale ? .46 : .95;
-    map.setPaintProperty('dispatch-traffic', 'line-opacity', ['case', ['get', 'estimated'], opacity * .68, opacity]);
+    map.setPaintProperty('dispatch-traffic', 'line-opacity', opacity);
     const nextMarkers = JSON.stringify(state.showMarkers && state.markers);
     if (markerData !== nextMarkers) {
       markerObjects.forEach(marker => marker.remove());

@@ -90,7 +90,7 @@ export function createTrafficVolume(map, flatLayer) {
   const transform = new THREE.Matrix4().makeTranslation(origin.x, origin.y, 0).scale(new THREE.Vector3(scale, scale, scale));
   const scene = new THREE.Scene();
   const camera = new THREE.Camera();
-  const meshes = [];
+  let mesh;
   let renderer;
   let rows = [];
   let stale = false;
@@ -98,44 +98,38 @@ export function createTrafficVolume(map, flatLayer) {
   let visible;
 
   function clear() {
-    for (const mesh of meshes) {
-      scene.remove(mesh);
-      mesh.geometry.dispose();
-      mesh.material.dispose();
-    }
-    meshes.length = 0;
+    if (!mesh) return;
+    scene.remove(mesh);
+    mesh.geometry.dispose();
+    mesh.material.dispose();
+    mesh = undefined;
   }
 
   function draw() {
     if (!visible || !dirty) return;
     dirty = false;
     clear();
-    const batches = [false, true].map(estimated => ({ estimated, positions: [], colors: [], indices: [] }));
-    for (const { coordinates, status, estimated } of rows) {
+    const batch = { positions: [], colors: [], indices: [] };
+    for (const { coordinates, status } of rows) {
       const { color, radius } = styles[status];
-      appendTube(batches[Number(estimated === true)], samplePath(coordinates, map, origin, scale), radius, new THREE.Color(color));
+      appendTube(batch, samplePath(coordinates, map, origin, scale), radius, new THREE.Color(color));
     }
-    for (const { estimated, positions, colors, indices } of batches) {
-      if (!indices.length) continue;
+    if (batch.indices.length) {
       const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-      geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-      geometry.setIndex(indices);
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(batch.positions, 3));
+      geometry.setAttribute('color', new THREE.Float32BufferAttribute(batch.colors, 3));
+      geometry.setIndex(batch.indices);
       const material = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, transparent: true, forceSinglePass: true });
-      const mesh = new THREE.Mesh(geometry, material);
-      mesh.userData.estimated = estimated;
+      mesh = new THREE.Mesh(geometry, material);
       mesh.frustumCulled = false;
-      meshes.push(mesh);
       scene.add(mesh);
+      updateOpacity();
     }
-    updateOpacity();
     map.triggerRepaint();
   }
 
   function updateOpacity() {
-    for (const { material, userData } of meshes) {
-      material.opacity = (stale ? .46 : .95) * (userData.estimated ? .68 : 1);
-    }
+    if (mesh) mesh.material.opacity = stale ? .46 : .95;
   }
 
   function updatePitch() {
@@ -159,7 +153,7 @@ export function createTrafficVolume(map, flatLayer) {
       renderer.autoClear = false;
     },
     render(gl, frame) {
-      if (!visible || !meshes.length) return;
+      if (!visible || !mesh) return;
       camera.projectionMatrix.fromArray(frame.defaultProjectionData.mainMatrix).multiply(transform);
       renderer.resetState();
       renderer.render(scene, camera);
