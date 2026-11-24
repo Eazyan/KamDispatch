@@ -11,7 +11,8 @@ from shapely.geometry import Point
 
 from city_sim.api import make_app
 from city_sim.city_snow import (CitySnow, CitySnowRequest, administrative_boundary, checkpoints,
-                                live_accumulation, live_frames, remap, soften_tile_seams)
+                                remap, soften_tile_seams)
+from city_sim.live_snow_field import LiveSnowField, frame_minutes
 from city_sim.snow_experiment import SnowStudy
 from city_sim.weather import WeatherArchive
 
@@ -60,24 +61,31 @@ class CitywideWeatherTests(unittest.TestCase):
         self.assertEqual(sampled[3, 3], 3)
         self.assertTrue(np.isnan(sampled[3, 0]))
 
-    def test_live_frames_accumulate_over_three_hours_without_changing_final_field(self):
+    def test_provider_cells_are_deduplicated_and_interpolated_continuously(self):
         start = datetime(2026, 11, 24, 14, tzinfo=timezone.utc)
-        hours = [{"snowfall_cm": snow, "wind_speed_ms": speed} for snow, speed in [(3, 8), (6, 0), (3, 0)]]
-        actual = np.array([[15.0, 12.0, np.nan]])
+        frames = {start+timedelta(hours=i): [
+            {"id": str(j), "coordinates": (158.60+j*.01, 53.04), "provider_coordinates": (lon, 53.04),
+             "snow": snow, "wind_speed": 8, "wind_deg": 350 if j == 0 else 10}
+            for j, (lon, snow) in enumerate([(158.60, 1), (158.68, 3), (158.68, 3)])
+        ] for i in range(1, 4)}
+        field = LiveSnowField({"frames": frames}, start, 3)
+        self.assertEqual(len(field.coordinates), 2)
+        self.assertEqual(len(field.stamps), 19)
+        weights, _ = field.weights(np.array([158.63999, 158.64, 158.64001]), 53.04)
+        np.testing.assert_allclose(weights[1], [.5, .5], atol=1e-6)
+        self.assertLess(abs(weights[0, 0]-weights[2, 0]), .002)
+        snow, baseline, reverse, _, _, valid = field.raster(
+            (158.63, 53.03, 158.65, 53.05), 8, lambda direction: np.full((8, 8), .5, dtype=np.float32))
+        self.assertTrue(valid.all())
+        np.testing.assert_allclose(snow[6], baseline[6]*1.3, rtol=1e-6)
+        np.testing.assert_allclose(baseline[1], baseline[6]/6, rtol=1e-6)
+        np.testing.assert_allclose(reverse, snow[-1], rtol=1e-6)
 
-        def estimate(weather):
-            self.assertEqual(weather, [hours[0]])
-            return np.array([[6.0, 3.0, np.nan]])
-
-        times = [datetime.fromisoformat(stamp) for stamp, _ in live_frames(start, hours)]
-        values = list(live_accumulation(actual, hours, estimate))
-        self.assertEqual(times, [start+timedelta(minutes=i*10) for i in range(19)])
-        self.assertEqual(len(values), 18)
-        np.testing.assert_array_equal(values[0][0, :2], [0, 0])
-        np.testing.assert_array_equal(values[1][0, :2], [1, .5])
-        np.testing.assert_array_equal(values[6][0, :2], [6, 3])
-        np.testing.assert_array_equal(values[12][0, :2], [12, 9])
-        np.testing.assert_array_equal(values[17][0, :2], [14.5, 11.5])
+    def test_long_timeline_keeps_near_detail_and_includes_the_last_provider_hour(self):
+        minutes = frame_minutes(383)
+        self.assertEqual(minutes[:19], list(range(0, 181, 10)))
+        self.assertIn(7*1440, minutes)
+        self.assertEqual(minutes[-1], 383*60)
 
     def test_seam_blends_only_computed_cells_near_the_tile_edge(self):
         raw = np.ones((3, 128))

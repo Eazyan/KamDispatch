@@ -231,7 +231,7 @@ class AccessCatalog:
 
     @lru_cache(maxsize=16)
     def exposure(self, runner, run_id, frame):
-        result = runner.status(run_id)
+        result = runner.status(run_id, compact=True)
         if not result:
             raise LookupError("Расчёт не найден")
         if result["status"] != "completed":
@@ -239,10 +239,13 @@ class AccessCatalog:
         if result["provenance"]["city_revision"] != self.revision:
             raise RuntimeError("Геоданные изменились: выполните новый расчёт")
         fields = runner.probe_fields(run_id)
-        timeline = fields.get("timeline", [])
-        if frame is not None and not 0 <= frame < len(timeline):
-            raise ValueError("Кадр отсутствует в расчёте")
-        grid = timeline[frame] if frame is not None else fields["snow_cm"]
+        grid = fields["snow_cm"]
+        if frame is not None:
+            selected = runner.frame_field(run_id, frame, "snow")
+            if selected is None and frame != result.get("frame_count", 0)-1:
+                raise ValueError("Кадр отсутствует в расчёте")
+            if selected is not None:
+                grid = selected
         w, s, e, n = result["bounds"]
         rows, cols = grid.shape
 

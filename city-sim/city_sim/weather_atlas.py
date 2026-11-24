@@ -104,7 +104,10 @@ class WeatherAtlas:
 
     def live_catalog(self, refresh=False):
         snapshot = self.live.get(refresh)
+        valid = [t.isoformat() for t, rows in sorted(snapshot["frames"].items())
+                 if any(all(row[key] is not None for key in ("snow", "wind_speed", "wind_deg")) for row in rows)]
         return {"title": PROVIDER, "terms": [t.isoformat() for t in sorted(snapshot["frames"])],
+                "snow_forecast_terms": valid,
                 "fields": {field: describe(field, "live") for field in FIELDS},
                 "retrieved_at": snapshot["retrieved_at"].isoformat(), "sha256": snapshot["revision"],
                 "provider_locations": snapshot["provider_locations"]}
@@ -161,13 +164,34 @@ class WeatherAtlas:
         return {"nx": GRID_W, "ny": GRID_H, "pixels": pixels,
                 "dist": meters, "indices": np.where(meters <= limit, ids, -1)}
 
+    @staticmethod
+    def provider_points(rows):
+        locations = {}
+        for row in rows:
+            coordinates = row.get("provider_coordinates", row["coordinates"])
+            locations.setdefault(coordinates, []).append(row)
+        points = []
+        for coordinates, readings in locations.items():
+            point = {"id": readings[0]["id"], "coordinates": coordinates}
+            for field in FIELDS:
+                values = [row.get(field) for row in readings if row.get(field) is not None]
+                if not values:
+                    point[field] = None
+                elif field == "wind_deg" and len(values) > 1:
+                    angles = np.deg2rad(values)
+                    point[field] = float(np.degrees(np.arctan2(np.sin(angles).mean(), np.cos(angles).mean())) % 360)
+                else:
+                    point[field] = sum(values)/len(values)
+            points.append(point)
+        return points
+
     @lru_cache(maxsize=32)
     def _frame(self, dataset, stamp, field, method, revision=None, event_id=None, haze=False):
         if dataset == "live":
             snapshot = self.live.by_revision(revision)
             if stamp not in snapshot["frames"]:
                 raise ValueError("Прогноз обновился. Откройте свежие сроки.")
-            points = snapshot["frames"][stamp]
+            points = self.provider_points(snapshot["frames"][stamp])
         elif dataset == "storm":
             revision, frames = self.storm_frames(event_id)
             if stamp not in frames or field not in STORM_FIELDS:

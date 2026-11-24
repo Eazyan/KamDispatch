@@ -68,6 +68,17 @@ export function createOperations(view, health) {
   let zone;
   let zoneMarker;
   const active = () => !$('operations-panel').hidden;
+  function liveHours() {
+    const terms = catalog?.live?.snow_forecast_terms;
+    if (!terms) return Math.min(6, term.options.length-term.selectedIndex);
+    const available = new Set(terms.map(Date.parse));
+    const start = Date.parse(term.value);
+    let hours = 0;
+    while (hours < 384 && available.has(start+(hours+1)*3600000)) hours++;
+    return hours;
+  }
+  const weatherAt = stamp => source.value === 'live'
+    ? new Date(Math.ceil(Date.parse(stamp)/3600000)*3600000).toISOString() : stamp;
   const currentRows = () => archive?.rows.filter(r => r.valid_at === $('ops-term').value) ?? [];
   const atlasDataset = () => datasets[source.value];
   const stormId = () => $('ops-event').value;
@@ -95,7 +106,7 @@ export function createOperations(view, health) {
   map.on('move', positionZoneActions);
 
   function updateButton() {
-    const needsTerm = Boolean(atlasDataset()) && source.value !== 'historic' && !term.value;
+    const needsTerm = Boolean(atlasDataset()) && source.value !== 'historic' && (!term.value || (source.value === 'live' && !liveHours()));
     const needsZone = scope.value === 'zone' && (!zone || drawing);
     const needsEvent = source.value === 'historic' && !$('ops-event').value;
     $('ops-calculate').disabled = !health.snow_solver_connected || needsTerm || needsZone || needsEvent || busy;
@@ -175,7 +186,8 @@ export function createOperations(view, health) {
     $('ops-model-ramp').hidden = volumeVisible;
     $('ops-scale-model').hidden = !visible;
     if (visible) {
-      const frame = choice === 'snow_cm' && calculated.timeline?.[modelFrame];
+      const frame = choice === 'snow_cm' ? calculated.timeline?.[modelFrame]
+        : choice === 'drift_cm' ? calculated.drift_timeline?.[modelFrame] : undefined;
       if (!volumeVisible) raster(map, 'operations-snow', calculated.bounds, frame || image);
       $('ops-scale-label').textContent = volumeVisible ? `Снег в 3D · высота ×${$('snow-height').value}` :
         frame ? 'Свежий снег к выбранному часу' : modelNames[choice];
@@ -313,7 +325,7 @@ export function createOperations(view, health) {
       weather.setFrame(index);
       if (atlasDataset()) {
         if (source.value === 'historic') term.value = calculated.wind_frames[index].valid_at;
-        weather.setWeather(atlasDataset(), calculated.wind_frames[index].valid_at,
+        weather.setWeather(atlasDataset(), weatherAt(calculated.wind_frames[index].valid_at),
           source.value === 'historic' ? stormId() : undefined, calculated.source.atlas_sha256);
       }
       updateTimeline();
@@ -476,7 +488,7 @@ export function createOperations(view, health) {
     if (source.value === 'historic') payload.event_id = $('ops-event').value;
     if (source.value === 'live') {
       payload.weather_revision = catalog.live.sha256;
-      payload.hours = Math.min(6, term.options.length-term.selectedIndex);
+      payload.hours = liveHours();
     }
     if (source.value === 'manual') Object.assign(payload, { wind_speed_ms: $('ops-speed').valueAsNumber,
       wind_from_deg: $('ops-direction').valueAsNumber, snowfall_cm_h: $('ops-snow').valueAsNumber });
@@ -494,7 +506,7 @@ export function createOperations(view, health) {
       weather.setFrame(modelFrame);
       if (result.input.source === 'live' || result.input.source === 'reanalysis') {
         if (source.value === 'historic') term.value = result.wind_frames[modelFrame].valid_at;
-        weather.setWeather(atlasDataset(), result.wind_frames[modelFrame].valid_at,
+        weather.setWeather(atlasDataset(), weatherAt(result.wind_frames[modelFrame].valid_at),
           source.value === 'historic' ? stormId() : undefined, result.source.atlas_sha256);
       }
       layer.querySelector('[value="weather_distance"]').hidden = result.source.kind === 'manual';

@@ -7,6 +7,7 @@ from threading import Lock
 
 import httpx
 
+from .live_snow_field import MAX_HOURS
 from .operations import ZONE
 
 PROVIDER = "Open-Meteo Forecast"
@@ -39,7 +40,7 @@ class LiveWeather:
                 "latitude": ",".join(str(p[1]) for p in COORDINATES),
                 "longitude": ",".join(str(p[0]) for p in COORDINATES),
                 "hourly": ",".join(VARIABLES.values()), "wind_speed_unit": "ms",
-                "timezone": "GMT", "past_hours": 1, "forecast_hours": 18,
+                "timezone": "GMT", "past_hours": 1, "forecast_hours": MAX_HOURS,
             }, timeout=15)
             response.raise_for_status()
             rows = response.json()
@@ -48,13 +49,15 @@ class LiveWeather:
             frames, stations = {}, set()
             for i, (point, data) in enumerate(zip(COORDINATES, rows)):
                 hourly = data["hourly"]
-                stations.add((data["longitude"], data["latitude"]))
+                provider_coordinates = (float(data["longitude"]), float(data["latitude"]))
+                stations.add(provider_coordinates)
                 for idx, value in enumerate(hourly["time"]):
                     stamp = datetime.fromisoformat(value).replace(tzinfo=timezone.utc).astimezone(ZONE)
                     readings = {name: hourly[raw][idx] for name, raw in VARIABLES.items()}
                     if readings["visibility"] is not None:
                         readings["visibility"] /= 1000
-                    frames.setdefault(stamp, []).append({"id": f"live-{i}", "coordinates": point, **readings})
+                    frames.setdefault(stamp, []).append({"id": f"live-{i}", "coordinates": point,
+                                                          "provider_coordinates": provider_coordinates, **readings})
             weather = {stamp.isoformat(): points for stamp, points in frames.items()}
             revision = sha256(json.dumps(weather, separators=(",", ":"), sort_keys=True).encode()).hexdigest()
             self.snapshot = {"retrieved_at": now, "revision": revision,

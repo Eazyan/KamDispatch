@@ -38,3 +38,13 @@ def test_request_uses_only_a_fresh_complete_hourly_window():
     assert start == now and request["weather_revision"] == "revision"
     with pytest.raises(ValueError, match="current three-hour"):
         forecast_request(weather, now+timedelta(hours=1))
+
+
+def test_extended_request_uses_every_contiguous_complete_provider_hour():
+    now = datetime(2026, 11, 21, 12, tzinfo=timezone.utc)
+    terms = [(now+timedelta(hours=i)).isoformat() for i in range(385)]
+    request, _ = forecast_request({"terms": terms, "snow_forecast_terms": terms, "sha256": "revision"}, now)
+    assert request["hours"] == 384
+    request, _ = forecast_request({"terms": terms, "snow_forecast_terms": terms[:171]+terms[172:],
+                                   "sha256": "revision"}, now)
+    assert request["hours"] == 170

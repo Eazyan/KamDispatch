@@ -35,12 +35,17 @@ def road_network():
 
 def forecast_request(weather, now):
     terms = {parse_time(term): term for term in weather["terms"]}
+    complete = {parse_time(term) for term in weather.get("snow_forecast_terms", weather["terms"])}
     hour = now.replace(minute=0, second=0, microsecond=0)
     start = next((term for term in sorted(terms) if hour <= term <= hour + timedelta(hours=1)
-                  and all(term + timedelta(hours=i) in terms for i in range(1, HOURS + 1))), None)
+                  and all(term + timedelta(hours=i) in complete for i in range(1, HOURS + 1))), None)
     if start is None or not weather.get("sha256"):
         raise ValueError("Hosted simulator has no current three-hour forecast window")
-    return {"source": "live", "valid_at": terms[start], "weather_revision": weather["sha256"], "hours": HOURS}, start
+    hours = HOURS
+    if "snow_forecast_terms" in weather:
+        while hours < 16*24 and start + timedelta(hours=hours+1) in complete:
+            hours += 1
+    return {"source": "live", "valid_at": terms[start], "weather_revision": weather["sha256"], "hours": hours}, start
 
 
 def fetch_replay(client, url):
@@ -140,13 +145,16 @@ def remote_city(client, url, stop=None):
     while job["status"] in {"pending", "running"}:
         if stop.wait(5) or monotonic() >= deadline:
             raise TimeoutError("Hosted city simulation is still running")
-        job = client.get(run_url, timeout=20).raise_for_status().json()
+        job = client.get(run_url, params={"compact": "true"} if "snow_forecast_terms" in weather else None,
+                         timeout=20).raise_for_status().json()
     if job["status"] != "completed":
         raise ValueError("Hosted city simulation failed")
-    replay = fetch_replay(client, run_url+"/replay")
+    long_window = request["hours"] > HOURS
+    replay = fetch_replay(client, run_url+"/replay" + ("?roads=true" if long_window else ""))
     result = replay["input"]
     if (replay["run_id"] != run_id or replay["status"] != "completed" or result["source"] != "live"
-            or parse_time(result["valid_at"]) != start or result["hours"] != HOURS
+            or parse_time(result["valid_at"]) != start or result["hours"] != request["hours"]
+            or (long_window and replay.get("road_window_hours") != HOURS)
             or result.get("weather_revision") != request["weather_revision"]):
         raise ValueError("Hosted result does not match the requested forecast window")
     return convert_replay(replay, start)

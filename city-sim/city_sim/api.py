@@ -14,7 +14,7 @@ from pydantic import AwareDatetime, ValidationError
 from starlette.concurrency import run_in_threadpool
 
 from .drift_service import DriftRequest, compare as compare_drift
-from .city_snow import CitySnow, CitySnowRequest
+from .city_snow import MAX_FRAME, CitySnow, CitySnowRequest
 from .geodata import BOUNDS, DATA, PILOT, ROOT, CityData
 from .live_weather import ForecastRevisionError
 from .physics import HttpWindSolver, SolverNotConnected, UnavailableWindSolver, display_field, sample_assets, solver_request
@@ -160,9 +160,9 @@ def make_app(db_path=None, building_path=None, graph_path=None, solver=None, wea
             raise HTTPException(429, str(error)) from error
 
     @api.get("/api/v1/operations/city/runs/{run_id}")
-    def city_snow_status(run_id: str):
+    def city_snow_status(run_id: str, compact: bool = False):
         try:
-            result = city_snow.status(run_id)
+            result = city_snow.status(run_id, compact)
         except ValueError as error:
             raise HTTPException(404, "Расчёт не найден.") from error
         if result is None:
@@ -170,9 +170,9 @@ def make_app(db_path=None, building_path=None, graph_path=None, solver=None, wea
         return result
 
     @api.get("/api/v1/operations/city/runs/{run_id}/replay")
-    def download_city_snow(run_id: str):
+    def download_city_snow(run_id: str, roads: bool = False):
         try:
-            path = city_snow.replay_path(run_id)
+            path = city_snow.replay_path(run_id, roads)
         except ValueError as error:
             raise HTTPException(404, "Файл расчёта не найден.") from error
         if not path.is_file():
@@ -180,7 +180,7 @@ def make_app(db_path=None, building_path=None, graph_path=None, solver=None, wea
         return FileResponse(path, media_type="application/gzip", filename=f"city-snow-{run_id}.json.gz")
 
     @api.get("/api/v1/operations/city/runs/{run_id}/surface")
-    def city_snow_surface(run_id: str, frame: int | None = Query(default=None, ge=0, le=64)):
+    def city_snow_surface(run_id: str, frame: int | None = Query(default=None, ge=0, le=MAX_FRAME)):
         try:
             result = city_snow.surface(run_id, frame)
         except (ValueError, FileNotFoundError) as error:
@@ -191,10 +191,10 @@ def make_app(db_path=None, building_path=None, graph_path=None, solver=None, wea
 
     @api.get("/api/v1/operations/city/runs/{run_id}/sample")
     def sample_city_snow(run_id: str, lon: float = Query(ge=-180, le=180),
-                        lat: float = Query(ge=-90, le=90), frame: int | None = Query(default=None, ge=0, le=64),
-                        nearby_m: int = Query(default=0, ge=0, le=30)):
+                        lat: float = Query(ge=-90, le=90), frame: int | None = Query(default=None, ge=0, le=MAX_FRAME),
+                        nearby_m: int = Query(default=0, ge=0, le=30), layer: Literal["snow", "drift"] = "snow"):
         try:
-            result = city_snow.probe(run_id, lon, lat, frame, nearby_m)
+            result = city_snow.probe(run_id, lon, lat, frame, nearby_m, layer)
         except (ValueError, FileNotFoundError) as error:
             raise HTTPException(404, "Данные расчёта недоступны.") from error
         if result is None:
@@ -288,7 +288,7 @@ def make_app(db_path=None, building_path=None, graph_path=None, solver=None, wea
 
     @api.get("/api/v1/operations/city/runs/{run_id}/objects", tags=["Access"])
     def ranked_objects(run_id: str, bbox: str = Query(PILOT_QUERY),
-                       frame: int | None = Query(default=None, ge=0, le=64),
+                       frame: int | None = Query(default=None, ge=0, le=MAX_FRAME),
                        threshold_cm: float = Query(default=20, gt=0, le=1000, allow_inf_nan=False),
                        kind: Literal["all", "entrance", "bus_stop", "medical"] = "all",
                        limit: int = Query(default=100, ge=1, le=1000), offset: int = Query(default=0, ge=0)):

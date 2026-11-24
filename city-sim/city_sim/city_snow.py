@@ -25,6 +25,7 @@ from .building_evidence import load_json
 from .geodata import ROOT, polygons
 from .operations import AREAS, POLICY, ZONE, digest, weather_status
 from .live_weather import ForecastRevisionError
+from .live_snow_field import ANGLE, INFLUENCE_M, MAX_HOURS, LiveSnowField, frame_minutes
 from .snow_experiment import ENGINE_LOCK, overlay, rows_json
 from .terrain import BOUNDS, DATA, TO_GEOGRAPHIC, TO_METRIC
 
@@ -33,7 +34,8 @@ BOUNDARY = ROOT / "weather_coverage/osm/city-boundary.osm.gz"
 TILE_DEG = (.022, .014)
 TILE_CELLS = 64
 METHOD = "city-snow-6"
-LIVE_METHOD = "city-snow-7-live"
+LIVE_METHOD = "city-snow-8-live"
+MAX_FRAME = max(64, len(frame_minutes(MAX_HOURS))-1)
 LIVE_FRAME_MINUTES = 10
 LIVE_SEAM_FRACTION = 8
 OPENWEATHER_URL = "https://openweathermap.org/api/forecast5"
@@ -53,10 +55,12 @@ class CitySnowRequest(BaseModel):
     wind_from_deg: float = Field(default=270, ge=0, lt=360)
     wind_speed_ms: float = Field(default=8, ge=0, le=70)
     snowfall_cm_h: float = Field(default=2, ge=0, le=30)
-    hours: int = Field(default=3, ge=1, le=6)
+    hours: int = Field(default=3, ge=1, le=MAX_HOURS)
 
     @model_validator(mode="after")
     def matching_source(self):
+        if self.source != "live" and self.hours > 6:
+            raise ValueError("Для этого режима допустимо не более шести часов.")
         if self.source in {"openweather", "atlas_history", "live"} and self.valid_at is None:
             raise ValueError("Выберите срок погодного атласа.")
         if self.source == "reanalysis" and not self.event_id:
@@ -106,34 +110,6 @@ def remap(raw, count=TILE_CELLS):
 def checkpoints(count):
     step = 1 if count <= 6 else 12
     return sorted({0, count-1, *range(step-1, count, step)})
-
-
-def live_frames(start, hours):
-    per_hour = 60 // LIVE_FRAME_MINUTES
-    for index in range(len(hours) * per_hour + 1):
-        hour = hours[max(0, (index-1) // per_hour)]
-        yield (start + timedelta(minutes=index*LIVE_FRAME_MINUTES)).isoformat(), hour
-
-
-def live_accumulation(actual, hours, estimate):
-    per_hour = 60 // LIVE_FRAME_MINUTES
-    actual = np.nan_to_num(actual)
-    running = np.zeros_like(actual)
-    yield running.copy()
-    for index, hour in enumerate(hours):
-        if index == len(hours)-1:
-            end = actual
-        elif hour["snowfall_cm"] == 0 or hour["wind_speed_ms"] <= 2:
-            end = running + hour["snowfall_cm"]
-        else:
-            end = running + np.nan_to_num(estimate([hour]))
-        # The full estimate groups and rounds hours together. Keep the last blend continuous.
-        end = np.minimum(end, actual)
-        for part in range(1, per_hour+1):
-            if index == len(hours)-1 and part == per_hour:
-                return  # The final, already saved model field supplies this frame.
-            yield running + (end-running) * (part/per_hour)
-        running = end
 
 
 def soften_tile_seams(field, tile_cells):
@@ -282,28 +258,14 @@ class CitySnow:
             snapshot = self.atlas.live.get()
             if spec.weather_revision and spec.weather_revision != snapshot["revision"]:
                 raise ForecastRevisionError("Прогноз уже изменился. Обновите сроки на карте.")
-            # Open-Meteo snowfall at a timestamp represents the preceding hour.
-            stamps = [spec.valid_at+timedelta(hours=i) for i in range(1, spec.hours+1)]
-            if any(stamp not in snapshot["frames"] for stamp in stamps):
-                raise ValueError("Для этого срока не помещается весь интервал. Выберите более ранний час.")
-            locations = []
-            for i, first in enumerate(snapshot["frames"][stamps[0]]):
-                readings = [snapshot["frames"][stamp][i] for stamp in stamps]
-                if any(p[key] is None for p in readings for key in ("snow", "wind_speed", "wind_deg")):
-                    continue
-                hours = [{**state(p["wind_deg"], p["wind_speed"], p["snow"]), "valid_at": stamp.isoformat(),
-                          "gust_mps": p["wind_gust"], "temperature_c": p["temp"]}
-                         for stamp, p in zip(stamps, readings)]
-                locations.append((first["id"], first["coordinates"], hours))
-            if not locations:
-                raise ValueError("В прямом прогнозе нет одновременно снега и ветра.")
-            def at(point):
-                meters, (key, _, hours) = min((distance(point, p[1]), p) for p in locations)
-                return (key, hours, round(meters)) if meters <= MAX_WEATHER_M else None
-            return at, {"kind": "live_forecast", "provider": "Open-Meteo Forecast",
-                        "valid_at": spec.valid_at.isoformat(), "retrieved_at": snapshot["retrieved_at"].isoformat(),
-                        "atlas_sha256": snapshot["revision"], "provider_locations": snapshot["provider_locations"],
-                        "source_points": len(locations), "max_distance_m": MAX_WEATHER_M}
+            field = LiveSnowField(snapshot, spec.valid_at, spec.hours)
+            return field, {"kind": "live_forecast", "provider": "Open-Meteo Forecast",
+                           "valid_at": spec.valid_at.isoformat(), "retrieved_at": snapshot["retrieved_at"].isoformat(),
+                           "atlas_sha256": snapshot["revision"], "provider_locations": snapshot["provider_locations"],
+                           "source_coordinates": field.coordinates.tolist(),
+                           "source_points": len(field.coordinates), "max_distance_m": INFLUENCE_M,
+                           "spatial_interpolation": "inverse_distance_squared_tapered",
+                           "wind_direction_step_deg": ANGLE}
 
         forecasts = self.terms.get(spec.valid_at, [])
         if not forecasts:
@@ -354,22 +316,34 @@ class CitySnow:
             raise ValueError("Некорректный идентификатор расчёта.")
         return self.output / f"{run_id}.{extension}"
 
-    def replay_path(self, run_id):
-        return self._path(run_id, "json.gz")
+    def replay_path(self, run_id, roads=False):
+        return self._path(run_id, "roads.json.gz" if roads else "json.gz")
 
     @lru_cache(maxsize=2)
     def probe_fields(self, run_id):
         with np.load(self._path(run_id, "npz")) as values:
-            return dict(values)
+            return {key: values[key] for key in values.files if not key.startswith(("snow_frame_", "drift_frame_"))}
+
+    @lru_cache(maxsize=6)
+    def frame_field(self, run_id, frame, layer):
+        if frame is None:
+            return None
+        if layer == "snow":
+            timeline = self.probe_fields(run_id).get("timeline", [])
+            if frame < len(timeline):
+                return timeline[frame]
+        with np.load(self._path(run_id, "npz")) as values:
+            key = f"{layer}_frame_{frame}"
+            return values[key] if key in values.files else None
 
     @lru_cache(maxsize=8)
     def surface(self, run_id, frame=None):
-        result = self.status(run_id)
+        result = self.status(run_id, compact=True)
         if not result or result["status"] != "completed":
             return None
         data = self.probe_fields(run_id)
-        timeline = data.get("timeline", [])
-        snow = timeline[frame] if frame is not None and frame < len(timeline) else data["snow_cm"]
+        selected = self.frame_field(run_id, frame, "snow")
+        snow = selected if selected is not None else data["snow_cm"]
         original_rows, original_cols = snow.shape
         iy = np.rint(np.linspace(0, original_rows-1, min(132, original_rows))).astype(int)
         ix = np.rint(np.linspace(0, original_cols-1, min(132, original_cols))).astype(int)
@@ -382,19 +356,17 @@ class CitySnow:
         return {"longitudes": xs.tolist(), "latitudes": ys.tolist(), "ground_m": rows_json(heights),
                 "snow_cm": rows_json(depth)}
 
-    def probe(self, run_id, lon, lat, frame=None, nearby_m=0):
-        result = self.status(run_id)
+    def probe(self, run_id, lon, lat, frame=None, nearby_m=0, layer="snow"):
+        result = self.status(run_id, compact=True)
         if result is None or result["status"] != "completed":
             return None
         w, s, e, n = result["bounds"]
         if not (w <= lon < e and s < lat <= n):
             return {"snow_cm": None}
         data = self.probe_fields(run_id)
-        snow = data["snow_cm"]
-        timeline = data.get("timeline", [])
-        intermediate = frame is not None and frame < len(timeline)
-        if intermediate:
-            snow = timeline[frame]
+        selected = self.frame_field(run_id, frame, layer)
+        intermediate = selected is not None
+        snow = selected if intermediate else data["snow_cm"]
         rows, cols = snow.shape
         i, j = min(cols-1, int((lon-w)/(e-w)*cols)), min(rows-1, int((n-lat)/(n-s)*rows))
         dx, dy = (e-w)/cols, (n-s)/rows
@@ -416,7 +388,13 @@ class CitySnow:
             value = float(field[j, i])
             return round(value, 4) if np.isfinite(value) else None
         # Keep an intermediate field's source duration separate from the whole run.
-        return {"snow_cm": at(snow), "weather_snow_cm": None if intermediate else at(data["weather_snow"]),
+        snowfall = at(snow)
+        if layer == "drift":
+            if intermediate:
+                return {"drift_cm": snowfall}
+            baseline = at(data["weather_snow"])
+            return {"drift_cm": max(0, snowfall-baseline) if snowfall is not None and baseline is not None else None}
+        return {"snow_cm": snowfall, "weather_snow_cm": None if intermediate else at(data["weather_snow"]),
                 "opposite_snow_cm": None if intermediate else at(data["opposite_snow_cm"]),
                 "priority": None if intermediate else at(data["combined"]),
                 "sample_distance_m": offset, "cell_width_m": round(width), "cell_height_m": round(height)}
@@ -445,10 +423,11 @@ class CitySnow:
             self.worker.submit(self._calculate, run_id, spec, select, source)
         return {"run_id": run_id, "status": "pending"}
 
-    def status(self, run_id):
+    def status(self, run_id, compact=False):
         path = self._path(run_id, "json")
         if path.is_file():
-            return json.loads(path.read_text())
+            meta = self._path(run_id, "meta.json")
+            return json.loads((meta if compact and meta.is_file() else path).read_text())
         with self.lock:
             return {"run_id": run_id, **self.jobs[run_id]} if run_id in self.jobs else None
 
@@ -459,20 +438,34 @@ class CitySnow:
             with self.lock:
                 self.jobs[run_id] = {"status": "running", "completed_tiles": done, "total_tiles": total}
         try:
-            result, full, cumulative = self.run(spec, select, source, progress)
+            result, full, cumulative, drift_frames, roads = self.run(spec, select, source, progress)
             self.output.mkdir(parents=True, exist_ok=True)
-            replay_path = self._path(run_id, "json.gz")
-            tmp = replay_path.with_suffix(".tmp")
-            tmp.write_bytes(gzip.compress(json.dumps(full, allow_nan=False, separators=(",", ":")).encode(), mtime=0))
-            tmp.replace(replay_path)
+
+            def save_replay(path, data):
+                tmp = path.with_suffix(".tmp")
+                with gzip.open(tmp, "wt", compresslevel=3) as stream:
+                    json.dump(data, stream, allow_nan=False, separators=(",", ":"))
+                tmp.replace(path)
+
+            if roads is not None:
+                save_replay(self.replay_path(run_id, roads=True), roads)
+            save_replay(self.replay_path(run_id), full)
             npz = self._path(run_id, "npz")
             with npz.with_suffix(".tmp").open("wb") as stream:
                 columns = {key: np.asarray(full["grids"][key], dtype=np.float32) for key in
                            ("snow_cm", "weather_snow", "combined", "opposite_snow_cm")}
-                if cumulative:
+                if spec.source == "live":
+                    columns.update({f"snow_frame_{i}": field for i, field in enumerate(cumulative)})
+                    columns.update({f"drift_frame_{i}": field for i, field in enumerate(drift_frames)})
+                elif cumulative:
                     columns["timeline"] = np.asarray(cumulative, dtype=np.float32)
                 np.savez_compressed(stream, **columns)
             npz.with_suffix(".tmp").replace(npz)
+            meta = self._path(run_id, "meta.json")
+            tmp = meta.with_suffix(".tmp")
+            fields = ("run_id", "status", "bounds", "input", "provenance", "frame_count")
+            tmp.write_text(json.dumps({key: result[key] for key in fields if key in result}, ensure_ascii=False))
+            tmp.replace(meta)
             summary = self._path(run_id, "json")
             tmp = summary.with_suffix(".tmp")
             tmp.write_text(json.dumps(result, ensure_ascii=False, allow_nan=False))
@@ -483,6 +476,14 @@ class CitySnow:
             logging.exception("Citywide snow scenario failed: %s", run_id)
             with self.lock:
                 self.jobs[run_id] = {"status": "failed", "error": "Городской расчёт завершился ошибкой. См. журнал API."}
+
+    @lru_cache(maxsize=1600)
+    def live_response(self, bounds, cells, revision, direction):
+        buildings, _, _ = self.tile_geometry(bounds, cells, revision)
+        model, _ = self.study.engine
+        result = model.estimate(bounds, buildings, [{"wind_speed_ms": 12 if direction is not None else 0,
+                                "wind_from_deg": (direction or 0)*ANGLE, "snowfall_cm": 1}], cells, True)
+        return (remap(result["snow_depth_cm"], cells)-1).astype(np.float32)
 
     def run(self, spec, select=None, source=None, progress=None):
         if select is None:
@@ -506,7 +507,18 @@ class CitySnow:
         bands = ["snow_cm", "drift_cm", "opposite_snow_cm", "combined", "opposite", "uniform", "terrain", "weather_snow", "weather_wind",
                  "weather_distance"]
         fields = {key: np.full((ny*cells, nx*cells), np.nan) for key in bands}
+        live = select if spec.source == "live" else None
         cumulative = []
+        drift_frames = []
+        road_fields = None
+        if live:
+            def empty_frame():
+                return np.full(fields["snow_cm"].shape, np.nan, dtype=np.float32)
+            cumulative = [empty_frame() for _ in live.stamps[:-1]]
+            drift_frames = [empty_frame() for _ in live.stamps[:-1]]
+            if spec.hours > 3:
+                road_index = live.minutes.index(180)
+                road_fields = {key: empty_frame() for key in ("snow_cm", "weather_snow")}
         stripes = []
         for j in range(ny):
             for i in range(nx):
@@ -515,11 +527,49 @@ class CitySnow:
                     stripes.append((i, j, bounds))
         progress(0, len(stripes))
         tile_inputs, signals, sources_found = [], [], set()
-        wind_frames = []
+        wind_frames = [{"valid_at": stamp, "points": []} for stamp in live.stamps] if live else []
         stats = Counter()
         distance_max = None
         for done, (i, j, bounds) in enumerate(stripes, 1):
             w, s, e, n = bounds
+            if live:
+                _, ground, relief = self.tile_geometry(bounds, cells, revision)
+                patch = land.intersection(box(*bounds))
+                representative = patch.representative_point()
+                snow, baseline, opposite, speed, distance_m, valid = live.raster(
+                    bounds, cells, lambda direction: self.live_response(bounds, cells, revision, direction))
+                valid &= ground
+                if local_area:
+                    coord = (np.arange(cells)+.5)/cells
+                    lon, lat = np.meshgrid(w+(e-w)*coord, n-(n-s)*coord)
+                    valid &= intersects_xy(patch, lon, lat)
+                if not valid.any():
+                    stats["missing_weather_tiles"] += 1
+                    progress(done, len(stripes))
+                    continue
+                point = [round(representative.x, 6), round(representative.y, 6)]
+                for frame, wind in zip(wind_frames, live.point_wind(*point)):
+                    frame["points"].append({"coordinates": point, **wind})
+                distance_max = round(max(distance_max or 0, float(distance_m[valid].max())))
+                target = np.s_[j*cells:(j+1)*cells, i*cells:(i+1)*cells]
+                total = baseline[-1]
+                actual = snow[-1]
+                for key, value in (("snow_cm", actual), ("opposite_snow_cm", opposite), ("weather_snow", total),
+                                   ("weather_wind", speed), ("weather_distance", distance_m/1000),
+                                   ("terrain", relief), ("uniform", 0.)):
+                    fields[key][target] = np.where(valid, value, np.nan)
+                for index, (depth, weather) in enumerate(zip(snow[:-1], baseline[:-1])):
+                    cumulative[index][target] = np.where(valid, depth, np.nan)
+                    drift_frames[index][target] = np.where(valid, depth-weather, np.nan)
+                if road_fields is not None:
+                    road_fields["snow_cm"][target] = np.where(valid, snow[road_index], np.nan)
+                    road_fields["weather_snow"][target] = np.where(valid, baseline[road_index], np.nan)
+                tile_inputs.append({"i": i, "j": j, "distance_to_source_m": round(float(distance_m[valid].max()))})
+                stats["computed_tiles"] += 1
+                stats["dry_tiles"] += not np.any(total[valid] > 0)
+                stats["ground_cells_computed"] += int(valid.sum())
+                progress(done, len(stripes))
+                continue
             selected = select(((w+e)/2, (s+n)/2))
             if not selected:
                 stats["missing_weather_tiles"] += 1
@@ -531,8 +581,7 @@ class CitySnow:
             tile_inputs.append(tile)
             representative = land.intersection(box(*bounds)).representative_point()
             times = checkpoints(len(hours))
-            frame_weather = (live_frames(spec.valid_at, hours) if spec.source == "live" else
-                             ((hours[offset].get("valid_at"), hours[offset]) for offset in times))
+            frame_weather = ((hours[offset].get("valid_at"), hours[offset]) for offset in times)
             for index, (valid_at, hour) in enumerate(frame_weather):
                 if index == len(wind_frames):
                     wind_frames.append({"valid_at": valid_at, "points": []})
@@ -579,14 +628,7 @@ class CitySnow:
                       point_distance/1000 if point_distance is not None else np.nan)
             for key, values in zip(bands, values):
                 fields[key][target] = np.where(valid, values, np.nan)
-            if spec.source == "live":
-                def estimate_hour(weather):
-                    return remap(model.estimate(bounds, buildings, weather, cells, True)["snow_depth_cm"], cells)
-                for frame, values in enumerate(live_accumulation(actual, hours, estimate_hour)):
-                    if frame == len(cumulative):
-                        cumulative.append(np.full_like(fields["snow_cm"], np.nan, dtype=np.float32))
-                    cumulative[frame][target] = np.where(valid, values, np.nan)
-            elif spec.source == "reanalysis" and len(hours) > 1:
+            if spec.source == "reanalysis" and len(hours) > 1:
                 running = np.zeros_like(actual)
                 start = 0
                 for frame, offset in enumerate(times[:-1]):
@@ -609,13 +651,26 @@ class CitySnow:
             stats["ground_cells_computed"] += int(valid.sum())
             progress(done, len(stripes))
 
-        if spec.source == "live":
-            for name in ("snow_cm", "opposite_snow_cm", "weather_snow", "weather_wind", "combined", "opposite"):
-                fields[name] = soften_tile_seams(fields[name], cells)
-            excess = fields["snow_cm"] - fields["weather_snow"]
+        if live:
+            # The weather forcing is continuous. Blend only the residual tiled building response.
+            background = fields["weather_snow"]
+            for name in ("snow_cm", "opposite_snow_cm"):
+                fields[name] = np.maximum(0, background + soften_tile_seams(fields[name]-background, cells))
+            excess = fields["snow_cm"] - background
             fields["drift_cm"] = np.where(excess > 0, excess, np.nan)
-            for frame, values in enumerate(cumulative):
-                cumulative[frame] = soften_tile_seams(values, cells)
+            for name, snow_layer in (("combined", "snow_cm"), ("opposite", "opposite_snow_cm")):
+                gain = np.divide(fields[snow_layer]-background, background, out=np.zeros_like(background), where=background>0)
+                risk = .75*np.clip(gain/1.5, 0, 1) + .25*np.nan_to_num(fields["terrain"])
+                fields[name] = np.where(np.isfinite(background), np.where(
+                    (background>0) & (fields["weather_wind"]>2), risk, 0), np.nan)
+            for index, original in enumerate(drift_frames):
+                smoothed = soften_tile_seams(original, cells)
+                cumulative[index] = np.maximum(0, cumulative[index] + (smoothed-original))
+                drift_frames[index] = np.maximum(0, smoothed)
+            if road_fields is not None:
+                background = road_fields["weather_snow"]
+                road_fields["snow_cm"] = np.maximum(0, background + soften_tile_seams(
+                    road_fields["snow_cm"]-background, cells))
 
         rows, cols = fields["combined"].shape
         roads = city.roads(bounds_all, extended=True)
@@ -660,7 +715,7 @@ class CitySnow:
         for key in rankings:
             rankings[key] = sorted(rankings[key], key=lambda r: (-r["value"], r["edge_id"]))[:20]
         fit = land.bounds
-        metrics = {"eligible_tiles": len(stripes), "distinct_weather_inputs": len(sources_found),
+        metrics = {"eligible_tiles": len(stripes), "distinct_weather_inputs": len(live.coordinates) if live else len(sources_found),
                    "road_m_in_city": total_road_m, "road_m_covered": coverage_m,
                    "road_m_weather_alert": alert_road_m if spec.source == "openweather" else None,
                    "road_m_weather_local": weather_local_road_m if spec.source == "openweather" else None,
@@ -675,8 +730,10 @@ class CitySnow:
                               "city_revision": city.data_revision, "boundary_sha256": file_hash(BOUNDARY),
                               "graph_version": roads["metadata"]["graph_version"],
                               "algorithm": LIVE_METHOD if spec.source == "live" else METHOD}}
-        if spec.source == "live":
+        if live:
             raw["frame_interval_minutes"] = LIVE_FRAME_MINUTES
+            raw["frame_offsets_minutes"] = live.minutes
+            raw["frame_count"] = len(live.stamps)
             raw["weather_interval_minutes"] = 60
             raw["tile_transition_cells_each_side"] = cells // LIVE_SEAM_FRACTION
         peak = float(np.nanmax(fields["snow_cm"])) if np.isfinite(fields["snow_cm"]).any() else 0
@@ -693,10 +750,16 @@ class CitySnow:
         result["clipped"] = [key for key, limit in scales.items() if np.any(fields[key] > limit)]
         result["timeline"] = [render_snow(field, snow_scale) for field in cumulative]
         replay = {**raw, "tiles": tile_inputs, "grids": {k: rows_json(v) for k, v in fields.items()}}
-        if len(cumulative) > 5:
+        if live:
+            result["drift_timeline"] = [render_snow(field, scales["drift_cm"]) for field in drift_frames]
+        if len(cumulative) > 5 and (not live or spec.hours <= 6):
             replay["timeline_binary"] = {"encoding": "base64+zlib+float32le", "shape": [rows, cols], "frames": [
                 b64encode(zlib.compress(frame.astype("<f4", copy=False).tobytes(), 1)).decode() for frame in cumulative
             ]}
-        else:
+        elif cumulative and (not live or spec.hours <= 6):
             replay["timeline_grids"] = [rows_json(field) for field in cumulative]
-        return result, replay, cumulative
+        roads = None if road_fields is None else {
+            **{key: raw[key] for key in ("run_id", "status", "bounds", "rows", "cols", "input", "field_validated")},
+            "road_window_hours": 3, "grids": {key: rows_json(field) for key, field in road_fields.items()},
+        }
+        return result, replay, cumulative, drift_frames, roads
