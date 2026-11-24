@@ -30,6 +30,9 @@ class Settings:
     model_contract: str = os.getenv("MODEL_CONTRACT", "scene")
     model_token: str = os.getenv("MODEL_TOKEN", "")
     weather_key: str = os.getenv("OPENWEATHER_KEY", "")
+    weather_ttl: int = int(os.getenv("WEATHER_TTL_SECONDS", "3600"))
+    worker_heartbeat_ttl: int = int(os.getenv("WORKER_HEARTBEAT_TTL_SECONDS", "90"))
+    traffic_ttl: int = int(os.getenv("TRAFFIC_TTL_SECONDS", "3600"))
     snow_sim_url: str = os.getenv("SNOW_SIM_URL", "").strip().rstrip("/")
     snow_city_url: str = os.getenv("SNOW_CITY_URL", "").strip().rstrip("/")
     snow_city_remote_url: str = os.getenv("SNOW_CITY_REMOTE_URL", "").strip().rstrip("/")
@@ -74,6 +77,8 @@ class Settings:
         return bool(self.snow_city_url or self.snow_city_remote_url)
 
     def validate(self):
+        if min(self.weather_ttl, self.worker_heartbeat_ttl, self.traffic_ttl) <= 0:
+            raise ValueError("Source TTLs must be positive")
         if not self.database:
             raise ValueError("DATABASE_URL is required")
         if self.mode not in {"demo", "replay", "preview", "live"}:

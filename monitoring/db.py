@@ -8,14 +8,14 @@ from .config import ROOT
 
 
 @contextmanager
-def connect(settings):
-    with psycopg.connect(settings.database, row_factory=dict_row, connect_timeout=5,
-                         options="-c statement_timeout=15000 -c timezone=UTC") as conn:
+def connect(settings, *, timeout=5, statement_timeout=15000):
+    with psycopg.connect(settings.database, row_factory=dict_row, connect_timeout=timeout,
+                         options=f"-c statement_timeout={statement_timeout} -c timezone=UTC") as conn:
         yield conn
 
 
-def migrate(settings):
-    with connect(settings) as conn:
+def migrate(settings, *, timeout=5):
+    with connect(settings, timeout=timeout) as conn:
         conn.execute("SELECT pg_advisory_xact_lock(442701)")
         conn.execute("CREATE TABLE IF NOT EXISTS schema_migrations (name text PRIMARY KEY)")
         names = {row["name"] for row in conn.execute("SELECT name FROM schema_migrations")}
@@ -44,9 +44,9 @@ def prepare_run(conn, run_id, mode, cameras):
         )
 
 
-def check(conn, run_id, name, status):
+def check(conn, run_id, name, status, reason=None):
     conn.execute(
-        """INSERT INTO checks VALUES (%s,%s,%s,now())
-           ON CONFLICT (run_id,name) DO UPDATE SET status=EXCLUDED.status, observed_at=now()""",
-        (run_id, name, status),
+        """INSERT INTO checks (run_id,name,status,observed_at,reason) VALUES (%s,%s,%s,now(),%s)
+           ON CONFLICT (run_id,name) DO UPDATE SET status=EXCLUDED.status, observed_at=now(), reason=EXCLUDED.reason""",
+        (run_id, name, status, reason),
     )

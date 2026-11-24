@@ -10,3 +10,5 @@ docs
 .DS_Store
 /kamcha-snow-sim-main/
 /kamcha-snow-sim-Neverrie/
+
+/.resilience-validation/

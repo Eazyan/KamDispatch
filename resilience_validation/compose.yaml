@@ -1,0 +1,92 @@
+x-api: &application
+  image: kamdispatch-validation-monitor:${VALIDATION_TAG:-test}
+  build: ..
+  environment: &app-environment
+    DATABASE_URL: "host=db port=5432 dbname=monitor user=monitor password=${POSTGRES_PASSWORD:?}"
+    MONITOR_MODE: preview
+    MEDIA_DIR: /app/runtime/media
+    OPENWEATHER_KEY: fixture-key
+    WEATHER_TTL_SECONDS: 75
+    WORKER_HEARTBEAT_TTL_SECONDS: 40
+    SSL_CERT_FILE: /certs/server.pem
+    MONITOR_CAMERAS: /control/cameras.json
+    TRAFFIC_WORKER_URL: http://fixture:8081
+    BUS_RNIS_ENABLED: "1"
+    SNOW_CITY_REMOTE_URL: http://city-api:8008
+  volumes:
+    - media:/app/runtime/media
+    - ../.resilience-validation/runtime:/app/runtime/demo:ro
+    - ../.resilience-validation/control:/control:ro
+    - ../.resilience-validation/certs:/certs:ro
+  networks: [backend]
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: monitor
+      POSTGRES_USER: monitor
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+    volumes: [database:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD, pg_isready, -U, monitor, -d, monitor]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks: [backend]
+  api:
+    <<: *application
+  worker:
+    <<: *application
+    command: [python, -m, monitoring.worker]
+    depends_on:
+      db:
+        condition: service_healthy
+      fixture:
+        condition: service_started
+  fixture:
+    image: kamdispatch-validation-monitor:${VALIDATION_TAG:-test}
+    command: [python, /fixture.py]
+    environment:
+      PYTHONPATH: /app
+    volumes:
+      - ./fixture.py:/fixture.py:ro
+      - ../.resilience-validation/control:/control:ro
+      - ../.resilience-validation/certs:/certs:ro
+    networks:
+      backend:
+        aliases: [api.openweathermap.org, bus.kamgov.ru]
+  city-api:
+    image: kamdispatch-validation-city:${VALIDATION_TAG:-test}
+    build:
+      context: ../city-sim
+      dockerfile: Dockerfile.city-sim
+    environment:
+      CITY_SIM_DB: /state/city-sim.sqlite3
+      CITY_SIM_WEATHER: /atlas-local/heatmaps
+      OPENBLAS_NUM_THREADS: "1"
+    volumes:
+      - city:/state
+      - ../city-sim/weather_coverage:/atlas-local:ro
+    cpus: 2
+    mem_limit: 2g
+    networks: [backend]
+  public-dashboard:
+    image: kamdispatch-validation-monitor:${VALIDATION_TAG:-test}
+    command: [python, -m, uvicorn, monitoring.public_dashboard:app, --host, 0.0.0.0, --port, "8090"]
+    networks: [backend]
+  gateway:
+    image: nginx:alpine
+    ports: ["127.0.0.1:${VALIDATION_PORT:-18190}:8080"]
+    volumes: [./nginx.conf:/etc/nginx/conf.d/default.conf:ro]
+    depends_on: [api, city-api, public-dashboard]
+    networks: [backend, ingress]
+
+networks:
+  backend:
+    internal: true
+  ingress: {}
+volumes:
+  database: {}
+  city: {}
+  media: {}

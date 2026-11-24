@@ -133,9 +133,9 @@ def save_report(conn, *, mode, actor, districts, image, description, latitude, l
     ).fetchone()
 
 
-def refine_report_districts(settings, districts):
+def refine_report_districts(settings, districts, *, timeout=5):
     eligible = [UNASSIGNED, *sorted({district.parent_id for district in districts if district.parent_id})]
-    with connect(settings) as conn, conn.cursor(name="unassigned_citizen_reports") as reports:
+    with connect(settings, timeout=timeout) as conn, conn.cursor(name="unassigned_citizen_reports") as reports:
         reports.execute(
             "SELECT id, district_id, latitude, longitude FROM citizen_reports WHERE mode=%s AND district_id=ANY(%s)",
             (settings.mode, eligible),

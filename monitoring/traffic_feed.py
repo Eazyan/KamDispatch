@@ -2,7 +2,7 @@
 
 from bisect import bisect_left, bisect_right
 from collections import defaultdict, deque
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 import json
 from math import cos, hypot, isfinite, radians
@@ -18,6 +18,12 @@ GRAPH_FILE = ROOT / "snegoplan/mapprep/out/graph_v3.json"
 CLASSES = {"free", "slow", "congested"}
 MAX_GAP_M = 250
 MAX_FEED_BYTES = 12 * 1024 * 1024
+DEFAULT_TTL = 3600
+FEED_ERRORS = (httpx.HTTPError, OSError, ValueError, KeyError, TypeError, AttributeError, OverflowError)
+
+
+class TrafficUnavailable(Exception):
+    pass
 
 
 @lru_cache(maxsize=1)
@@ -90,24 +96,26 @@ def interpolated_intervals(roads, observations):
             length = roads[index]["length_m"]
             intervals = observations.get(index, ())
             if reverse:
-                intervals = [(length - end, length - start, color) for start, end, color in reversed(intervals)]
+                intervals = [(length - end, length - start, color, observed) for start, end, color, observed in reversed(intervals)]
             cursor = 0
-            for start, end, color in intervals:
+            for start, end, color, observed in intervals:
                 if previous is not None and start > cursor:
                     pending.append((index, reverse, cursor, start))
                 size = sum(end_m - start_m for _, _, start_m, end_m in pending)
                 limit = MAX_GAP_M if all(roads[edge].get("street") for edge, *_ in pending) else 100
                 if previous is not None and 1e-6 < size <= limit:
-                    split = size if previous == color else size / 2
+                    previous_color, previous_observed = previous
+                    split = size if previous_color == color else size / 2
                     for edge, backwards, left, right in pending:
                         edge_length = roads[edge]["length_m"]
                         cut = min(right, left + max(0, split))
                         split -= right - left
-                        for a, b, status in ((left, cut, previous), (cut, right, color)):
-                            if b - a > 1e-6:
-                                yield (edge, edge_length - b, edge_length - a, status) if backwards else (edge, a, b, status)
+                        for a, b, status in ((left, cut, previous_color), (cut, right, color)):
+                            if status != "free" and b - a > 1e-6:
+                                at = min(observed, previous_observed)
+                                yield (edge, edge_length - b, edge_length - a, status, at) if backwards else (edge, a, b, status, at)
                 pending.clear()
-                previous = color
+                previous = color, observed
                 cursor = end
             if previous is not None and cursor < length:
                 pending.append((index, reverse, cursor, length))
@@ -116,14 +124,14 @@ def interpolated_intervals(roads, observations):
                     pending.clear()
 
 
-def project(latest, roads):
+def project(latest, roads, ttl=DEFAULT_TTL):
     if latest["graph_sha256"] != roads["graph_sha256"]:
         raise ValueError("Traffic feed uses a different graph")
     if latest["source"] != "yandex_maps_ui" or latest["status"] not in {"complete", "partial"}:
         raise ValueError("Unexpected traffic publication")
 
     segments = []
-    expires_at = None
+    published = aware(latest["published_at"]).astimezone(timezone.utc)
     roads = roads["segments"]
     intervals = {}
     for index, road in enumerate(roads):
@@ -137,9 +145,10 @@ def project(latest, roads):
             a, b = max(a, 0), min(b, road["length_m"])
             if b - a < 1e-6:
                 continue
-            observed = aware(row["timestamp"])
-            expires_at = observed if expires_at is None else min(expires_at, observed)
-            rows.append((a, b, row["status"]))
+            observed = aware(row["timestamp"]).astimezone(timezone.utc)
+            if observed > published:
+                raise ValueError("Traffic observation is newer than its publication")
+            rows.append((a, b, row["status"], observed))
         if rows:
             intervals[index] = sorted(rows)
 
@@ -152,13 +161,15 @@ def project(latest, roads):
             distances.append(distances[-1] + hypot((lon2 - lon1) * scale, lat2 - lat1))
         return points, distances
 
-    def add_segment(index, start, end, color, estimated=False):
+    def add_segment(index, start, end, color, observed, estimated=False):
         points, distances = geometry(index)
         if distances[-1] == 0:
             return
         unit = distances[-1] / roads[index]["length_m"]
         segment = {
             "corridor_id": roads[index]["id"], "status": color,
+            "observed_at": observed.isoformat(),
+            "valid_until": (observed + timedelta(seconds=ttl)).isoformat(),
             "coordinates": interval_line(points, distances, start * unit, min(end * unit, distances[-1])),
         }
         if estimated:
@@ -166,39 +177,81 @@ def project(latest, roads):
         segments.append(segment)
 
     for index, rows in intervals.items():
-        for start, end, color in rows:
-            add_segment(index, start, end, color)
+        for row in rows:
+            add_segment(index, *row)
     for gap in interpolated_intervals(roads, intervals):
         add_segment(*gap, estimated=True)
-    published = aware(latest["published_at"])
     return {
         "published_at": published.isoformat(),
-        "valid_until": datetime.fromtimestamp((expires_at or published).timestamp() + 600, timezone.utc).isoformat(),
+        "valid_until": min((row["valid_until"] for row in segments), default=None),
         "status": latest["status"],
         "segments": segments,
     }
 
 
+def classify(publication, now):
+    timestamp = now.astimezone(timezone.utc).isoformat()
+    return {**publication, "segments": [
+        {**row, "status": "stale"} if row["valid_until"] <= timestamp else row
+        for row in publication["segments"]
+    ]}
+
+
 class TrafficFeed:
-    def __init__(self, url):
+    def __init__(self, url, ttl=DEFAULT_TTL):
         self.url = url
+        self.ttl = ttl
         self.lock = Lock()
         self.next_fetch = 0
         self.result = None
+        self.last_success = None
+        self.last_attempt = None
+        self.reason = None
 
-    def latest(self):
+    def fetch(self):
+        headers = {"Host": "127.0.0.1:8765", "Accept": "application/json"}
+        with httpx.Client(timeout=5, trust_env=False) as client:
+            with client.stream("GET", self.url + "/api/latest", headers=headers) as response:
+                response.raise_for_status()
+                body = bytearray()
+                for chunk in response.iter_bytes():
+                    body.extend(chunk)
+                    if len(body) > MAX_FEED_BYTES:
+                        raise ValueError("Traffic publication exceeds the size limit")
+        latest = json.loads(body)
+        if latest is None:
+            return None
+        result = project(latest, graph(), self.ttl)
+        if aware(result["published_at"]) > datetime.now(timezone.utc) + timedelta(seconds=30):
+            raise ValueError("Traffic publication timestamp is in the future")
+        return result
+
+    def refresh(self):
         with self.lock:
             if monotonic() >= self.next_fetch:
-                headers = {"Host": "127.0.0.1:8765", "Accept": "application/json"}
-                with httpx.Client(timeout=5, trust_env=False) as client:
-                    with client.stream("GET", self.url + "/api/latest", headers=headers) as response:
-                        response.raise_for_status()
-                        body = bytearray()
-                        for chunk in response.iter_bytes():
-                            body.extend(chunk)
-                            if len(body) > MAX_FEED_BYTES:
-                                raise ValueError("Traffic publication exceeds the size limit")
-                latest = json.loads(body)
-                self.result = project(latest, graph()) if latest is not None else None
-                self.next_fetch = monotonic() + 20
-            return self.result
+                try:
+                    self.result = self.fetch()
+                except FEED_ERRORS as error:
+                    if isinstance(error, httpx.HTTPStatusError):
+                        self.reason = f"upstream_http_{error.response.status_code}"
+                    elif isinstance(error, httpx.TimeoutException):
+                        self.reason = "upstream_timeout"
+                    elif isinstance(error, (httpx.HTTPError, OSError)):
+                        self.reason = "upstream_connection_failed"
+                    else:
+                        self.reason = "invalid_publication"
+                else:
+                    self.reason = None
+                    self.last_success = datetime.now(timezone.utc)
+                self.last_attempt = datetime.now(timezone.utc)
+                self.next_fetch = monotonic() + (5 if self.reason else 20)
+            return self.result, self.last_success, self.last_attempt, self.reason
+
+    def latest(self):
+        result, success, attempt, reason = self.refresh()
+        if result is None:
+            if reason:
+                raise TrafficUnavailable(reason)
+            return None
+        return {**classify(result, datetime.now(timezone.utc)),
+                "source": {"last_success_at": success, "checked_at": attempt, "reason": reason}}
