@@ -1,10 +1,15 @@
 """Search the local OSM address catalogue and the selected dashboard run."""
 
+from collections import defaultdict
 from functools import lru_cache
 from importlib import import_module
+import json
+
+from shapely.ops import linemerge
 
 from .citizen_addresses import address_index
 from .dispatch_queue import road_index
+from .traffic_feed import GRAPH_FILE
 
 _search = import_module("city-sim.shared.universal_search")
 _text = import_module("city-sim.shared.universal_search.text")
@@ -29,11 +34,42 @@ CATEGORY_WORDS = {
 
 @lru_cache(maxsize=1)
 def streets():
-    by_name = {}
+    with GRAPH_FILE.open(encoding="utf-8") as source:
+        edges = json.load(source)["edges"]
+    graph_groups = defaultdict(list)
+    for edge in edges:
+        name = (edge.get("name") or "").strip()
+        if name and len(edge["geometry"]) >= 2:
+            graph_groups[_text.normalize(name)].append(edge)
+
+    fallback_groups = defaultdict(list)
     for road in road_index().values():
-        if road["name"] and road["coordinates"]:
-            by_name.setdefault(road["name"].casefold(), road)
-    return {road["id"]: road for road in by_name.values()}
+        key = _text.normalize(road["name"])
+        if key and key not in graph_groups and len(road["coordinates"]) >= 2:
+            fallback_groups[key].append(road)
+
+    result = {}
+    for key, group in graph_groups.items():
+        main = [edge for edge in group if edge["highway"] != "service"
+                and not edge["highway"].endswith("_link")]
+        result[key] = {"name": group[0]["name"], "paths": street_paths(
+            edge["geometry"] for edge in (main or group)
+        )}
+    for key, group in fallback_groups.items():
+        result[key] = {"name": group[0]["name"], "paths": street_paths(
+            road["coordinates"] for road in group
+        )}
+    return result
+
+
+def street_paths(lines):
+    unique = {}
+    for coordinates in lines:
+        path = tuple(map(tuple, coordinates))
+        unique.setdefault(min(path, path[::-1]), path)
+    merged = linemerge(list(unique.values()))
+    parts = [merged] if merged.geom_type == "LineString" else merged.geoms
+    return [list(part.coords) for part in parts]
 
 
 @lru_cache(maxsize=1)
@@ -52,7 +88,7 @@ def houses_by_number():
 
 def search(query, cameras, buses, dispatch, reports=()):
     normalized = [CATEGORY_WORDS.get(word, word) for word in _text.normalize(query).split()]
-    terms, intent, category = _text.interpret(" ".join(normalized))
+    terms, _, category = _text.interpret(" ".join(normalized))
     roads = streets()
     pages = [Entity(key, "base", label, SOURCE, aliases=aliases) for key, (label, aliases) in PAGES.items()]
     entities = [Entity(key, "street", road["name"], SOURCE) for key, road in roads.items()]
@@ -82,8 +118,6 @@ def search(query, cameras, buses, dispatch, reports=()):
                            aliases=tuple(filter(None, (str(row["report_number"]), row["district"],
                                                        row["description"], *row["tags"]))))
                     for row in reports)
-    if intent == "address" and not category:
-        entities = [row for row in entities if row.type != "street"]
     if category:
         types = {"task", "event"} if category == "event" else {category}
         entities = [row for row in entities if row.type in types]
@@ -102,7 +136,8 @@ def search(query, cameras, buses, dispatch, reports=()):
         counts[kind] = counts.get(kind, 0) + 1
         result.append({
             "id": hit["id"], "type": "page" if kind == "base" else kind, "name": hit["name"],
-            "coordinates": roads[hit["id"]]["coordinates"] if kind == "street" else hit["coordinates"],
+            "coordinates": hit["coordinates"],
+            **({"paths": roads[hit["id"]]["paths"]} if kind == "street" else {}),
             "page": hit["id"] if kind == "base" else destinations.get(kind),
         })
     return result

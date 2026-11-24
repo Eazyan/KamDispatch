@@ -1,13 +1,14 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Icon } from './Icon';
-import type { Camera, DispatchGroup, DispatchRoad, RoadPoint } from './types';
+import type { Camera, DispatchGroup, RoadPoint } from './types';
 
 type Bus = { id: string; route: string | null; lon: number; lat: number };
 type Result = { id: string; title: string; label?: string; open: () => void };
 export type SearchHit = {
   id: string; type: 'street' | 'address' | 'camera' | 'bus' | 'task' | 'event' | 'page'; name: string;
   page?: string | null;
-  coordinates: RoadPoint[] | RoadPoint | null;
+  coordinates: RoadPoint | null;
+  paths?: RoadPoint[][];
 };
 type Props = {
   cameras: Camera[];
@@ -15,7 +16,7 @@ type Props = {
   buses: Bus[];
   dispatch: DispatchGroup[];
   search: (query: string, signal: AbortSignal) => Promise<SearchHit[]>;
-  onRoad: (road: DispatchRoad) => void;
+  onRoad: (location: { id: string; name: string; coordinates: RoadPoint[]; paths?: RoadPoint[][] }) => void;
   onCamera: (id: string) => void;
   onBus: (id: string, coordinates: RoadPoint) => void;
   onDispatch: (row: DispatchGroup) => void;
@@ -78,9 +79,10 @@ export function MapSearch({ cameras, buses, dispatch, scenario, search, onRoad, 
   const point = (coordinates: SearchHit['coordinates']): coordinates is RoadPoint =>
     !!coordinates && coordinates.length === 2 && coordinates.every(Number.isFinite);
   for (const hit of hits) {
-    if (hit.type === 'street' && Array.isArray(hit.coordinates?.[0])) {
-      const coordinates = hit.coordinates as RoadPoint[];
-      streets.push({ id: hit.id, title: hit.name, open: () => onRoad({ id: hit.id, name: hit.name, coordinates }) });
+    if (hit.type === 'street' && hit.paths?.length) {
+      const paths = hit.paths;
+      streets.push({ id: hit.id, title: hit.name,
+        open: () => onRoad({ id: hit.id, name: hit.name, coordinates: paths.flat(), paths }) });
     } else if (hit.type === 'address' && point(hit.coordinates)) {
       const coordinates = hit.coordinates;
       addresses.push({ id: hit.id, title: hit.name, open: () => onRoad({ id: hit.id, name: hit.name, coordinates: [coordinates] }) });

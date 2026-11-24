@@ -186,7 +186,9 @@ async function start() {
     if (state.selection?.revision !== revision) {
       revision = state.selection?.revision;
       const points = state.selection?.coordinates?.filter(coordinate) ?? [];
-      map.getSource('dispatch-focus').setData({ ...empty(), features: points.length > 1 && !state.selection?.fitOnly ? [line(points)] : [] });
+      const paths = state.selection?.paths?.map(path => path.filter(coordinate)) ?? [points];
+      const features = state.selection?.fitOnly ? [] : paths.filter(path => path.length > 1).map(line);
+      map.getSource('dispatch-focus').setData({ ...empty(), features });
       addressMarker?.remove();
       addressMarker = undefined;
       if (points.length === 1 && !state.selection?.fitOnly && typeof state.selection?.label === 'string') {

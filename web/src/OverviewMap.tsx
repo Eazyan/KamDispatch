@@ -7,7 +7,7 @@ import type { RoadPoint, SnowSegment } from './types';
 export type MapMarker = {
   id: string; label: string; coordinates: RoadPoint[]; color: string; priority: number;
 } & ({ kind: 'bus'; badge: string } | { kind?: undefined });
-type Selection = { id: string; coordinates: RoadPoint[]; revision: number; label?: string; fitOnly?: boolean };
+export type Selection = { id: string; coordinates: RoadPoint[]; paths?: RoadPoint[][]; revision: number; label?: string; fitOnly?: boolean };
 type Props = {
   cityUrl?: string | null; runId?: string; cleanupAt?: string; roads: SnowSegment[]; markers: MapMarker[];
   traffic?: TrafficSegment[]; trafficStale: boolean;
@@ -117,7 +117,7 @@ function FallbackMap({ roads, traffic, trafficStale, markers, selection, showSno
     map.fitBounds(L.latLngBounds(path), { maxZoom: 15.8, animate: false,
       paddingTopLeft: [55, 105], paddingBottomRight: [padding + 30, 90] });
     if (selection.fitOnly) return;
-    const mark = path.length > 1 ? L.polyline(path, { color: '#fff', weight: 4, interactive: false })
+    const mark = path.length > 1 ? L.polyline(selection.paths?.map(part => part.map(latLng)) ?? path, { color: '#fff', weight: 4, interactive: false })
       : L.circleMarker(path[0], { color: '#fff', radius: 14, fill: false, interactive: false });
     mark.addTo(map);
     return () => { mark.remove(); };
