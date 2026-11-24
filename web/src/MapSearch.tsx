@@ -1,16 +1,11 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Icon } from './Icon';
+import { dispatchSearchTarget, serviceSearchHits, type SearchHit } from './mapSearchResults';
 import type { BusMap, Camera, DispatchGroup, RoadPoint } from './types';
 
 type Bus = BusMap['positions'][number];
 type Result = { id: string; title: string; label?: string; open: () => void };
-export type SearchHit = {
-  id: string; type: 'street' | 'address' | 'camera' | 'bus' | 'task' | 'event' | 'page'; name: string;
-  page?: string | null;
-  route?: string | null;
-  coordinates: RoadPoint | null;
-  paths?: RoadPoint[][];
-};
+export type { SearchHit } from './mapSearchResults';
 type Props = {
   cameras: Camera[];
   scenario: boolean;
@@ -75,7 +70,7 @@ export function MapSearch({ cameras, buses, busSource, dispatch, scenario, searc
   const busResults: Result[] = [];
   const dispatchResults: Result[] = [];
   const pages: Result[] = [];
-  const hits = (current?.hits ?? []).filter(hit => !scenario || hit.type !== 'bus');
+  const hits = serviceSearchHits(current?.hits ?? [], scenario);
   const words = normalize(term).split(' ').map(word => aliases[word] ?? word);
   const busQuery = words.some(word => cues.includes(word));
   if (scenario && term) {
@@ -124,12 +119,13 @@ export function MapSearch({ cameras, buses, busSource, dispatch, scenario, searc
         }).format(new Date(bus.measured_at))].filter(Boolean).join(' · ');
       busResults.push({ id: hit.id, title: hit.name, label, open: () => onBus(hit.id, [bus.lon, bus.lat]) });
     } else if (hit.type === 'task' || hit.type === 'event') {
-      const row = dispatch.find(item => item.location_key + '/' + item.kind === hit.id);
-      dispatchResults.push({ id: hit.id, title: hit.name, label: row?.district, open: () => {
-        if (hit.id.startsWith("citizen:")) onCitizen(hit.id.slice("citizen:".length));
-        else if (row) onDispatch(row);
-        else if (hit.page) location.hash = hit.page;
-      } });
+      const target = dispatchSearchTarget(hit, dispatch);
+      dispatchResults.push({ id: hit.id, title: hit.name,
+        label: target.type === 'dispatch' ? target.row.district : undefined, open: () => {
+          if (target.type === 'dispatch') onDispatch(target.row);
+          else if (target.type === 'citizen') onCitizen(target.id);
+          else if (target.page) location.hash = target.page;
+        } });
     } else if (hit.type === 'page' && hit.page) {
       const page = hit.page;
       pages.push({ id: hit.id, title: hit.name, open: () => { location.hash = page; } });
