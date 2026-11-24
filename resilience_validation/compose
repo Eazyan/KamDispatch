@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+root=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
+exec env -i HOME="$HOME" PATH="$PATH" VALIDATION_TAG="${VALIDATION_TAG:-test}" VALIDATION_PORT="${VALIDATION_PORT:-18190}" \
+  docker compose --project-name "${VALIDATION_PROJECT:-kamdispatch-hardening}" --env-file "$root/.resilience-validation/local.env" \
+  -f "$root/resilience_validation/compose.yaml" "$@"

@@ -12,6 +12,7 @@ import httpx
 from .adapters import AmbiguousDelivery, Media, analyze, deliver, fetch_camera, forecast
 from .bus_worker import load_sections as load_bus_sections, run_collection
 from .config import Settings
+from .system_status import forecast_deadline
 from .db import check, connect, migrate, prepare_run
 from .districts import load_districts
 from .forecast_sites import CITY_POINTS, forecast_sites
@@ -150,6 +151,16 @@ def analysis_tick(settings, run_id, media, client):
     return True
 
 
+def forecast_failure_reason(error):
+    if isinstance(error, httpx.HTTPStatusError):
+        return f"upstream_http_{error.response.status_code}"
+    if isinstance(error, httpx.TimeoutException):
+        return "upstream_timeout"
+    if isinstance(error, httpx.HTTPError):
+        return "upstream_connection_failed"
+    return "invalid_payload"
+
+
 def forecast_tick(settings, run_id, client):
     if not settings.weather_key:
         with connect(settings) as conn:
@@ -161,10 +172,14 @@ def forecast_tick(settings, run_id, client):
         except (httpx.HTTPError, KeyError, TypeError, ValueError, OverflowError) as exc:
             LOGGER.warning("Forecast unavailable for %s (%s)", point, type(exc).__name__)
             with connect(settings) as conn:
-                check(conn, run_id, f"forecast:{point}", "unavailable")
+                check(conn, run_id, f"forecast:{point}", "unavailable", forecast_failure_reason(exc))
             continue
+        now = datetime.now(timezone.utc)
         with connect(settings) as conn:
-            save_forecast(conn, settings, run_id, point, data, datetime.now(timezone.utc), notify=point in CITY_POINTS)
+            if forecast_deadline(data) <= now:
+                check(conn, run_id, f"forecast:{point}", "unavailable", "expired_payload")
+                continue
+            save_forecast(conn, settings, run_id, point, data, now, notify=point in CITY_POINTS)
             check(conn, run_id, f"forecast:{point}", "three_hourly" if data[0]["horizon"] == "three_hourly" else "ready")
 
 
@@ -280,6 +295,7 @@ def main():
                     while not stop.is_set():
                         with owner.transaction():
                             check(owner, run_id, "worker", "ready")
+                        with owner.transaction():
                             save_summary(owner, settings, run_id, datetime.now(timezone.utc))
                         stop.wait(30)
                 finally:

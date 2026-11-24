@@ -38,6 +38,9 @@ services:
 
   api:
     <<: *application
+    depends_on:
+      db:
+        condition: service_started
     build: .
     environment:
       <<: *application-environment

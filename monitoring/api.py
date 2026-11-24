@@ -1,4 +1,5 @@
-from contextlib import asynccontextmanager
+import asyncio
+from contextlib import asynccontextmanager, suppress
 from dataclasses import replace
 from datetime import datetime, timezone, timedelta
 import hmac
@@ -8,10 +9,9 @@ from uuid import UUID
 
 import httpx
 import jwt
-import psycopg
 from fastapi import APIRouter, Depends, FastAPI, File, Form, Header, HTTPException, Query, Request, Response, UploadFile
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 
 from .adapters import Media
@@ -23,7 +23,8 @@ from .districts import load_districts
 from .forecast_sites import forecast_sites
 from .dispatch import comparison, inspection_queue
 from . import citizens, dispatch_queue, map_search, messenger_dispatch
-from .traffic_feed import TrafficFeed
+from .system_status import DB_PROBE_ERRORS, DB_UNAVAILABLE, SystemStatus, weather_status
+from .traffic_feed import TrafficFeed, TrafficUnavailable
 from .snow import city_roads, snow_forecast, snow_raster
 
 TRANSITIONS = {
@@ -56,24 +57,62 @@ class WorkFrame(BaseModel):
 
 def create_app(settings=None):
     settings = settings or Settings()
+    traffic = TrafficFeed(settings.traffic_worker_url, settings.traffic_ttl) if settings.traffic_worker_url else None
+
+    def database_failure():
+        return JSONResponse(
+            {"detail": "База данных временно недоступна", "code": "database_unavailable",
+             "status_url": "/api/v1/status"},
+            status_code=503, headers={"Retry-After": "5", "Cache-Control": "private, no-store"},
+        )
 
     @asynccontextmanager
     async def lifespan(app):
         settings.validate()
         app.state.citizen_districts = load_districts(settings.citizen_districts_path)
-        migrate(settings)
-        citizens.refine_report_districts(settings, app.state.citizen_districts)
+        app.state.database_initialized = False
+
+        def initialize_database():
+            if not app.state.database_initialized:
+                migrate(settings, timeout=2)
+                citizens.refine_report_districts(settings, app.state.citizen_districts, timeout=2)
+                app.state.database_initialized = True
+
+        try:
+            await asyncio.to_thread(initialize_database)
+        except DB_UNAVAILABLE:
+            pass  # The status loop retries initialization after PostgreSQL returns.
         app.state.media = Media(settings)
         app.state.demo_media = Media(replace(settings, s3_bucket=""))
         app.state.jwks = jwt.PyJWKClient(settings.oidc_jwks, timeout=5) if settings.mode == "live" else None
-        yield
+        app.state.system_status = SystemStatus(settings, app.state.citizen_districts, traffic, initialize_database)
+        task = asyncio.create_task(app.state.system_status.run())
+        try:
+            yield
+        finally:
+            task.cancel()
+            with suppress(asyncio.CancelledError):
+                await task
 
     app = FastAPI(title="Камчатка · мониторинг", version="1.0", lifespan=lifespan,
                   docs_url=None, redoc_url=None, openapi_url=None)
 
+    async def handle_database_error(_request, _error):
+        return database_failure()
+
+    for error in DB_UNAVAILABLE:
+        app.add_exception_handler(error, handle_database_error)
+
+    independent_api_paths = {"/api/v1/status", "/api/v1/traffic", "/api/v1/citizens/form-config",
+                             "/api/v1/citizens/districts"}
+
     @app.middleware("http")
     async def response_headers(request: Request, call_next):
-        response = await call_next(request)
+        if (request.url.path.startswith("/api/") and request.url.path not in independent_api_paths
+                and not request.app.state.database_initialized):
+            response = database_failure()
+        else:
+            response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "same-origin"
         response.headers["X-Frame-Options"] = "DENY"
@@ -168,13 +207,19 @@ def create_app(settings=None):
         for event in events:
             event["evidence_stale"] = run_id in {"live", "preview"} and event["last_seen"] < cutoff
 
+    @app.get("/api/v1/status")
+    async def system_status(request: Request):
+        return request.app.state.system_status.snapshot()
+
     @app.get("/healthz")
-    def health():
+    def health(request: Request):
+        if not request.app.state.database_initialized:
+            return database_failure()
         try:
             with connect(settings) as conn:
                 conn.execute("SELECT 1")
-        except psycopg.Error as exc:
-            raise HTTPException(503, "Database unavailable") from exc
+        except DB_PROBE_ERRORS:
+            return database_failure()
         return {"status": "ready"}
 
     @app.get("/api/v1/dashboard")
@@ -220,7 +265,7 @@ def create_app(settings=None):
                                     (run_id,)).fetchall()
             summaries = conn.execute("SELECT day,payload FROM summaries WHERE run_id=%s ORDER BY day DESC LIMIT 7",
                                      (run_id,)).fetchall()
-            checks = conn.execute("SELECT name,status,observed_at FROM checks WHERE run_id=%s ORDER BY name",
+            checks = conn.execute("SELECT name,status,observed_at,reason FROM checks WHERE run_id=%s ORDER BY name",
                                   (run_id,)).fetchall()
             deliveries = conn.execute(
                 "SELECT id,kind,subject,body,stage,attempts,error,created_at FROM outbox WHERE run_id=%s ORDER BY id DESC LIMIT 50",
@@ -248,6 +293,8 @@ def create_app(settings=None):
         mode = run_id if run_id in {"live", "preview", "demo"} else "replay"
         return {"mode": mode, "run_id": run_id, "role": user[1], "cameras": camera_rows, "events": events,
                 "forecasts": forecasts,
+                "weather_source": weather_status(replace(settings, mode=run_id), request.app.state.citizen_districts,
+                                                 forecasts, checks, now),
                 "forecast_points": list(forecast_sites(request.app.state.citizen_districts)) if mode in {"live", "preview"} else [],
                 "warnings": warnings, "summaries": summaries, "checks": checks, "deliveries": deliveries, "queue": queue,
                 "inspection_queue": inspection_queue(events), "feedback_counts": {row["verdict"]: row["count"] for row in feedback},
@@ -258,16 +305,15 @@ def create_app(settings=None):
                 "snow_forecast": snow,
                 "city_map_url": settings.city_map_url if settings.city_map_url.startswith(("http://", "https://")) else None}
 
-    traffic = TrafficFeed(settings.traffic_worker_url) if settings.traffic_worker_url else None
-
     @app.get("/api/v1/traffic")
     def road_traffic(user=Depends(identity)):
         if traffic is None:
             raise HTTPException(503, "Источник пробок не настроен")
         try:
             return traffic.latest()
-        except (httpx.HTTPError, OSError, ValueError, KeyError, TypeError, AttributeError):
-            raise HTTPException(503, "Данные пробок недоступны или не совпадают с дорожным графом") from None
+        except TrafficUnavailable as error:
+            return JSONResponse({"detail": "Данные пробок недоступны", "code": str(error)},
+                                status_code=503, headers={"Retry-After": "5"})
 
     @app.get("/api/v1/map/search")
     def search_map(q: Annotated[str, Query(min_length=1, max_length=120)], run: str | None = None,

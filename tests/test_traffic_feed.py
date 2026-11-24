@@ -1,8 +1,9 @@
 from copy import deepcopy
+from datetime import datetime, timezone
 
 import pytest
 
-from monitoring.traffic_feed import project
+from monitoring.traffic_feed import TrafficFeed, classify, project
 
 
 GRAPH = {
@@ -29,10 +30,11 @@ PUBLICATION = {
 def test_projection_keeps_only_observed_subsections_and_tolerates_roundoff():
     result = project(PUBLICATION, GRAPH)
     assert result["status"] == "partial"
-    assert result["valid_until"] == "2026-11-23T23:10:00+00:00"
+    assert result["valid_until"] == "2026-11-24T00:00:00+00:00"
     first, second = result["segments"]
     assert first == {
-        "corridor_id": "road", "status": "slow", "coordinates": [[158.5, 53], [159, 53], [159.5, 53]]
+        "corridor_id": "road", "status": "slow", "coordinates": [[158.5, 53], [159, 53], [159.5, 53]],
+        "observed_at": AT, "valid_until": "2026-11-24T00:00:00+00:00",
     }
     assert second["coordinates"] == [[159.5, 53], [160, 53]]
 
@@ -50,11 +52,10 @@ def test_fills_short_gap_at_midpoint_and_preserves_observed_intervals():
     publication = deepcopy(PUBLICATION)
     publication["segments"]["road"][1]["interval_m"] = [25, 55]
     result = project(publication, GRAPH)
-    assert [row["status"] for row in result["segments"]] == ["slow", "free", "slow", "free"]
-    first, second = result["segments"][2:]
-    assert first["estimated"] and second["estimated"]
+    assert [row["status"] for row in result["segments"]] == ["slow", "free", "slow"]
+    first, = result["segments"][2:]
+    assert first["estimated"]
     assert first["coordinates"] == [[159.1, 53], [159.3, 53]]
-    assert second["coordinates"] == [[159.3, 53], [159.5, 53]]
 
 
 def test_fills_across_reversed_edges_with_no_guess_at_intersections():
@@ -67,12 +68,12 @@ def test_fills_across_reversed_edges_with_no_guess_at_intersections():
         ],
     }
     latest = {**PUBLICATION, "segments": {
-        "a": [{"status": "free", "interval_m": [0, 80], "timestamp": AT}],
-        "c": [{"status": "free", "interval_m": [20, 100], "timestamp": AT}],
+        "a": [{"status": "slow", "interval_m": [0, 80], "timestamp": AT}],
+        "c": [{"status": "slow", "interval_m": [20, 100], "timestamp": AT}],
     }}
     estimated = [row for row in project(latest, roads)["segments"] if row.get("estimated")]
     assert [row["corridor_id"] for row in estimated] == ["a", "b", "c"]
-    assert all(row["status"] == "free" for row in estimated)
+    assert all(row["status"] == "slow" for row in estimated)
     assert estimated[1]["coordinates"] == [[158, 53], [157, 53]]
     roads["segments"][1]["length_m"] = 100
     assert not any(row.get("estimated") for row in project(latest, roads)["segments"])
@@ -94,6 +95,32 @@ def test_passes_through_junction_only_along_unique_same_street():
         "right": [{"status": "slow", "interval_m": [90, 150], "timestamp": AT}],
     }}
     estimated = [row for row in project(latest, roads)["segments"] if row.get("estimated")]
-    assert [(row["corridor_id"], row["status"]) for row in estimated] == [("left", "free"), ("right", "slow")]
+    assert [(row["corridor_id"], row["status"]) for row in estimated] == [("right", "slow")]
     roads["segments"][2]["street"] = "главная"
     assert not any(row.get("estimated") for row in project(latest, roads)["segments"])
+
+
+def test_partial_results_expire_per_interval_and_never_infer_an_open_road():
+    payload = deepcopy(PUBLICATION)
+    payload["segments"]["road"][1]["interval_m"] = [30, 60]
+    payload["segments"]["road"][1]["status"] = "free"
+    payload["segments"]["road"][2]["timestamp"] = payload["published_at"]
+    projected = project(payload, GRAPH, ttl=180)
+    output = classify(projected, datetime(2026, 11, 23, 23, 3, tzinfo=timezone.utc))
+    assert [row["status"] for row in output["segments"]] == ["stale", "free"]
+    assert all(not row.get("estimated") for row in output["segments"])
+    assert projected["segments"][0]["status"] == "free"
+
+
+def test_last_traffic_snapshot_survives_provider_failure(monkeypatch):
+    feed = TrafficFeed("http://fixture")
+    snapshot = project(PUBLICATION, GRAPH)
+    monkeypatch.setattr(feed, "fetch", lambda: snapshot)
+    assert feed.latest()["source"]["reason"] is None
+    def bad_feed():
+        raise ValueError("graph changed")
+    monkeypatch.setattr(feed, "fetch", bad_feed)
+    feed.next_fetch = 0
+    result = feed.latest()
+    assert result["source"]["reason"] == "invalid_publication"
+    assert all(row["status"] == "stale" for row in result["segments"])

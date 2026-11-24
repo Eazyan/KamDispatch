@@ -41,8 +41,8 @@ def post(client, photo=None, **fields):
 
 
 def test_rejects_invalid_citizen_reports(monkeypatch, tmp_path):
-    monkeypatch.setattr(api, "migrate", lambda settings: None)
-    monkeypatch.setattr(api.citizens, "refine_report_districts", lambda settings, districts: None)
+    monkeypatch.setattr(api, "migrate", lambda settings, **_: None)
+    monkeypatch.setattr(api.citizens, "refine_report_districts", lambda settings, districts, **_: None)
     settings = Settings(database="unused", mode="demo", media_dir=tmp_path)
     with TestClient(api.create_app(settings)) as client:
         assert post(client, description="   ").status_code == 422
