@@ -1,5 +1,5 @@
 import { $, format, request } from './api.js';
-import { createMap } from './map.js';
+import { createMap } from './map.js?v=twist';
 import { createOperations } from './operations.js';
 import { createScenarios } from './scenarios.js';
 

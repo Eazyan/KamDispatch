@@ -16,6 +16,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY monitoring/ ./monitoring/
 COPY city-sim/data/pkc/city.osm.gz city-sim/data/pkc/depot-east.osm.gz ./city-sim/data/pkc/
+COPY city-sim/weather_coverage/osm/*.osm.gz ./city-sim/weather_coverage/osm/
+COPY city-sim/shared/universal_search ./city-sim/shared/universal_search/
+COPY snegoplan/mapprep/out/graph_v3.json ./snegoplan/mapprep/out/
 COPY resident_site/ ./resident_site/
 COPY cameras/ ./cameras/
 COPY --from=web /src/dist ./web/dist

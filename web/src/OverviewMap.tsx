@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { trafficColors, type TrafficSegment } from './traffic';
 import type { RoadPoint, SnowSegment } from './types';
 
 export type MapMarker = {
   id: string; label: string; coordinates: RoadPoint[]; color: string; priority: number;
 } & ({ kind: 'bus'; badge: string } | { kind?: undefined });
-type Selection = { id: string; coordinates: RoadPoint[]; revision: number; fitOnly?: boolean };
+export type Selection = { id: string; coordinates: RoadPoint[]; paths?: RoadPoint[][]; revision: number; label?: string; fitOnly?: boolean };
 type Props = {
   cityUrl?: string | null; runId?: string; cleanupAt?: string; roads: SnowSegment[]; markers: MapMarker[];
+  traffic?: TrafficSegment[]; trafficStale: boolean;
   selection: Selection | null; showSnow: boolean; showMarkers: boolean;
   onSelect: (id: string) => void; onClientState: (state: 'offline' | 'loading' | 'ready') => void;
   onModelState: (state: 'loading' | 'ready' | 'failed', progress?: string) => void;
@@ -25,7 +27,7 @@ const labels: [L.LatLngExpression, string, string][] = [
 ];
 const latLng = ([lon, lat]: RoadPoint): L.LatLngTuple => [lat, lon];
 
-function FallbackMap({ roads, markers, selection, showSnow, showMarkers, onSelect }: Props) {
+function FallbackMap({ roads, traffic, trafficStale, markers, selection, showSnow, showMarkers, onSelect }: Props) {
   const element = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map>();
   const markerData = JSON.stringify(markers);
@@ -40,7 +42,7 @@ function FallbackMap({ roads, markers, selection, showSnow, showMarkers, onSelec
     L.imageOverlay('/overview/city.webp', cityBounds).addTo(map);
     L.control.zoom({ position: 'bottomleft' }).addTo(map);
     L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
-    L.control.attribution({ position: 'bottomright', prefix: false }).addTo(map)
+    map.attributionControl = L.control.attribution({ position: 'bottomright', prefix: false }).addTo(map)
       .addAttribution('© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · <a href="https://registry.opendata.aws/copernicus-dem/">Copernicus WorldDEM-30</a>');
     for (const [coords, title, style] of labels) {
       L.marker(coords, { interactive: false, keyboard: false, icon: L.divIcon({
@@ -65,6 +67,23 @@ function FallbackMap({ roads, markers, selection, showSnow, showMarkers, onSelec
     }
     return () => { layer.remove(); canvas.remove(); };
   }, [roads, showSnow]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !traffic?.length) return;
+    const pane = map.getPane('traffic') ?? map.createPane('traffic');
+    pane.style.zIndex = '420';
+    pane.style.pointerEvents = 'none';
+    const canvas = L.canvas({ padding: .25, pane: 'traffic' });
+    const layer = L.layerGroup().addTo(map);
+    const attribution = 'Пробки © Яндекс Карты';
+    map.attributionControl.addAttribution(attribution);
+    for (const segment of traffic) {
+      L.polyline(segment.coordinates.map(latLng), { renderer: canvas, color: trafficColors[segment.status],
+        weight: 4, opacity: (trafficStale ? .46 : .95) * (segment.estimated ? .68 : 1), interactive: false }).addTo(layer);
+    }
+    return () => { layer.remove(); canvas.remove(); map.attributionControl.removeAttribution(attribution); };
+  }, [traffic, trafficStale]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -98,7 +117,7 @@ function FallbackMap({ roads, markers, selection, showSnow, showMarkers, onSelec
     map.fitBounds(L.latLngBounds(path), { maxZoom: 15.8, animate: false,
       paddingTopLeft: [55, 105], paddingBottomRight: [padding + 30, 90] });
     if (selection.fitOnly) return;
-    const mark = path.length > 1 ? L.polyline(path, { color: '#fff', weight: 4, interactive: false })
+    const mark = path.length > 1 ? L.polyline(selection.paths?.map(part => part.map(latLng)) ?? path, { color: '#fff', weight: 4, interactive: false })
       : L.circleMarker(path[0], { color: '#fff', radius: 14, fill: false, interactive: false });
     mark.addTo(map);
     return () => { mark.remove(); };
@@ -115,20 +134,22 @@ function embeddedUrl(cityUrl: string) {
     const url = new URL('static/ops/index.html', base);
     url.searchParams.set('parent', location.origin);
     url.searchParams.set('bus-markers', '2');
+    url.searchParams.set('traffic', '1');
     return url;
   } catch { return null; }
 }
 
 export function OverviewMap(props: Props) {
-  const { cityUrl, runId, cleanupAt, roads, markers, selection, showSnow, showMarkers, onSelect, onClientState, onModelState } = props;
+  const { cityUrl, runId, cleanupAt, roads, traffic, trafficStale, markers, selection, showSnow, showMarkers, onSelect, onClientState, onModelState } = props;
   const url = useMemo(() => cityUrl ? embeddedUrl(cityUrl) : null, [cityUrl]);
-  const [bridge, setBridge] = useState<{ url: string; state: 'ready' | 'offline'; busBadges?: boolean }>();
+  const [bridge, setBridge] = useState<{ url: string; state: 'ready' | 'offline'; busBadges?: boolean; traffic?: boolean }>();
   const frame = useRef<HTMLIFrameElement>(null);
   const callbacks = useRef({ onSelect, onModelState });
   callbacks.current = { onSelect, onModelState };
   const mapState = !url ? 'offline' : bridge?.url === url.href ? bridge.state : 'loading';
   const needsBusBadges = showMarkers && markers.some(mark => mark.kind === 'bus');
-  const state = mapState === 'ready' && needsBusBadges && !bridge?.busBadges ? 'offline' : mapState;
+  const missingLayer = (needsBusBadges && !bridge?.busBadges) || (traffic?.length && !bridge?.traffic);
+  const state = mapState === 'ready' && missingLayer ? 'offline' : mapState;
   useEffect(() => { onClientState(state); }, [state, onClientState]);
 
   useEffect(() => {
@@ -140,7 +161,7 @@ export function OverviewMap(props: Props) {
       if (message?.type === 'camchatka:ready' || message?.type === 'camchatka:error') {
         clearTimeout(timer);
         setBridge({ url: url.href, state: message.type === 'camchatka:ready' ? 'ready' : 'offline',
-          busBadges: message.busBadges === true });
+          busBadges: message.busBadges === true, traffic: message.traffic === true });
       }
       if (message?.type === 'camchatka:select' && typeof message.id === 'string') callbacks.current.onSelect(message.id);
       if (message?.type === 'camchatka:model' && ['loading', 'ready', 'failed'].includes(message.state)) {
@@ -153,13 +174,13 @@ export function OverviewMap(props: Props) {
 
   useEffect(() => {
     if (state !== 'ready' || !url) return;
-    frame.current?.contentWindow?.postMessage({ type: 'camchatka:state', runId, cleanupAt, showSnow, showMarkers, markers,
+    frame.current?.contentWindow?.postMessage({ type: 'camchatka:state', runId, cleanupAt, showSnow, showMarkers, markers, traffic, trafficStale,
       roads: roads.filter(row => row.status === 'watch').map(row => row.coordinates), selection }, url.origin);
-  }, [state, url, runId, cleanupAt, roads, markers, selection, showSnow, showMarkers]);
+  }, [state, url, runId, cleanupAt, roads, traffic, trafficStale, markers, selection, showSnow, showMarkers]);
 
   return <div className="overview-map">
     {state !== 'ready' && <FallbackMap {...props} />}
-    {url && mapState !== 'offline' && <iframe key={url.href} ref={frame} src={url.href}
+    {url && <iframe key={url.href} ref={frame} src={url.href}
       title="Neverrie · городская 3D-карта и модель снега" className={state === 'ready' ? 'city-frame is-ready' : 'city-frame'}
       tabIndex={state === 'ready' ? 0 : -1} aria-hidden={state !== 'ready'} />}
   </div>;

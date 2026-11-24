@@ -6,9 +6,10 @@ import re
 from typing import Annotated, Literal
 from uuid import UUID
 
+import httpx
 import jwt
 import psycopg
-from fastapi import APIRouter, Depends, FastAPI, File, Form, Header, HTTPException, Request, Response, UploadFile
+from fastapi import APIRouter, Depends, FastAPI, File, Form, Header, HTTPException, Query, Request, Response, UploadFile
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
@@ -21,7 +22,8 @@ from .db import connect, migrate
 from .districts import load_districts
 from .forecast_sites import forecast_sites
 from .dispatch import comparison, inspection_queue
-from . import citizens, dispatch_queue, messenger_dispatch
+from . import citizens, dispatch_queue, map_search, messenger_dispatch
+from .traffic_feed import TrafficFeed
 from .snow import city_roads, snow_forecast, snow_raster
 
 TRANSITIONS = {
@@ -255,6 +257,41 @@ def create_app(settings=None):
                 "dispatch_assignees": sorted(set(settings.crew_subjects.values()) | set(settings.dispatch_bot_crews.values())) if user[1] == "operator" else [],
                 "snow_forecast": snow,
                 "city_map_url": settings.city_map_url if settings.city_map_url.startswith(("http://", "https://")) else None}
+
+    traffic = TrafficFeed(settings.traffic_worker_url) if settings.traffic_worker_url else None
+
+    @app.get("/api/v1/traffic")
+    def road_traffic(user=Depends(identity)):
+        if traffic is None:
+            raise HTTPException(503, "Источник пробок не настроен")
+        try:
+            return traffic.latest()
+        except (httpx.HTTPError, OSError, ValueError, KeyError, TypeError, AttributeError):
+            raise HTTPException(503, "Данные пробок недоступны или не совпадают с дорожным графом") from None
+
+    @app.get("/api/v1/map/search")
+    def search_map(q: Annotated[str, Query(min_length=1, max_length=120)], run: str | None = None,
+                   user=Depends(identity)):
+        now = datetime.now(timezone.utc)
+        with connect(settings) as conn:
+            run_id = selected_run(conn, run)
+            cameras = conn.execute(
+                "SELECT id,name,area,district,section_name,coordinates FROM cameras WHERE run_id=%s", (run_id,)
+            ).fetchall()
+            bus_map = map_demo() if run_id == "demo" else map_rnis(conn, settings, run_id, now)
+            dispatch = dispatch_queue.queue(conn, run_id, now, settings.freshness)
+            reports = conn.execute(
+                """SELECT id,report_number,address,district,description,tags,longitude,latitude
+                   FROM citizen_reports WHERE mode=%s ORDER BY created_at DESC, id DESC LIMIT 500""",
+                (settings.mode,),
+            ).fetchall() if run_id == settings.mode else []
+        camera_catalog = {camera["id"]: camera for camera in cameras}
+        for camera in settings.cameras():
+            camera_catalog.setdefault(camera["id"], camera)
+        try:
+            return map_search.search(q, camera_catalog.values(), bus_map["positions"] if bus_map else [], dispatch, reports)
+        except ValueError:
+            raise HTTPException(422, "Сократите поисковый запрос") from None
 
     @app.post("/api/v1/dispatch/reports")
     def register_dispatch_report(draft: dispatch_queue.ReportDraft, run: str | None = None, user=Depends(identity)):

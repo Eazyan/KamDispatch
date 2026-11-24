@@ -228,6 +228,44 @@ function installDataLoading(map, metadata) {
   return load;
 }
 
+export function installTrackpadGestures(map, container) {
+  let gesture;
+  let touching = false;
+  container.addEventListener('touchstart', () => { touching = true; }, { passive: true });
+  for (const type of ['touchend', 'touchcancel']) {
+    container.addEventListener(type, event => { touching = event.touches.length > 0; }, { passive: true });
+  }
+  container.addEventListener('gesturestart', event => {
+    if (touching || !Number.isFinite(event.rotation)) return;
+    event.preventDefault();
+    gesture = { bearing: map.getBearing(), zoom: map.getZoom() };
+  }, { passive: false });
+  container.addEventListener('gesturechange', event => {
+    if (!gesture || touching || !Number.isFinite(event.rotation) || !(event.scale > 0)) return;
+    event.preventDefault();
+    map.jumpTo({
+      bearing: gesture.bearing - event.rotation,
+      zoom: gesture.zoom + Math.log2(event.scale),
+    });
+  }, { passive: false });
+  container.addEventListener('gestureend', () => { gesture = undefined; });
+  container.addEventListener('wheel', event => {
+    if (gesture) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
+    if (event.ctrlKey || event.metaKey || !event.deltaY ||
+        Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+    const trackpadPitch = event.deltaMode === WheelEvent.DOM_DELTA_PIXEL && Math.abs(event.deltaY) < 100;
+    if (!event.altKey && !trackpadPitch) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const delta = Math.max(-55, Math.min(55, event.deltaY));
+    map.setPitch(Math.max(0, Math.min(map.getMaxPitch(), map.getPitch() + delta * .22)));
+  }, { capture: true, passive: false });
+}
+
 export function createMap(metadata, onAreaChange, snowDetails) {
   const { bbox } = metadata;
   const [first] = areas;
@@ -263,20 +301,7 @@ export function createMap(metadata, onAreaChange, snowDetails) {
   }
   map.on('pitch', updatePitch);
   const mapContainer = map.getContainer();
-  let trackpadUntil = 0;
-  mapContainer.addEventListener('wheel', event => {
-    if (event.ctrlKey || event.metaKey) return;
-    const vertical = Math.abs(event.deltaY);
-    const now = performance.now();
-    const pixelScroll = event.deltaMode === WheelEvent.DOM_DELTA_PIXEL &&
-      (vertical < 100 || now < trackpadUntil) && vertical >= Math.abs(event.deltaX);
-    if (!vertical || (!event.altKey && !pixelScroll)) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    if (pixelScroll) trackpadUntil = now + 160;
-    const delta = Math.max(-55, Math.min(55, event.deltaY));
-    map.setPitch(Math.max(0, Math.min(map.getMaxPitch(), map.getPitch() + delta * .22)));
-  }, { capture: true, passive: false });
+  installTrackpadGestures(map, mapContainer);
   updatePitch();
 
   const areaSelect = $('area');
@@ -293,7 +318,7 @@ export function createMap(metadata, onAreaChange, snowDetails) {
   $('focus').addEventListener('click', () => locate(area, false));
   $('view').addEventListener('click', () => {
     const use3D = map.getPitch() <= 1;
-    map.easeTo({ pitch: use3D ? 57 : 0, bearing: use3D ? -23 : 0, duration: 650 });
+    map.easeTo({ pitch: use3D ? 57 : 0, duration: 650 });
   });
 
   const ready = new Promise(resolve => map.once('load', () => {

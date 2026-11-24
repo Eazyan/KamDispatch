@@ -14,6 +14,7 @@ from .config import ROOT
 CITY = "Петропавловск-Камчатский"
 OSM_DIRECTORY = ROOT / "city-sim" / "data" / "pkc"
 OSM_FILES = ("city.osm.gz", "depot-east.osm.gz")
+OSM_ATLAS = ROOT / "city-sim" / "weather_coverage" / "osm"
 STREET_TYPES = {
     "ул", "улица", "пр", "проспект", "просп", "пер", "переулок", "пл", "площадь",
     "ш", "шоссе", "наб", "набережная", "бульвар",
@@ -56,8 +57,11 @@ def coordinates(item, nodes, ways):
 @lru_cache(maxsize=1)
 def address_index():
     addresses = {}
-    for filename in OSM_FILES:
-        with gzip.open(OSM_DIRECTORY / filename) as source:
+    files = [OSM_DIRECTORY / name for name in OSM_FILES]
+    files.extend(path for path in sorted(OSM_ATLAS.glob("*.osm.gz"))
+                 if path.name not in {"city-boundary.osm.gz", "stops.osm.gz"})
+    for path in files:
+        with gzip.open(path) as source:
             root = ElementTree.parse(source).getroot()
         nodes = {node.attrib["id"]: (float(node.attrib["lon"]), float(node.attrib["lat"]))
                  for node in root.findall("node")}

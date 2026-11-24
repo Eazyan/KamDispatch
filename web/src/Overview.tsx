@@ -1,12 +1,13 @@
-import { MapSearch } from './MapSearch';
+import { useTraffic } from './traffic';
+import { MapSearch, type SearchHit } from './MapSearch';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { Report } from './CitizenReports';
 import { Icon, type IconName } from './Icon';
 import { busDuration, busReasons } from './BusChecks';
-import { OverviewMap, type MapMarker } from './OverviewMap';
+import { OverviewMap, type Selection, type MapMarker } from './OverviewMap';
 import { cleanupPhases, demoScenarios, scenarioClock, type CleanupPhase, type DemoScenario } from './overviewDemo';
 import { actionRequired, overviewWidgets, taskStages, type Widget } from './overviewWidgets';
-import type { Dashboard, DispatchGroup, DispatchRoad, RoadPoint, SnowSegment } from './types';
+import type { Dashboard, DispatchGroup, RoadPoint, SnowSegment } from './types';
 
 const emptyRoads: SnowSegment[] = [];
 const issueNames = { snowfall: 'Снегопад', coverage: 'Снег на дороге', drift: 'Снежный нанос', other: 'Дорожная проблема' };
@@ -24,7 +25,7 @@ type Props = {
   onCitizenReport: (id: string) => void;
   onCamera: (id: string) => void; onRefresh: () => void;
   loadRoads: (at: string, signal: AbortSignal) => Promise<SnowSegment[]>;
-  loadSearchRoads: (signal: AbortSignal) => Promise<DispatchRoad[]>;
+  search: (query: string, signal: AbortSignal) => Promise<SearchHit[]>;
 };
 
 function useRoads(data: Dashboard, load: Props['loadRoads']) {
@@ -123,7 +124,7 @@ function WidgetCard({ widget, selected, onSelect, onDispatch, onSignal, onCamera
   </article>;
 }
 
-export function Overview({ data, error, updatedAt, scenario, onScenario, phase, onPhase, frameUrl, onDispatch, onSignal, onCamera, onRefresh, loadRoads, loadSearchRoads, recentCitizens, citizenReports, onCitizenReport }: Props) {
+export function Overview({ data, error, updatedAt, scenario, onScenario, phase, onPhase, frameUrl, onDispatch, onSignal, onCamera, onRefresh, loadRoads, search, recentCitizens, citizenReports, onCitizenReport }: Props) {
   const roads = useRoads(data, loadRoads);
   const cleanup = scenario === 'response';
   const clock = scenarioClock(scenario, phase);
@@ -143,9 +144,19 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
   const [model, setModel] = useState<'loading' | 'ready' | 'failed'>();
   const [modelProgress, setModelProgress] = useState<string>();
   const [selected, setSelected] = useState<string>();
-  const [selection, setSelection] = useState<{ id: string; coordinates: RoadPoint[]; revision: number } | null>(null);
+  const [selection, setSelection] = useState<Selection | null>(null);
   const [onlyActions, setOnlyActions] = useState(false);
   const [showSnow, setShowSnow] = useState(true);
+  const [showTraffic, setShowTraffic] = useState(false);
+  const traffic = useTraffic(showTraffic);
+  const trafficSegments = showTraffic ? traffic.publication?.segments : undefined;
+  const publication = traffic.publication;
+  const trafficTitle = !showTraffic ? 'Пробки' : traffic.unavailable ? 'Пробки · источник недоступен'
+    : publication === undefined ? 'Пробки · загружаем'
+    : !publication || !trafficSegments?.length ? 'Пробки · нет наблюдений'
+    : ['Пробки', 'Яндекс Карты', fullTime(publication.published_at),
+      traffic.stale && 'данные устарели', publication.status === 'partial' && 'частичное покрытие',
+      'приглушённые линии — интерполяция'].filter(Boolean).join(' · ');
   const [showMarkers, setShowMarkers] = useState(true);
   const [showBuses, setShowBuses] = useState(true);
   const [selectedBusId, setSelectedBusId] = useState<string>();
@@ -158,9 +169,9 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
   const positions = useMemo(() => busMap?.positions.filter(bus =>
     busMap.source === 'simulation' || Date.parse(bus.measured_at) > busClock - 90_000), [busMap, busClock]);
   const busMarkers = useMemo<MapMarker[]>(() => (positions ?? []).flatMap(bus => {
-    const route = bus.route?.trim();
-    if (!route || !/\d/.test(route)) return [];
-    return [{ id: 'bus:' + bus.id, label: 'Автобус · маршрут ' + route, kind: 'bus', badge: route,
+    const vehicle = bus.fleet_number ? 'Автобус № ' + bus.fleet_number : 'Автобус';
+    const label = bus.route ? vehicle + ' · маршрут ' + bus.route : vehicle;
+    return [{ id: 'bus:' + bus.id, label, kind: 'bus', badge: bus.route || bus.fleet_number || '•',
       coordinates: [[bus.lon, bus.lat]], color: '#74edc5', priority: -1 }];
   }), [positions]);
   const citizenMarkers = useMemo<MapMarker[]>(() => (citizenReports ?? []).map(report => ({
@@ -226,6 +237,7 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
   return <section className="ops-overview" aria-label="Дорожная обстановка">
     <OverviewMap cityUrl={scenario && !cleanup ? null : data.city_map_url} cleanupAt={cleanup ? clock : undefined} runId={validSnow ? snow?.remote_run_id : undefined}
       roads={validSnow ? roads : emptyRoads} markers={displayedMarkers} selection={selection ?? demoBusFocus}
+      traffic={trafficSegments} trafficStale={traffic.stale || traffic.unavailable}
       showSnow={showSnow} showMarkers={displayedMarkers.length > 0} onClientState={setState} onModelState={(status, progress) => { setModel(status); setModelProgress(progress); }}
       onSelect={id => {
         const citizen = citizenMarkers.find(marker => marker.id === id);
@@ -259,10 +271,10 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
           {Object.entries(demoScenarios).map(([code, title]) => <option key={code} value={code}>{title}</option>)}
         </select>
       </div>
-      <MapSearch cameras={data.cameras} buses={positions ?? []} dispatch={data.dispatch_queue} loadRoads={loadSearchRoads}
-        onCamera={onCamera} onDispatch={onDispatch} onRoad={road => {
+      <MapSearch scenario={Boolean(scenario)} cameras={data.cameras} buses={positions ?? []} busSource={busMap?.source} dispatch={data.dispatch_queue} search={search}
+        onCamera={onCamera} onDispatch={onDispatch} onCitizen={onCitizenReport} onRoad={road => {
           setSelected(undefined);
-          setSelection({ id: road.id, coordinates: road.coordinates, revision: ++revision.current });
+          setSelection({ id: road.id, coordinates: road.coordinates, paths: road.paths, label: road.name, revision: ++revision.current });
         }} onBus={(id, point) => {
           setSelected(undefined); setShowBuses(true); setSelectedBusId(id);
           setSelection({ id: 'bus:' + id, coordinates: [point], revision: ++revision.current });
@@ -319,11 +331,15 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
     </aside>
     <div className="ops-map-tools" aria-label="Отображение на карте">
       {selectedBus && <div className="ops-bus-detail" role="status">
-        <div><strong>{selectedBus.route ? 'Маршрут ' + selectedBus.route : 'Автобус'}</strong>
-          <span>{busMap?.source === 'simulation' ? 'Имитация' : 'РНИС'} · {fullTime(selectedBus.measured_at)}</span></div>
+        <div><strong>{selectedBus.fleet_number ? 'Автобус № ' + selectedBus.fleet_number : 'Автобус'}</strong>
+          <span>{selectedBus.route && 'Маршрут ' + selectedBus.route + ' · '}{busMap?.source === 'simulation' ? 'Имитация' : 'РНИС'} · {fullTime(selectedBus.measured_at)}</span></div>
         <button type="button" aria-label="Закрыть сведения об автобусе" onClick={() => setSelectedBusId(undefined)}>
           <Icon name="close" width="16" height="16" /></button>
       </div>}
+      <button type="button" aria-pressed={showTraffic} title={trafficTitle}
+        aria-label={showTraffic ? trafficTitle : 'Пробки'} onClick={() => setShowTraffic(value => !value)}>
+        <Icon name="traffic" width="16" height="16" />Пробки
+      </button>
       <button type="button" aria-pressed={showSnow} onClick={() => setShowSnow(!showSnow)}><Icon name="forecast" width="16" height="16" />Снег</button>
       <button type="button" aria-pressed={showMarkers} onClick={() => setShowMarkers(!showMarkers)}><Icon name="bell" width="16" height="16" />События</button>
       {busMap ? <button className="ops-bus-toggle" type="button" aria-pressed={showBuses} onClick={() => setShowBuses(!showBuses)}>

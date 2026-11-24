@@ -95,7 +95,7 @@ function demoBusData(scenario: DemoScenario, phase: CleanupPhase, clock: string)
     bus_map: { source: 'simulation', state: 'ready', positions: rows.flatMap((row, index) => {
       const road = index === 0 ? telman : quarry;
       return road.slice(-row.vehicle_count).map(([lon, lat], bus) => ({
-        id: row.section_id + '-' + bus, lon, lat, route: 'Д' + (index + 1), measured_at: lastSeen,
+        id: row.section_id + '-' + bus, lon, lat, route: 'Д' + (index + 1), fleet_number: String(20 + 2 * index + bus), measured_at: lastSeen,
       }));
     }) },
   };
