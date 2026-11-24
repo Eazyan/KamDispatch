@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { trafficColors, type TrafficSegment } from './traffic';
@@ -8,11 +8,31 @@ export type MapMarker = {
   id: string; label: string; coordinates: RoadPoint[]; color: string; priority: number;
 } & ({ kind: 'bus'; badge: string } | { kind?: undefined });
 export type Selection = { id: string; coordinates: RoadPoint[]; paths?: RoadPoint[][]; revision: number; label?: string; fitOnly?: boolean };
+export type MapControls = {
+  areas: { id: string; label: string }[];
+  area: string;
+  is3D: boolean;
+  layers: { id: string; label: string; checked: boolean; disabled: boolean }[];
+  snow: {
+    frames: (string | null)[];
+    index: number;
+    mode: string;
+    scale: string;
+    playing: boolean;
+    disabled: boolean;
+  } | null;
+};
+type MapCommand = { action: 'focus' | 'view' | 'play' }
+  | { action: 'area' | 'layer' | 'mode'; value: string }
+  | { action: 'frame'; value: number };
+export type MapControlHandle = { send: (command: MapCommand) => void };
+
 type Props = {
   cityUrl?: string | null; runId?: string; cleanupAt?: string; roads: SnowSegment[]; markers: MapMarker[];
   traffic?: TrafficSegment[]; trafficStale: boolean;
   selection: Selection | null; showSnow: boolean; showMarkers: boolean;
   onSelect: (id: string) => void; onClientState: (state: 'offline' | 'loading' | 'ready') => void;
+  onControls: (controls: MapControls | null) => void;
   onModelState: (state: 'loading' | 'ready' | 'failed', progress?: string) => void;
 };
 
@@ -40,7 +60,7 @@ function FallbackMap({ roads, traffic, trafficStale, markers, selection, showSno
       zoomControl: false, attributionControl: false, fadeAnimation: false }).setView(center, 13);
     mapRef.current = map;
     L.imageOverlay('/overview/city.webp', cityBounds).addTo(map);
-    L.control.zoom({ position: 'bottomleft' }).addTo(map);
+    L.control.zoom({ position: 'bottomleft', zoomInTitle: 'Приблизить', zoomOutTitle: 'Отдалить' }).addTo(map);
     L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
     map.attributionControl = L.control.attribution({ position: 'bottomright', prefix: false }).addTo(map)
       .addAttribution('© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · <a href="https://registry.opendata.aws/copernicus-dem/">Copernicus WorldDEM-30</a>');
@@ -135,15 +155,17 @@ function embeddedUrl(cityUrl: string) {
     url.searchParams.set('parent', location.origin);
     url.searchParams.set('bus-markers', '2');
     url.searchParams.set('traffic', '1');
+    url.searchParams.set('controls', 'parent');
     return url;
   } catch { return null; }
 }
 
-export function OverviewMap(props: Props) {
-  const { cityUrl, runId, cleanupAt, roads, traffic, trafficStale, markers, selection, showSnow, showMarkers, onSelect, onClientState, onModelState } = props;
+export const OverviewMap = forwardRef<MapControlHandle, Props>(function OverviewMap(props, ref) {
+  const { cityUrl, runId, cleanupAt, roads, traffic, trafficStale, markers, selection, showSnow, showMarkers, onSelect, onClientState, onModelState, onControls } = props;
   const url = useMemo(() => cityUrl ? embeddedUrl(cityUrl) : null, [cityUrl]);
   const [bridge, setBridge] = useState<{ url: string; state: 'ready' | 'offline'; busBadges?: boolean; traffic?: boolean }>();
   const frame = useRef<HTMLIFrameElement>(null);
+  const [controls, setControls] = useState<{ url: string; value: MapControls }>();
   const callbacks = useRef({ onSelect, onModelState });
   callbacks.current = { onSelect, onModelState };
   const mapState = !url ? 'offline' : bridge?.url === url.href ? bridge.state : 'loading';
@@ -151,6 +173,13 @@ export function OverviewMap(props: Props) {
   const missingLayer = (needsBusBadges && !bridge?.busBadges) || (traffic?.length && !bridge?.traffic);
   const state = mapState === 'ready' && missingLayer ? 'offline' : mapState;
   useEffect(() => { onClientState(state); }, [state, onClientState]);
+  const activeControls = state === 'ready' && controls?.url === url?.href ? controls?.value : null;
+  useEffect(() => { onControls(activeControls ?? null); }, [activeControls, onControls]);
+  useImperativeHandle(ref, () => ({
+    send(command) {
+      if (activeControls && url) frame.current?.contentWindow?.postMessage({ type: 'camchatka:control', ...command }, url.origin);
+    },
+  }), [activeControls, url]);
 
   useEffect(() => {
     if (!url) return;
@@ -162,6 +191,9 @@ export function OverviewMap(props: Props) {
         clearTimeout(timer);
         setBridge({ url: url.href, state: message.type === 'camchatka:ready' ? 'ready' : 'offline',
           busBadges: message.busBadges === true, traffic: message.traffic === true });
+      }
+      if (message?.type === 'camchatka:controls' && message.controls) {
+        setControls({ url: url.href, value: message.controls });
       }
       if (message?.type === 'camchatka:select' && typeof message.id === 'string') callbacks.current.onSelect(message.id);
       if (message?.type === 'camchatka:model' && ['loading', 'ready', 'failed'].includes(message.state)) {
@@ -176,12 +208,12 @@ export function OverviewMap(props: Props) {
     if (state !== 'ready' || !url) return;
     frame.current?.contentWindow?.postMessage({ type: 'camchatka:state', runId, cleanupAt, showSnow, showMarkers, markers, traffic, trafficStale,
       roads: roads.filter(row => row.status === 'watch').map(row => row.coordinates), selection }, url.origin);
-  }, [state, url, runId, cleanupAt, roads, traffic, trafficStale, markers, selection, showSnow, showMarkers]);
+  }, [state, bridge, url, runId, cleanupAt, roads, traffic, trafficStale, markers, selection, showSnow, showMarkers]);
 
   return <div className="overview-map">
     {state !== 'ready' && <FallbackMap {...props} />}
     {url && <iframe key={url.href} ref={frame} src={url.href}
-      title="Neverrie · городская 3D-карта и модель снега" className={state === 'ready' ? 'city-frame is-ready' : 'city-frame'}
+      aria-label="Городская карта" className={state === 'ready' ? 'city-frame is-ready' : 'city-frame'}
       tabIndex={state === 'ready' ? 0 : -1} aria-hidden={state !== 'ready'} />}
   </div>;
-}
+});

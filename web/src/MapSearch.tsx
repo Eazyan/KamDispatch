@@ -147,9 +147,9 @@ export function MapSearch({ cameras, buses, busSource, dispatch, scenario, searc
   }
 
   return <div className="ops-search">
-    <button ref={trigger} className="ops-topbar-button" type="button" aria-label="Поиск по карте"
-      title="Поиск по карте" aria-haspopup="dialog" aria-expanded={active} aria-controls={panelId} onClick={open}>
-      <Icon name="search" />
+    <button ref={trigger} className="ops-search-trigger" type="button" aria-label="Поиск по карте"
+      aria-haspopup="dialog" aria-expanded={active} aria-controls={panelId} onClick={open}>
+      <Icon name="search" /><span>Поиск по карте</span>
     </button>
     <dialog ref={panel} id={panelId} className="ops-search-panel" aria-label="Поиск по карте"
       onClose={() => setActive(false)}
