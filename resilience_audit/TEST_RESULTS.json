@@ -1,0 +1,221 @@
+{
+  "target": "http://127.0.0.1:18088",
+  "results": {
+    "BASELINE": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:24:03.073033+00:00",
+      "evidence": {
+        "http": {
+          "/": 200,
+          "/healthz": 200,
+          "/city/": 200,
+          "/api/v1/health": 200,
+          "/static/ops/map.js": 200,
+          "/api/v1/traffic": 200,
+          "/api/v1/operations/city/catalog": 200,
+          "/citizens/": 404
+        },
+        "role": "viewer",
+        "mode": "preview",
+        "frames_http": 200,
+        "observed_cameras": 20,
+        "forecast_points": 6,
+        "bus_positions": 0,
+        "terrain": true,
+        "snow_solver": true,
+        "address_found": true,
+        "seconds_to_ready": 0.11
+      }
+    },
+    "F01_WEATHER": {
+      "status": "FAIL",
+      "started_at": "2026-11-24T04:24:09.707343+00:00",
+      "evidence": {
+        "down": {
+          "seconds": 1.26,
+          "dashboard_http": 200,
+          "visible_checks": 0,
+          "same_forecast_as_before": true,
+          "horizons": [
+            "hourly"
+          ],
+          "db_checks": "unavailable|6"
+        },
+        "invalid": {
+          "seconds": 1.09,
+          "dashboard_http": 200,
+          "visible_checks": 0,
+          "same_forecast_as_before": true,
+          "horizons": [
+            "hourly"
+          ],
+          "db_checks": "unavailable|6"
+        },
+        "fallback": {
+          "seconds": 1.45,
+          "dashboard_http": 200,
+          "visible_checks": 0,
+          "same_forecast_as_before": false,
+          "horizons": [
+            "three_hourly"
+          ],
+          "db_checks": "three_hourly|6"
+        },
+        "ok": {
+          "seconds": 1.93,
+          "dashboard_http": 200,
+          "visible_checks": 0,
+          "same_forecast_as_before": false,
+          "horizons": [
+            "hourly"
+          ],
+          "db_checks": "ready|6"
+        }
+      }
+    },
+    "F02_CAMERAS": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:27:04.545393+00:00",
+      "evidence": {
+        "initial": {
+          "available": 20
+        },
+        "outage": {
+          "error": 20
+        },
+        "recovered": {
+          "available": 20
+        },
+        "http": 200,
+        "detect_s": 3.2,
+        "recover_s": 20.22
+      }
+    },
+    "F03_TRAFFIC": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:24:59.610639+00:00",
+      "evidence": {
+        "mismatch_http": 503,
+        "detect_s": 20.49,
+        "stale_http": 200,
+        "stale_segments": 1,
+        "expired_by_s": 6600.04,
+        "stale_fetch_s": 0.06,
+        "recover_s": 20.33,
+        "recovered_segments": 1,
+        "api_exposes_expiry": true
+      }
+    },
+    "F04_COMBINED": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:25:40.500451+00:00",
+      "evidence": {
+        "http": {
+          "/": 200,
+          "/api/v1/dashboard": 200,
+          "/api/v1/health": 200,
+          "/api/v1/traffic": 503
+        },
+        "traffic_detect_s": 19.02,
+        "visible_checks": 0,
+        "weather_rows_still_returned": 6,
+        "camera_status": {
+          "error": 20
+        },
+        "runtime_internet": "blocked by Docker internal network throughout all experiments"
+      }
+    },
+    "F05_CITY": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:26:02.083719+00:00",
+      "evidence": {
+        "city_api_http": 0,
+        "remaining_http": {
+          "/": 200,
+          "/api/v1/dashboard": 200,
+          "/city/": 200,
+          "/static/ops/map.js": 200
+        },
+        "detect_s": 8.0,
+        "recover_s": 7.0
+      }
+    },
+    "F06_DATABASE": {
+      "status": "FAIL",
+      "started_at": "2026-11-24T04:26:19.779435+00:00",
+      "evidence": {
+        "http": {
+          "/": 200,
+          "/healthz": 503,
+          "/api/v1/dashboard": 500,
+          "/api/v1/health": 200
+        },
+        "detect_s": 0.02,
+        "recover_s": 0.49,
+        "forecasts_after": 6
+      }
+    },
+    "F07_WORKER": {
+      "status": "FAIL",
+      "started_at": "2026-11-24T04:26:21.111745+00:00",
+      "evidence": {
+        "health": 200,
+        "dashboard": 200,
+        "public_checks": 0,
+        "heartbeat_unchanged": true,
+        "forecast_count": 6,
+        "recover_s": 1.23
+      }
+    },
+    "F08_LOAD": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:26:26.516996+00:00",
+      "evidence": {
+        "requests": 36,
+        "parallelism": 6,
+        "status": {
+          "200": 36
+        },
+        "p95_s": 0.083,
+        "total_s": 0.41,
+        "public_workflows": {
+          "/citizens/": 404,
+          "/api/v1/dispatch/roads": 404
+        }
+      }
+    },
+    "F09_RESTORE": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:26:26.931175+00:00",
+      "evidence": {
+        "db_schema_before": 21,
+        "db_schema_restored": 21,
+        "restore_s": 1.16,
+        "restored_frame_and_forecast_counts": [
+          425,
+          31
+        ],
+        "sqlite_integrity": "ok",
+        "media_archive_bytes": 2119680,
+        "tested_new_database": true
+      }
+    },
+    "F10_COLD_RECOVERY": {
+      "status": "PASS",
+      "evidence": {
+        "fresh_volumes": true,
+        "rto_s": 18.21,
+        "forecast_points": 6,
+        "frame_http": 200,
+        "validated_jpeg_bytes": 3878,
+        "city_health": {
+          "status": "ok",
+          "solver_connected": false,
+          "terrain_loaded": true,
+          "snow_solver_connected": true
+        }
+      },
+      "started_at": "2026-11-24T04:31:24.594028+00:00"
+    }
+  }
+}

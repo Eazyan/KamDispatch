@@ -1,0 +1,46 @@
+services:
+  api:
+    environment:
+      CITY_MAP_URL: ${CITY_SIM_PUBLIC_URL:-http://127.0.0.1:${CITY_SIM_PORT:-8008}/}
+      SNOW_CITY_REMOTE_URL: http://city-api:8008
+
+  city-api:
+    build:
+      context: ${CITY_SIM_SOURCE:-./city-sim}
+      dockerfile: Dockerfile.city-sim
+      args:
+        CITY_SIM_MODEL_SOURCE: ${CITY_SIM_MODEL_SOURCE:-remote-model}
+    environment:
+      CITY_SIM_DB: /state/city-sim.sqlite3
+      CITY_SIM_WEATHER: /atlas-local/heatmaps
+    volumes:
+      - city_sim_state:/state
+      - ${CITY_SIM_SOURCE:-./city-sim}/weather_coverage:/atlas-local:ro
+    healthcheck:
+      test: [CMD, python, -c, "import json, urllib.request; h = json.load(urllib.request.urlopen('http://127.0.0.1:8008/api/v1/health', timeout=4)); assert h['terrain_loaded'] and h['snow_solver_connected'], h"]
+      interval: 5s
+      timeout: 6s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+  city-web:
+    build:
+      context: ${CITY_SIM_SOURCE:-./city-sim}
+      dockerfile: Dockerfile.city-sim-web
+    ports:
+      - "127.0.0.1:${CITY_SIM_PORT:-8008}:8080"
+    volumes:
+      - ./city-map:/usr/share/nginx/html/static/ops:ro
+    depends_on:
+      city-api:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8080/api/v1/health]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  city_sim_state:

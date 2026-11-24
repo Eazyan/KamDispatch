@@ -1,0 +1,13 @@
+id,criticality,confidence,scope,trigger,impact,evidence,owner,recovery_or_fix
+R01,P0,observed,public snapshot,OpenWeather 503 or invalid payload,Previous forecast survives without visible provider outage,F01 and F04,Monitoring and UX,Expose per-source freshness and failure
+R02,P0,observed,public snapshot,Worker stops,Dashboard and readiness stay green with frozen collection,F07,Monitoring and SRE,Monitor worker heartbeat independently and display it
+R03,P0,observed,public snapshot,PostgreSQL stops,Dashboard returns 500 while web and City Sim still work,F06,API and SRE,Explain partial availability and keep isolated recovery runbook
+R04,P1,observed,release,Gateway and map deployed from different trees,Git main alone cannot reproduce current public contract,http-parity and runtime fingerprints,Release engineering,Track immutable release manifest with gateways and source trees
+R05,P1,observed,traffic,Yandex product is stale or graph hash drifts,API rejects mismatch and still sends expired intervals with TTL,F03,Traffic and UX,Keep explicit freshness label and support alternative feed
+R06,P1,observed,City Sim,City API stops while static map still responds,Operator loses calculation while page remains available,F05,City Sim and SRE,Expose degraded state and distinguish simulation readiness
+R07,P1,observed,cameras,HLS or JPEG providers fail together,No new observations for manual confirmation,F02 and F04,Monitoring,Keep timestamps and escalate manual inspection
+R08,P1,code review,closed workflow,Responsibility matrix and contractor setup diverge,Task may require manual territory and ownership check,dispatch_queue.py and snegoplan/CONTRACTS.md,Dispatcher,Require validated authority and service-boundary fixture
+R09,P1,observed,public scope,Operator uses public portal as dispatcher,Resident and task routes absent from the public gateway,F08 and public.nginx.conf,Product,Train with authenticated closed workflow
+R10,P1,code review,transport,RNIS unavailable or old,Live bus positions and delay evidence unavailable,bus_worker.py,Transport owner,Compare stale and no-data states with a replayed transport adapter
+R11,P1,code review,recovery,Whole host or registry fails,Fresh restore depends on external distribution and backup being present,F09 and F10,Release engineering and SRE,Off-host tested backup and OCI artifacts
+R12,P2,code review,CI,Path filters omit deployment compatibility,Application-wide failure reaches demo without parity check,.github/workflows and baseline,CI,Add compose smoke and tracked deployment manifests
