@@ -28,7 +28,7 @@ function samplePath(coordinates, map, origin, scale) {
     const [lon, lat] = coordinates[i - 1];
     const [nextLon, nextLat] = coordinates[i];
     if (lon === nextLon && lat === nextLat) continue;
-    const distance = new maplibregl.LngLat(lon, lat).distanceTo(coordinates[i]);
+    const distance = new maplibregl.LngLat(lon, lat).distanceTo(new maplibregl.LngLat(nextLon, nextLat));
     const steps = terrain ? Math.min(128, Math.max(1, Math.ceil(distance / 24))) : 1;
     for (let step = 1; step <= steps; step++) {
       const t = step / steps;
