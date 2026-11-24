@@ -20,8 +20,11 @@ export function SnowTimeline({ snow, onMode, onFrame, onPlay }: {
   const frameTime = frames[index] ? dateTime.format(new Date(frames[index])) : 'Кадр ' + (index + 1);
   const start = frames[0] ? date.format(new Date(frames[0])) : '';
   const end = frames[last] ? date.format(new Date(frames[last])) : '';
-  const tickFormat = start && end && start !== end ? date : time;
-  const labelStep = Math.max(1, Math.ceil(last / 4));
+  const frameInterval = frames[0] && frames[1] ? Date.parse(frames[1]) - Date.parse(frames[0]) : 0;
+  const hourlyStep = frameInterval > 0 && frameInterval < 3600000 && 3600000 % frameInterval === 0
+    ? 3600000 / frameInterval : 0;
+  const tickFormat = !hourlyStep && start && end && start !== end ? date : time;
+  const labelStep = hourlyStep || Math.max(1, Math.ceil(last / 4));
   const progress = last > 0 ? index / last * 100 : 0;
   return <div className="ops-snow-time">
     <div className="ops-snow-heading">
