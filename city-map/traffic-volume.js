@@ -1,9 +1,9 @@
 import * as THREE from '../vendor/three.module.min.js';
 
 const styles = {
-  free: { color: '#52cf73', radius: 6 },
-  slow: { color: '#f6be48', radius: 8 },
-  congested: { color: '#f46c67', radius: 10 },
+  free: { color: '#52cf73', radius: 14 },
+  slow: { color: '#f6be48', radius: 17 },
+  congested: { color: '#f46c67', radius: 20 },
 };
 
 export const trafficColors = Object.fromEntries(Object.entries(styles).map(([status, { color }]) => [status, color]));
@@ -51,10 +51,11 @@ function appendTube(batch, points, radius, color) {
       positions.push(
         point.x + radius * (direction.x * offset - direction.y * side),
         point.y + radius * (direction.y * offset + direction.x * side),
-        point.z + radius * (1.2 + height),
+        point.z + radius * (1.45 + 1.35 * height),
       );
-      const light = .64 + .33 * height - .15 * side;
-      colors.push(color.r * light, color.g * light, color.b * light);
+      const light = .51 + .39 * height - .19 * side;
+      const highlight = .29 * Math.max(0, height * .92 - side * .39) ** 4;
+      colors.push(color.r * light + highlight, color.g * light + highlight, color.b * light + highlight);
     }
     if (previousRing !== undefined) {
       for (let i = 0; i < sides; i++) {
