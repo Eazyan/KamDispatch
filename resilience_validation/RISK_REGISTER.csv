@@ -1,0 +1,14 @@
+id,priority,before,after,residual,evidence
+R01,P0,Weather error hidden while previous forecast is still returned,Backend exposes degraded or stale status and preserves previous snapshot,Public UI integration still required for visual warning,experiments.json sources and docs/SYSTEM_STATUS_API.md
+R02,P0,Worker stop invisible from healthz,Cached status detects heartbeat expiry,Mode-specific heartbeat threshold plus polling lag,experiments.json cascade
+R03,P0,PostgreSQL failure gives 500 from dashboard,Dashboard and public proxy return 503 while independent API routes continue,PostgreSQL remains a single data dependency,experiments.json cascade
+R04,P1,Release reconstruction exposed manual server overlays,Fresh Git build attempted; Debian HTTP 503 blocked restore,Live infrastructure and backup storage are outside this run,recovery.json
+R05,P1,Traffic uses publication-wide expiry and estimated free gaps,Per-interval expiry and no estimated-free geometry,Existing frontend has no dedicated stale color,experiments.json sources
+R06,P1,City Sim failure can leave pages available,Component probe exposes unavailable and snow queue rejects excess,No automatic cancellation of a genuinely stuck solver in this change,experiments.json snow and cascade
+R07,P1,Mass camera failure leaves no vision evidence,Unchanged in this iteration,Manual fallback and field work remain,PR #24 F02
+R08,P1,Task delivery and assignment can diverge,Lost response and version replay verified without duplicate assignment,Real messenger delivery and territorial authority remain separate,experiments.json dispatch
+R09,P1,Public viewer gateway excludes operator routes,Public filter preserved and structured status can be exposed,Closed authorization integration depends on deployment,docs/SYSTEM_STATUS_API.md
+R10,P1,RNIS can keep serving stale vehicle positions,Frozen device timestamp is detected and disappears from the map,Repeated current timestamps with unchanged coordinates can be legitimate stops,experiments.json sources
+R11,P1,Restoration needs images and coordinated backups,Three backup archives exported; clean build blocked by Debian HTTP 503,Rehearsal requires external base images and dependency registries,recovery.json
+R12,P2,No full deployment smoke in repository CI,Reproducible isolated commands and API tests available,Stress-suite scheduling and infra budgets remain separate,README.md and regression
+R13,P1,Peak load limit not measured,Measured four synthetic concurrency steps,Observed Mac limit depends on workload and client behavior,experiments.json load and evidence/load.png

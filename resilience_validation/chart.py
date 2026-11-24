@@ -33,8 +33,12 @@ for key, label in (("p50_ms", "p50"), ("p95_ms", "p95"), ("p99_ms", "p99")):
                  marker="o", label=label)
 latency.set(yscale="log", ylabel="мс, логарифмическая шкала", title="Задержка dashboard")
 latency.legend()
-throughput.plot(users, [s["measurements"]["requests_per_second"] for s in stages], marker="o", color="#246656")
-throughput.set(ylabel="ответов/с, включая ошибки", title="Пропускная способность смеси")
+throughput.plot(users, [s["measurements"]["requests_per_second"] for s in stages],
+                marker="o", linestyle="--", color="#9c5839", label="все завершения")
+throughput.plot(users, [(s["measurements"]["requests"] - s["measurements"]["errors"]) / s["measurements"]["seconds"]
+                        for s in stages], marker="o", color="#246656", label="успешные HTTP-ответы")
+throughput.set(ylabel="завершений/с", title="Пропускная способность смеси")
+throughput.legend()
 cpu.plot(users, [resource(s, lambda row: float(row["CPUPerc"].rstrip("%"))) for s in stages], marker="o", color="#813a5e")
 cpu.set(ylabel="% одного ядра, сумма", title="CPU · максимум по сэмплам")
 ram.plot(users, [resource(s, lambda row: memory(row["MemUsage"].split("/")[0])) for s in stages], marker="o", color="#26607a")

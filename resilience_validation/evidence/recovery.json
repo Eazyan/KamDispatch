@@ -1,0 +1,4 @@
+{
+  "status": "BLOCKED",
+  "error": "Command '['/Users/konstantin/Documents/ChatGPT/\u043a\u0430\u043c\u0447\u0430\u0442\u043a\u0430/workspaces/kamdispatch-resilience-hardening/.resilience-validation/cold-02c499d1/resilience_validation/compose', 'build', '--pull', '--no-cache', 'api', 'city-api']' returned non-zero exit status 1."
+}

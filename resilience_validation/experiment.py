@@ -183,27 +183,49 @@ async def weather_poll():
                             "with_client=httpx.Client(); forecast_tick(Settings(),'preview',with_client)")
 
 
-async def sources(client):
+async def weather_experiment(client):
+    async def panel():
+        code, _, body = await request(client, "GET", "/public/dashboard")
+        return body if code == 200 else None
+
+    await weather_poll()
     await expect_component(client, "weather", "healthy")
-    await expect_component(client, "buses", "healthy")
-    previous = (await request(client, "GET", DASH))[2]["forecasts"]
+    initial, _ = await until(panel)
+    previous = initial["forecasts"]
     output = {}
     try:
-        for mode in ("down", "invalid", "stale", "fallback"):
+        for mode, reason in (("down", "upstream_http_503"), ("invalid", "invalid_payload"),
+                             ("stale", "expired_payload"), ("fallback", None)):
             toggle("weather", mode)
             started = time.monotonic()
             await weather_poll()
-            status, _, dashboard = await request(client, "GET", "/public/dashboard")
-            output[mode] = {"http": status, "elapsed_s": round(time.monotonic() - started, 2),
+            dashboard, _ = await until(panel)
+            output[mode] = {"http": 200, "elapsed_s": round(time.monotonic() - started, 2),
                             "kept_previous": dashboard["forecasts"] == previous,
                             "status": dashboard["weather_source"]["status"],
                             "reason": dashboard["weather_source"]["reason"],
                             "horizons": sorted({p["horizon"] for point in dashboard["forecasts"] for p in point["periods"]})}
+            assert output[mode]["reason"] == reason, output[mode]
+            print("Weather", mode, output[mode], flush=True)
         toggle("weather", "ok")
         await weather_poll()
         _, output["weather_recover_s"] = await expect_component(client, "weather", "healthy")
+        _, aged_s = await expect_component(client, "weather", "stale", 90)
+        dashboard, _ = await until(panel)
+        output["aged_weather"] = {"http": 200, "status": dashboard["weather_source"]["status"],
+                                  "stored_points": len(dashboard["forecasts"]), "detect_s": aged_s}
+    finally:
+        toggle("weather", "ok")
+        await weather_poll()
+    return output
+
+
+async def traffic_experiment(client):
+    output = {}
+    try:
         for mode in ("mixed", "stale", "wrong-graph"):
             toggle("traffic", mode)
+
             async def traffic_check():
                 code, _, traffic = await request(client, "GET", TRAFFIC)
                 if code != 200 or not traffic:
@@ -212,25 +234,35 @@ async def sources(client):
                 matched = ({"stale", "congested"} <= counts.keys() if mode == "mixed" else
                            set(counts) == {"stale"} if mode == "stale" else traffic["source"]["reason"] == "invalid_publication")
                 return {"http": code, "intervals": counts, "source_reason": traffic["source"]["reason"]} if matched else None
+
             item, item_time = await until(traffic_check)
             output["traffic_" + mode] = {**item, "detect_s": item_time}
-        toggle("traffic", "ok")
-        _, output["traffic_recover_s"] = await expect_component(client, "traffic", "healthy")
-        toggle("buses", "frozen")
-        # RNIS reports 200 but its timestamp no longer advances.
-        frozen, output["bus_detect_s"] = await expect_component(client, "buses", "stale", 110)
-        output["bus_stale"] = frozen
-        output["bus_map_positions"] = len((await request(client, "GET", DASH))[2]["bus_map"]["positions"])
-        # Deliberately let the last successful weather poll exceed the 75s fixture TTL.
-        status, _, dashboard = await request(client, "GET", "/public/dashboard")
-        output["aged_weather"] = {"http": status, "status": dashboard["weather_source"]["status"],
-                                  "stored_points": len(dashboard["forecasts"])}
+            print("Traffic", mode, output["traffic_" + mode], flush=True)
     finally:
-        for source in ("weather", "traffic", "buses"):
-            toggle(source, "ok")
-        await weather_poll()
-    _, output["bus_recover_s"] = await expect_component(client, "buses", "healthy", 55)
+        toggle("traffic", "ok")
+    _, output["traffic_recover_s"] = await expect_component(client, "traffic", "healthy")
     return output
+
+
+async def bus_experiment(client):
+    await expect_component(client, "buses", "healthy")
+    try:
+        toggle("buses", "frozen")
+        # RNIS responds 200 with a timestamp that no longer advances.
+        frozen, detected = await expect_component(client, "buses", "stale", 110)
+        positions = (await request(client, "GET", DASH))[2]["bus_map"]["positions"]
+    finally:
+        toggle("buses", "ok")
+    _, recovered = await expect_component(client, "buses", "healthy", 55)
+    return {"bus_detect_s": detected, "bus_stale": frozen, "bus_map_positions": len(positions),
+            "bus_recover_s": recovered}
+
+
+async def sources(client):
+    probes = {"weather": weather_experiment, "traffic": traffic_experiment, "buses": bus_experiment}
+    outcomes = await asyncio.gather(*(probe(client) for probe in probes.values()), return_exceptions=True)
+    return {name: outcome if not isinstance(outcome, Exception) else {"blocked": repr(outcome)}
+            for name, outcome in zip(probes, outcomes)}
 
 
 async def cascade(client):
@@ -248,6 +280,10 @@ async def cascade(client):
         await asyncio.to_thread(dc, "stop", "-t", "2", "db")
         _, db_detection = await expect_component(client, "postgresql", "unavailable", 20)
         during = await generic_status(client, ("/", "/healthz", DASH, "/public/dashboard", CITY, STATUS))
+        codes = {}
+        for path in (DASH, "/public/dashboard"):
+            error = await request(client, "GET", path)
+            codes[path] = error[2].get("code") if isinstance(error[2], dict) else None
         duty = await running()
         # Cold monitoring process must still start with PostgreSQL stopped.
         await asyncio.to_thread(dc, "restart", "api")
@@ -259,11 +295,12 @@ async def cascade(client):
     finally:
         for source in ("weather", "traffic", "buses"):
             toggle(source, "ok")
-        await asyncio.to_thread(dc, "start", "db", "city-api", "worker")
+        await asyncio.to_thread(dc, "start", "db", "api", "city-api")
     _, db_recovery = await expect_component(client, "postgresql", "healthy", 45)
+    await asyncio.to_thread(dc, "start", "worker")
     _, city_recovery = await expect_component(client, "city_sim", "healthy", 45)
     _, worker_recovery = await expect_component(client, "worker", "healthy", 50)
-    return {"before": before, "during": during, "after_api_reboot": cold, "load": duty,
+    return {"before": before, "during": during, "database_error_codes": codes, "after_api_reboot": cold, "load": duty,
             "after_two_internal_failures_status_http": tail_status,
             "detected_s": {"worker_from_stop": worker_detection, "postgresql_after_stop": db_detection,
                            "status_available_after_reboot": reboot_detection, "city_after_stop": city_detection},
