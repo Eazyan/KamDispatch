@@ -162,6 +162,8 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
       traffic.stale && 'данные устарели', publication.status === 'partial' && 'частичное покрытие',
       'приглушённые линии — интерполяция'].filter(Boolean).join(' · ');
   const [showMarkers, setShowMarkers] = useState(true);
+  const [showCameras, setShowCameras] = useState(true);
+  const [showCitizenMarkers, setShowCitizenMarkers] = useState(true);
   const [showBuses, setShowBuses] = useState(true);
   const [selectedBusId, setSelectedBusId] = useState<string>();
   const busMap = data.bus_map;
@@ -178,13 +180,21 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
     return [{ id: 'bus:' + bus.id, label, kind: 'bus', badge: bus.route || bus.fleet_number || '•',
       coordinates: [[bus.lon, bus.lat]], color: '#74edc5', priority: -1 }];
   }), [positions]);
+  const cameraMarkers = useMemo<MapMarker[]>(() => scenario ? [] : data.cameras.flatMap(camera => {
+    if (!camera.coordinates) return [];
+    return [{ id: 'camera-pin:' + camera.id, label: camera.name, coordinates: [camera.coordinates],
+      color: '#7bd5ff', priority: 10 }];
+  }), [data.cameras, scenario]);
   const citizenMarkers = useMemo<MapMarker[]>(() => (citizenReports ?? []).map(report => ({
     id: 'citizen:' + report.id, label: 'Обращение жителя · ' + fullTime(report.created_at),
     coordinates: [[report.longitude, report.latitude]], color: '#e5a4ff', priority: 20,
   })), [citizenReports]);
   const displayedMarkers = useMemo(() => [
-    ...(showMarkers ? [...markers, ...citizenMarkers] : []), ...(showBuses ? busMarkers : []),
-  ], [markers, citizenMarkers, busMarkers, showMarkers, showBuses]);
+    ...(showMarkers ? markers : []),
+    ...(showCameras ? cameraMarkers : []),
+    ...(showCitizenMarkers ? citizenMarkers : []),
+    ...(showBuses ? busMarkers : []),
+  ], [markers, cameraMarkers, citizenMarkers, busMarkers, showMarkers, showCameras, showCitizenMarkers, showBuses]);
   const demoCoordinates = !scenario && busMap?.source === 'simulation'
     ? JSON.stringify(busMap.positions.map(bus => [bus.lon, bus.lat])) : '';
   const demoBusFocus = useMemo(() => demoCoordinates ? {
@@ -239,8 +249,11 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
       traffic={trafficSegments} trafficStale={traffic.stale || traffic.unavailable}
       showSnow={showSnow} showMarkers={displayedMarkers.length > 0} onClientState={setState} onModelState={(status, progress) => { setModel(status); setModelProgress(progress); }}
       onSelect={id => {
-        const citizen = citizenMarkers.find(marker => marker.id === id);
-        if (citizen) {
+        if (id.startsWith('camera-pin:')) {
+          onCamera(id.slice('camera-pin:'.length));
+          return;
+        }
+        if (id.startsWith('citizen:')) {
           onCitizenReport(id.slice('citizen:'.length));
           return;
         }
@@ -367,6 +380,18 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
           onClick={() => setShowMarkers(value => !value)}>
           <Icon name="bell" /><span className="ops-map-tool-label">События</span>
         </button>
+        {!scenario && <>
+          <button className="ops-topbar-button ops-map-tool" type="button" aria-label="Камеры"
+            aria-pressed={showCameras} onClick={() => setShowCameras(value => !value)}>
+            <Icon name="camera" /><span className="ops-map-tool-label">Камеры</span>
+          </button>
+          {citizenReports && (
+            <button className="ops-topbar-button ops-map-tool" type="button" aria-label="Обращения"
+              aria-pressed={showCitizenMarkers} onClick={() => setShowCitizenMarkers(value => !value)}>
+              <Icon name="reports" /><span className="ops-map-tool-label">Обращения</span>
+            </button>
+          )}
+        </>}
         {busMap ? <button className="ops-topbar-button ops-map-tool ops-bus-toggle" type="button" aria-label="Автобусы"
           aria-description={busStatus + (busMap.source === 'simulation' ? ' · имитация' : '')} aria-pressed={showBuses}
           onClick={() => setShowBuses(value => !value)}>
