@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import math
 
 TYPES = frozenset({'street', 'address', 'road_section', 'bus', 'equipment',
-                   'camera', 'task', 'event', 'base', 'snow_site'})
+                   'camera', 'task', 'event', 'base', 'snow_site', 'poi'})
 
 
 def timestamp(value):

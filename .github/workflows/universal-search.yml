@@ -1,9 +1,22 @@
 name: Universal search backend
 on:
   push:
-    paths: ['city-sim/shared/universal_search/**', '.github/workflows/universal-search.yml']
+    paths: &search_paths
+      - 'city-sim/shared/universal_search/**'
+      - 'city-sim/data/pkc/*.osm.gz'
+      - 'city-sim/weather_coverage/osm/**'
+      - 'monitoring/**'
+      - 'resident_site/**'
+      - 'web/**'
+      - 'tests/test_map_search.py'
+      - 'tests/test_monitoring.py'
+      - 'tests/test_citizens.py'
+      - 'scripts/extract_search_osm.py'
+      - 'snegoplan/mapprep/out/graph_v3.json'
+      - 'requirements.txt'
+      - '.github/workflows/universal-search.yml'
   pull_request:
-    paths: ['city-sim/shared/universal_search/**', '.github/workflows/universal-search.yml']
+    paths: *search_paths
 permissions:
   contents: read
 jobs:
@@ -23,3 +36,33 @@ jobs:
       - run: python -m unittest discover -s shared/universal_search/tests -v
         env:
           PYTHONPATH: shared
+  application-search:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: search-test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt pytest aiosmtpd
+      - run: >-
+          python -m pytest tests/test_map_search.py tests/test_citizens.py tests/test_monitoring.py
+          -k 'test_map_search or bot_submits or same_address_point'
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:search-test@localhost:5432/postgres
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci && npm test && npm run build
+        working-directory: web

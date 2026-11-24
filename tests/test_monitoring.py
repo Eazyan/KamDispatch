@@ -72,6 +72,23 @@ def settings(tmp_path):
     return result
 
 
+def test_map_and_resident_form_use_the_same_address_point(settings):
+    from dataclasses import replace
+
+    settings = replace(settings, mode="demo")
+    with connect(settings) as conn:
+        prepare_run(conn, "demo", "demo", ())
+    with TestClient(create_app(settings)) as client:
+        query = {"q": "ул. Ленинская, дом 8"}
+        found = client.get("/api/v1/map/search", params=query)
+        resident = client.get("/api/v1/citizens/address-search", params=query)
+        assert found.status_code == resident.status_code == 200
+        hit = found.json()[0]
+        point = resident.json()["matches"][0]
+        assert hit["coordinates"] == [point["longitude"], point["latitude"]]
+        assert point["address"].startswith(hit["name"])
+
+
 def test_city_snapshot_keeps_geometry_out_of_dashboard(settings):
     from dataclasses import replace
 

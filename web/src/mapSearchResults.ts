@@ -1,16 +1,26 @@
 import type { DispatchGroup, RoadPoint } from './types';
 
 export type SearchHit = {
-  id: string; type: 'street' | 'address' | 'camera' | 'bus' | 'task' | 'event' | 'page'; name: string;
+  id: string; type: 'street' | 'address' | 'poi' | 'camera' | 'bus' | 'task' | 'event' | 'page'; name: string;
   page?: string | null;
   route?: string | null;
+  label?: string;
   coordinates: RoadPoint | null;
   paths?: RoadPoint[][];
 };
 
+export const normalizeSearch = (value: string) => value.toLocaleLowerCase('ru').replaceAll('ё', 'е')
+  .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+
+export function matchesSearch(query: string, fields: (string | undefined | null)[]) {
+  const tokens = normalizeSearch(fields.filter(Boolean).join(' ')).split(' ');
+  return normalizeSearch(query).split(' ').every(word => tokens.some(token =>
+    /\d/.test(word) ? token === word : token.includes(word)));
+}
+
 export function serviceSearchHits(hits: SearchHit[], scenario: boolean): SearchHit[] {
   return scenario
-    ? hits.filter(hit => hit.type === 'street' || hit.type === 'address' || hit.type === 'page')
+    ? hits.filter(hit => hit.type === 'street' || hit.type === 'address' || hit.type === 'poi' || hit.type === 'page')
     : [...hits];
 }
 

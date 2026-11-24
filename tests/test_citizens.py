@@ -288,7 +288,8 @@ def test_legacy_import_is_atomic_and_idempotent(tmp_path, monkeypatch):
     assert row["photo_jpeg"].startswith(b"\xff\xd8")
 
 
-def test_bot_submits_telegram_photo_through_api_and_reads_it_back():
+@pytest.mark.parametrize("use_address", [False, True])
+def test_bot_submits_telegram_photo_through_api_and_reads_it_back(use_address):
     report_id = str(uuid4())
     report = {"id": report_id, "report_number": 1, "description": "Гололёд", "latitude": 53.02, "longitude": 158.65,
               "created_at": "2025-01-01T14:30:00Z", "tags": [], "suggested_tags": ["гололёд"]}
@@ -300,7 +301,10 @@ def test_bot_submits_telegram_photo_through_api_and_reads_it_back():
         if request.method == "POST":
             assert request.url.path == REPORTS
             assert request.headers["Content-Type"].startswith("multipart/form-data")
-            assert image in await request.aread()
+            payload = await request.aread()
+            assert image in payload
+            if use_address:
+                assert "Ленинская улица, 8, Петропавловск-Камчатский".encode() in payload
             return httpx.Response(201, json=report)
         if request.url.path.endswith("/photo"):
             return httpx.Response(200, content=image)
@@ -319,6 +323,13 @@ def test_bot_submits_telegram_photo_through_api_and_reads_it_back():
             bot = Bot(client, "test-key")
             bot.drafts[123] = Draft(photo_id="telegram-photo", description=report["description"])
             update = SimpleNamespace(message=message)
+            if use_address:
+                message.location = None
+                message.text = "8, Ленинская улица"
+                await bot.handle(update, None)
+                assert "Проверьте адрес" in message.reply_text.await_args.args[0]
+                telegram.get_file.assert_not_called()
+                message.text = "Подтвердить адрес"
             await bot.handle(update, None)
             telegram.get_file.assert_awaited_once_with("telegram-photo")
             assert 123 not in bot.drafts

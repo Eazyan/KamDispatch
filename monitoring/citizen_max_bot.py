@@ -3,25 +3,18 @@ from contextlib import suppress
 import logging
 import os
 from pathlib import Path
-import re
 import ssl
 from types import SimpleNamespace
-from xml.etree.ElementTree import ParseError
 
 import httpx
-from telegram import InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
+from telegram import InlineKeyboardMarkup, ReplyKeyboardMarkup
 
-from .citizen_addresses import find_addresses, street_name
-from .citizen_bot import Bot, CANCEL, DISPATCH_CALLBACK, PHOTO_LIMIT, crew_recipients, notify_crew_assignments
+from .citizen_bot import ADDRESS_EXAMPLE, Bot, DISPATCH_CALLBACK, PHOTO_LIMIT, crew_recipients, notify_crew_assignments
 
 
 logger = logging.getLogger(__name__)
 MAX_API_URL = "https://platform-api2.max.ru"
 MAX_CA_BUNDLE = Path("/app/runtime/max/ca.pem")
-ADDRESS_EXAMPLE = "Например: улица Ларина, 22."
-CONFIRM_ADDRESS = "Подтвердить адрес"
-HOUSE_NUMBER = r"[0-9]+(?:[а-яa-z])?(?:[-/][0-9]+[а-яa-z]?|к[0-9]+)?"
-ADDRESS_PATTERN = re.compile(rf"(.+?)[,\s]+(?:д(?:ом)?\.?\s*)?({HOUSE_NUMBER})", re.IGNORECASE)
 
 
 class MaxMessage:
@@ -112,49 +105,6 @@ class MaxBot(Bot):
     caption_limit = 4000
     photo_content_type = "application/octet-stream"
     photo_filename = "photo"
-
-    async def handle_draft(self, message, user_id, text, draft):
-        if message.photo or message.location:
-            draft.pending_address = None
-        elif draft.photo_id and draft.description and text and not text.startswith("/"):
-            if text == CONFIRM_ADDRESS:
-                if draft.pending_address is None:
-                    await self.prompt(message, draft)
-                    return
-                message.location = draft.pending_address
-                await super().handle_draft(message, user_id, "", draft)
-                return
-            await self.check_address(message, text, draft)
-            return
-        await super().handle_draft(message, user_id, text, draft)
-
-    async def check_address(self, message, text, draft):
-        draft.pending_address = None
-        match = ADDRESS_PATTERN.fullmatch(text) if len(text) <= 240 else None
-        if not match or not street_name(match[1]):
-            await self.prompt(message, draft, f"Укажите улицу и номер дома или отправьте геометку. {ADDRESS_EXAMPLE}")
-            return
-        try:
-            matches = find_addresses(*match.groups())
-        except (OSError, EOFError, ParseError, ValueError):
-            await self.prompt(message, draft, "Справочник адресов временно недоступен. Повторите ввод или отправьте геометку.")
-            return
-        if not matches:
-            await self.prompt(
-                message, draft, "Дом по этому адресу не найден в справочнике. Проверьте улицу и номер или отправьте геометку.",
-            )
-        elif len(matches) > 1:
-            addresses = "\n".join(point.address for point in matches[:3])
-            await self.prompt(message, draft, f"Нашлось несколько адресов. Уточните улицу и номер:\n{addresses}")
-        else:
-            draft.pending_address = matches[0]
-            await message.reply_text(
-                f"Проверьте адрес: {matches[0].address}. Если он верный, подтвердите. "
-                "Если нет, напишите адрес заново или отправьте геометку.",
-                reply_markup=ReplyKeyboardMarkup([
-                    [CONFIRM_ADDRESS], [KeyboardButton("Моя геопозиция", request_location=True)], [CANCEL],
-                ], resize_keyboard=True),
-            )
 
     async def download_photo(self, message, photo_id):
         url = httpx.URL(photo_id)

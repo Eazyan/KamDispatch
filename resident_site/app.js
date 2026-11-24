@@ -290,14 +290,23 @@ search.addEventListener("submit", async event => {
   searchStatus.textContent = "Ищем адрес…";
   const params = new URLSearchParams({q: term, limit: "5", lat: kamchatka[0], lon: kamchatka[1]});
   try {
-    const response = await fetch(`https://photon.komoot.io/api/?${params}`, {signal: controller.signal});
-    if (!response.ok) throw new Error("Address search failed");
-    const data = await response.json();
+    const options = {signal: controller.signal};
+    const local = await fetch(`/api/v1/citizens/address-search?${new URLSearchParams({q: term})}`, options);
+    if (!local.ok) throw new Error("Address search failed");
+    const data = await local.json();
+    let matches = data.matches.map(hit => ({lat: hit.latitude, lon: hit.longitude, label: hit.address}));
+    if (!data.local) {
+      const response = await fetch(`https://photon.komoot.io/api/?${params}`, options);
+      if (!response.ok) throw new Error("Address search failed");
+      const remote = await response.json();
+      matches = remote.features.filter(feature => feature.geometry?.type === "Point").map(feature => {
+        const [lon, lat] = feature.geometry.coordinates;
+        return {lat, lon, label: resultLabel(feature.properties)};
+      });
+    }
     if (pendingSearch !== controller) return;
-    for (const feature of data.features) {
-      if (feature.geometry?.type !== "Point") continue;
-      const [lon, lat] = feature.geometry.coordinates;
-      const label = resultLabel(feature.properties).slice(0, address.maxLength);
+    for (const {lat, lon, label: formatted} of matches) {
+      const label = formatted.slice(0, address.maxLength);
       if (!label || !validPoint(lat, lon)) continue;
       const item = document.createElement("li");
       const button = document.createElement("button");
