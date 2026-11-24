@@ -142,6 +142,15 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
   }), [widgets]);
   const dataModeMenu = useRef<HTMLDetailsElement>(null);
   const dataModeTrigger = useRef<HTMLElement>(null);
+  useEffect(() => {
+    function closeDataModeOnOutsidePointer(event: PointerEvent) {
+      const menu = dataModeMenu.current;
+      if (menu?.open && event.target instanceof Node && !menu.contains(event.target)) menu.open = false;
+    }
+
+    document.addEventListener('pointerdown', closeDataModeOnOutsidePointer, true);
+    return () => document.removeEventListener('pointerdown', closeDataModeOnOutsidePointer, true);
+  }, []);
   const mapRef = useRef<MapControlHandle>(null);
   const [mapControls, setMapControls] = useState<MapControls | null>(null);
   const [state, setState] = useState<'offline' | 'loading' | 'ready'>('offline');
@@ -267,12 +276,17 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
         setSelection({ id: 'bus:' + id, coordinates: [point], revision: ++revision.current });
       }} />
     <div className="ops-topbar" aria-label="Инструменты карты">
-      <details ref={dataModeMenu} className="ops-demo" onBlur={event => {
-        if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
-      }} onKeyDown={event => {
-        if (event.key === 'Escape' && event.currentTarget.open) {
+      <details ref={dataModeMenu} className="ops-demo" onKeyDown={event => {
+        const menu = event.currentTarget;
+        if (!menu.open) return;
+        if (event.key === 'Tab') {
+          requestAnimationFrame(() => {
+            if (!menu.contains(document.activeElement)) menu.open = false;
+          });
+        }
+        if (event.key === 'Escape') {
           event.preventDefault();
-          event.currentTarget.open = false;
+          menu.open = false;
           dataModeTrigger.current?.focus();
         }
       }}>
