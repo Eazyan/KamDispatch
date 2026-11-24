@@ -54,8 +54,14 @@ class LiveRevisionTests(unittest.TestCase):
                     sleep(.1)
                 else:
                     self.fail("Run did not complete.")
-                result = client.get(path + "/sample", params={"lon": 158.642, "lat": 53.0363}).json()
-                self.assertEqual(result["snow_cm"], expected)
+                saved = client.get(path).json()
+                self.assertEqual(saved["frame_interval_minutes"], 10)
+                self.assertEqual(len(saved["wind_frames"]), 7)
+                self.assertEqual(len(saved["timeline"]), 6)
+                point = {"lon": 158.642, "lat": 53.0363}
+                for frame, depth in [(0, 0), (3, expected/2), (6, expected)]:
+                    result = client.get(path + "/sample", params={**point, "frame": frame}).json()
+                    self.assertEqual(result["snow_cm"], depth)
                 return data["run_id"]
 
             def refresh():

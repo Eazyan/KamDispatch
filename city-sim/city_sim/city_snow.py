@@ -33,6 +33,9 @@ BOUNDARY = ROOT / "weather_coverage/osm/city-boundary.osm.gz"
 TILE_DEG = (.022, .014)
 TILE_CELLS = 64
 METHOD = "city-snow-6"
+LIVE_METHOD = "city-snow-7-live"
+LIVE_FRAME_MINUTES = 10
+LIVE_SEAM_FRACTION = 8
 OPENWEATHER_URL = "https://openweathermap.org/api/forecast5"
 LOCAL_WEATHER_M = 3000
 MAX_WEATHER_M = 15000
@@ -103,6 +106,52 @@ def remap(raw, count=TILE_CELLS):
 def checkpoints(count):
     step = 1 if count <= 6 else 12
     return sorted({0, count-1, *range(step-1, count, step)})
+
+
+def live_frames(start, hours):
+    per_hour = 60 // LIVE_FRAME_MINUTES
+    for index in range(len(hours) * per_hour + 1):
+        hour = hours[max(0, (index-1) // per_hour)]
+        yield (start + timedelta(minutes=index*LIVE_FRAME_MINUTES)).isoformat(), hour
+
+
+def live_accumulation(actual, hours, estimate):
+    per_hour = 60 // LIVE_FRAME_MINUTES
+    actual = np.nan_to_num(actual)
+    running = np.zeros_like(actual)
+    yield running.copy()
+    for index, hour in enumerate(hours):
+        if index == len(hours)-1:
+            end = actual
+        elif hour["snowfall_cm"] == 0 or hour["wind_speed_ms"] <= 2:
+            end = running + hour["snowfall_cm"]
+        else:
+            end = running + np.nan_to_num(estimate([hour]))
+        # The full estimate groups and rounds hours together. Keep the last blend continuous.
+        end = np.minimum(end, actual)
+        for part in range(1, per_hour+1):
+            if index == len(hours)-1 and part == per_hour:
+                return  # The final, already saved model field supplies this frame.
+            yield running + (end-running) * (part/per_hour)
+        running = end
+
+
+def soften_tile_seams(field, tile_cells):
+    """Blend only paired, computed land cells close to internal tile boundaries."""
+    output = field.copy()
+    width = tile_cells // LIVE_SEAM_FRACTION
+    weights = .5 * (1 - np.arange(width) / width) ** 2
+    for grid in (output, output.T):
+        for boundary in range(tile_cells, grid.shape[1], tile_cells):
+            left = grid[:, boundary-width:boundary][:, ::-1]
+            right = grid[:, boundary:boundary+width]
+            valid = np.isfinite(left) & np.isfinite(right)
+            delta = np.zeros_like(left)
+            np.subtract(right, left, out=delta, where=valid)
+            delta *= weights
+            left += delta
+            right -= delta
+    return output
 
 
 class CitySnow:
@@ -233,7 +282,8 @@ class CitySnow:
             snapshot = self.atlas.live.get()
             if spec.weather_revision and spec.weather_revision != snapshot["revision"]:
                 raise ForecastRevisionError("Прогноз уже изменился. Обновите сроки на карте.")
-            stamps = [spec.valid_at+timedelta(hours=i) for i in range(spec.hours)]
+            # Open-Meteo snowfall at a timestamp represents the preceding hour.
+            stamps = [spec.valid_at+timedelta(hours=i) for i in range(1, spec.hours+1)]
             if any(stamp not in snapshot["frames"] for stamp in stamps):
                 raise ValueError("Для этого срока не помещается весь интервал. Выберите более ранний час.")
             locations = []
@@ -297,7 +347,7 @@ class CitySnow:
             scenario["weather_revision"] = source["atlas_sha256"]
         return digest({"input": scenario, "weather": source,
                        "dataset": self.city.data_revision, "model": ENGINE_LOCK,
-                       "boundary": file_hash(BOUNDARY), "method": METHOD})
+                       "boundary": file_hash(BOUNDARY), "method": LIVE_METHOD if spec.source == "live" else METHOD})
 
     def _path(self, run_id, extension):
         if len(run_id) != 64 or any(c not in "0123456789abcdef" for c in run_id):
@@ -481,10 +531,11 @@ class CitySnow:
             tile_inputs.append(tile)
             representative = land.intersection(box(*bounds)).representative_point()
             times = checkpoints(len(hours))
-            for index, offset in enumerate(times):
-                hour = hours[offset]
+            frame_weather = (live_frames(spec.valid_at, hours) if spec.source == "live" else
+                             ((hours[offset].get("valid_at"), hours[offset]) for offset in times))
+            for index, (valid_at, hour) in enumerate(frame_weather):
                 if index == len(wind_frames):
-                    wind_frames.append({"valid_at": hour.get("valid_at"), "points": []})
+                    wind_frames.append({"valid_at": valid_at, "points": []})
                 wind_frames[index]["points"].append({
                     "coordinates": [round(representative.x, 6), round(representative.y, 6)],
                     "wind_from_deg": hour["wind_from_deg"], "wind_speed_ms": hour["wind_speed_ms"],
@@ -528,7 +579,14 @@ class CitySnow:
                       point_distance/1000 if point_distance is not None else np.nan)
             for key, values in zip(bands, values):
                 fields[key][target] = np.where(valid, values, np.nan)
-            if spec.source in {"reanalysis", "live"} and len(hours) > 1:
+            if spec.source == "live":
+                def estimate_hour(weather):
+                    return remap(model.estimate(bounds, buildings, weather, cells, True)["snow_depth_cm"], cells)
+                for frame, values in enumerate(live_accumulation(actual, hours, estimate_hour)):
+                    if frame == len(cumulative):
+                        cumulative.append(np.full_like(fields["snow_cm"], np.nan, dtype=np.float32))
+                    cumulative[frame][target] = np.where(valid, values, np.nan)
+            elif spec.source == "reanalysis" and len(hours) > 1:
                 running = np.zeros_like(actual)
                 start = 0
                 for frame, offset in enumerate(times[:-1]):
@@ -550,6 +608,14 @@ class CitySnow:
             stats["hybrid_partial_tiles"] += direct["model"] == "hybrid_partial"
             stats["ground_cells_computed"] += int(valid.sum())
             progress(done, len(stripes))
+
+        if spec.source == "live":
+            for name in ("snow_cm", "opposite_snow_cm", "weather_snow", "weather_wind", "combined", "opposite"):
+                fields[name] = soften_tile_seams(fields[name], cells)
+            excess = fields["snow_cm"] - fields["weather_snow"]
+            fields["drift_cm"] = np.where(excess > 0, excess, np.nan)
+            for frame, values in enumerate(cumulative):
+                cumulative[frame] = soften_tile_seams(values, cells)
 
         rows, cols = fields["combined"].shape
         roads = city.roads(bounds_all, extended=True)
@@ -607,15 +673,25 @@ class CitySnow:
                "wind_frames": wind_frames,
                "provenance": {"engine_commit": ENGINE_LOCK["commit"], "engine_sha256": ENGINE_LOCK["sha256"],
                               "city_revision": city.data_revision, "boundary_sha256": file_hash(BOUNDARY),
-                              "graph_version": roads["metadata"]["graph_version"], "algorithm": METHOD}}
+                              "graph_version": roads["metadata"]["graph_version"],
+                              "algorithm": LIVE_METHOD if spec.source == "live" else METHOD}}
+        if spec.source == "live":
+            raw["frame_interval_minutes"] = LIVE_FRAME_MINUTES
+            raw["weather_interval_minutes"] = 60
+            raw["tile_transition_cells_each_side"] = cells // LIVE_SEAM_FRACTION
         peak = float(np.nanmax(fields["snow_cm"])) if np.isfinite(fields["snow_cm"]).any() else 0
         snow_scale = max(5, int(np.ceil(peak/(20 if peak > 50 else 5)))*(20 if peak > 50 else 5))
         scales = {"snow_cm": snow_scale, "drift_cm": 8, "opposite_snow_cm": snow_scale, "weather_snow": snow_scale,
                   "weather_wind": 20, "weather_distance": 15}
+        def render_snow(field, limit):
+            display = np.where(field > 0, field, np.nan) if spec.source == "live" else field
+            return overlay(np.clip(display/limit, 0, 1))
+
         result = {**raw, "scales": scales, "overlays": {
-            key: overlay(np.clip(field/scales.get(key, 1), 0, 1)) for key, field in fields.items()}}
+            key: render_snow(field, scales[key]) if key in {"snow_cm", "drift_cm", "opposite_snow_cm"}
+            else overlay(np.clip(field/scales.get(key, 1), 0, 1)) for key, field in fields.items()}}
         result["clipped"] = [key for key, limit in scales.items() if np.any(fields[key] > limit)]
-        result["timeline"] = [overlay(np.clip(field/snow_scale, 0, 1)) for field in cumulative]
+        result["timeline"] = [render_snow(field, snow_scale) for field in cumulative]
         replay = {**raw, "tiles": tile_inputs, "grids": {k: rows_json(v) for k, v in fields.items()}}
         if len(cumulative) > 5:
             replay["timeline_binary"] = {"encoding": "base64+zlib+float32le", "shape": [rows, cols], "frames": [

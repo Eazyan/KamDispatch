@@ -1,5 +1,6 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from datetime import datetime, timedelta, timezone
 import json
 import unittest
 
@@ -9,7 +10,8 @@ from pydantic import ValidationError
 from shapely.geometry import Point
 
 from city_sim.api import make_app
-from city_sim.city_snow import CitySnow, CitySnowRequest, administrative_boundary, checkpoints, remap
+from city_sim.city_snow import (CitySnow, CitySnowRequest, administrative_boundary, checkpoints,
+                                live_accumulation, live_frames, remap, soften_tile_seams)
 from city_sim.snow_experiment import SnowStudy
 from city_sim.weather import WeatherArchive
 
@@ -57,6 +59,37 @@ class CitywideWeatherTests(unittest.TestCase):
         self.assertEqual(sampled[0, 3], 2)
         self.assertEqual(sampled[3, 3], 3)
         self.assertTrue(np.isnan(sampled[3, 0]))
+
+    def test_live_frames_accumulate_over_three_hours_without_changing_final_field(self):
+        start = datetime(2026, 11, 24, 14, tzinfo=timezone.utc)
+        hours = [{"snowfall_cm": snow, "wind_speed_ms": speed} for snow, speed in [(3, 8), (6, 0), (3, 0)]]
+        actual = np.array([[15.0, 12.0, np.nan]])
+
+        def estimate(weather):
+            self.assertEqual(weather, [hours[0]])
+            return np.array([[6.0, 3.0, np.nan]])
+
+        times = [datetime.fromisoformat(stamp) for stamp, _ in live_frames(start, hours)]
+        values = list(live_accumulation(actual, hours, estimate))
+        self.assertEqual(times, [start+timedelta(minutes=i*10) for i in range(19)])
+        self.assertEqual(len(values), 18)
+        np.testing.assert_array_equal(values[0][0, :2], [0, 0])
+        np.testing.assert_array_equal(values[1][0, :2], [1, .5])
+        np.testing.assert_array_equal(values[6][0, :2], [6, 3])
+        np.testing.assert_array_equal(values[12][0, :2], [12, 9])
+        np.testing.assert_array_equal(values[17][0, :2], [14.5, 11.5])
+
+    def test_seam_blends_only_computed_cells_near_the_tile_edge(self):
+        raw = np.ones((3, 128))
+        raw[:, 64:] = 3
+        raw[1, 64] = np.nan
+        display = soften_tile_seams(raw, 64)
+        self.assertEqual((display[0, 63], display[0, 64]), (2, 2))
+        self.assertEqual((display[0, 55], display[0, 72]), (1, 3))
+        self.assertEqual((raw[0, 63], raw[0, 64]), (1, 3))
+        self.assertEqual(display[1, 63], 1)
+        self.assertTrue(np.isnan(display[1, 64]))
+        self.assertAlmostEqual(float(np.nansum(display)), float(np.nansum(raw)))
 
     def test_storm_weather_is_available_before_calculation(self):
         with TemporaryDirectory() as folder:
