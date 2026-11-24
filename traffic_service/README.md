@@ -18,7 +18,8 @@ the personal browser profile or existing City Sim containers.
 - PNG files expire after **10800 seconds**, checked once a minute. JSON audit remains.
 - Disk reserve: 5 GiB. Low space pauses capture rather than deleting fresh inputs.
 
-API binds **127.0.0.1:8765 only**. External port 3003 remains SSH, not this API.
+API binds **127.0.0.1:8765 only**. For Docker clients on other networks, see the
+[public read-only HTTP feed](../city-sim/docs/TRAFFIC_PUBLIC.md). External port 3003 remains SSH, not this API.
 GET `/health`, `/api/status`, `/api/latest`, `/api/graph`.
 POST `/api/run`, `/api/pause`, `/api/resume`, `/api/cancel`, `/api/rollback`, with
 `Content-Type: application/json` and body `{}`. Host and Origin are checked.
