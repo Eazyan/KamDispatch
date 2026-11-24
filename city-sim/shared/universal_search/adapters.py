@@ -124,7 +124,7 @@ class OsmExportAdapter:
     Road section identity is the existing OSM way ID (not a routing arc).
     Representative coordinate is a source node, not a street centroid/geocoder.
     Streets are grouped only by exact name within this one city export. Address
-    entities require explicit addr:street AND addr:housenumber tags.
+    entities require an explicit addr:housenumber and addr:street or addr:place.
     """
     def __init__(self, source, path, *, updated_at=None):
         self.source, self.path, self.updated_at = source, Path(path), updated_at
@@ -141,15 +141,20 @@ class OsmExportAdapter:
                              self.source, coord, updated_at=self.updated_at, origin='real')
                 if name:
                     streets.setdefault(name, coord)
-            if tags.get('addr:street') and tags.get('addr:housenumber'):
-                yield self._address('way/' + way_id, tags, coord)
+            address = self._address('way/' + way_id, tags, coord)
+            if address:
+                yield address
         for name, coord in streets.items():
             yield Entity('street/' + name, 'street', name, self.source, coord,
                          updated_at=self.updated_at, origin='real')
         for node_id, tags in data.get('points', {}).items():
-            if tags.get('addr:street') and tags.get('addr:housenumber'):
-                yield self._address('node/' + node_id, tags, nodes.get(node_id))
+            address = self._address('node/' + node_id, tags, nodes.get(node_id))
+            if address:
+                yield address
 
     def _address(self, id, tags, coord):
-        return Entity(id, 'address', tags['addr:street'] + ' ' + tags['addr:housenumber'],
-                      self.source, coord, updated_at=self.updated_at, origin='real')
+        street = tags.get('addr:street') or tags.get('addr:place')
+        house = tags.get('addr:housenumber')
+        if street and house:
+            return Entity(id, 'address', f'{street} {house}', self.source, coord,
+                          updated_at=self.updated_at, origin='real')

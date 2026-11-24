@@ -9,13 +9,14 @@ import logging
 import os
 import re
 from uuid import NAMESPACE_URL, UUID, uuid5
+from xml.etree.ElementTree import ParseError
 
 import httpx
 from telegram import BotCommand, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup, Update
 from telegram.error import Conflict, InvalidToken, TelegramError
 from telegram.ext import Application, CallbackQueryHandler, MessageHandler, filters
 
-from .citizen_addresses import AddressPoint
+from .citizen_addresses import AddressPoint, address_query, lookup_addresses
 from .config import LOCAL_TZ, messenger_crews, messenger_ids
 
 
@@ -52,9 +53,12 @@ CAPTION_LIMIT = 1024
 PHOTO_LIMIT = 5 * 1024 * 1024
 PHOTO = "Отправьте одно фото проблемы. Описание можно добавить в подпись."
 DESCRIPTION = f"Опишите проблему одним сообщением (до {DESCRIPTION_LIMIT} символов)."
+ADDRESS_EXAMPLE = "Например: улица Ларина, 22."
+CONFIRM_ADDRESS = "Подтвердить адрес"
 LOCATION = (
     "Отправьте точку, где находится проблема. Через меню вложений Telegram "
-    "можно выбрать точку на карте. Кнопка ниже отправляет ваше текущее местоположение."
+    "можно выбрать точку на карте. Или укажите улицу и номер дома в Петропавловске-Камчатском. "
+    + ADDRESS_EXAMPLE
 )
 WELCOME = (
     "Здесь можно сообщить о местной проблеме. Приложите фото, кратко опишите "
@@ -421,6 +425,15 @@ class Bot:
         return await file.download_as_bytearray()
 
     async def handle_draft(self, message, user_id, text, draft):
+        location = message.location
+        if message.photo or location:
+            draft.pending_address = None
+        elif draft.photo_id and draft.description and text and not text.startswith("/"):
+            if text != CONFIRM_ADDRESS:
+                await self.check_address(message, text, draft)
+                return
+            location = draft.pending_address
+            text = ""
         if message.photo:
             draft.request_id = None
             draft.photo_id = message.photo[-1].file_id
@@ -433,7 +446,7 @@ class Bot:
                 return
             draft.request_id = None
             draft.description = text
-        elif draft.photo_id and draft.description and message.location:
+        elif draft.photo_id and draft.description and location:
             photo = await self.download_photo(message, draft.photo_id)
             if photo is None:
                 draft.photo_id = ""
@@ -444,7 +457,6 @@ class Bot:
             if draft.request_id is None:
                 draft.request_id = uuid5(NAMESPACE_URL, f"kamdispatch:{self.platform}:{user_id}:{message.message_id}")
             try:
-                location = message.location
                 data = {
                     "description": draft.description, "latitude": location.latitude,
                     "longitude": location.longitude, "request_id": str(draft.request_id),
@@ -474,6 +486,34 @@ class Bot:
             )
             return
         await self.prompt(message, draft)
+
+    async def check_address(self, message, text, draft):
+        draft.pending_address = None
+        parsed = address_query(text) if len(text) <= 240 else None
+        if not parsed:
+            await self.prompt(message, draft, f"Укажите улицу и номер дома или отправьте геометку. {ADDRESS_EXAMPLE}")
+            return
+        try:
+            matches = await asyncio.to_thread(lookup_addresses, *parsed)
+        except (OSError, EOFError, ParseError, ValueError):
+            await self.prompt(message, draft, "Справочник адресов временно недоступен. Повторите ввод или отправьте геометку.")
+            return
+        if not matches:
+            await self.prompt(
+                message, draft, "Дом по этому адресу не найден в справочнике. Проверьте улицу и номер или отправьте геометку.",
+            )
+        elif len(matches) > 1:
+            addresses = "\n".join(point.address for point in matches[:3])
+            await self.prompt(message, draft, f"Нашлось несколько адресов. Уточните улицу и номер:\n{addresses}")
+        else:
+            draft.pending_address = matches[0]
+            await message.reply_text(
+                f"Проверьте адрес: {matches[0].address}. Если он верный, подтвердите. "
+                "Если нет, напишите адрес заново или отправьте геометку.",
+                reply_markup=ReplyKeyboardMarkup([
+                    [CONFIRM_ADDRESS], [KeyboardButton("Моя геопозиция", request_location=True)], [CANCEL],
+                ], resize_keyboard=True),
+            )
 
 
 async def register_commands(application):

@@ -15,6 +15,7 @@ STOP = {'улица', 'проспект', 'переулок', 'шоссе', 'д�
 def normalize(text):
     text = unicodedata.normalize('NFKC', text.replace('№', ' ')).casefold().replace('ё', 'е')
     text = re.sub(r'пр\s*-\s*(?:кт|т)', 'проспект', text)
+    text = re.sub(r'(?<=\d)\s*/\s*(?=\d)', '/', text)
     return ' '.join(ALIASES.get(t, t) for t in re.findall(r'[^\W_]+(?:/[^\W_]+)*', text))
 
 

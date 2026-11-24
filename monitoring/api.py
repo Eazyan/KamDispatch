@@ -137,6 +137,10 @@ def create_app(settings=None):
     def citizen_form_config():
         return {"requires_token": settings.mode == "live"}
 
+    @app.get("/api/v1/citizens/address-search")
+    def citizen_address_search(q: Annotated[str, Query(min_length=3, max_length=240)]):
+        return map_search.resident_addresses(q)
+
     @app.get("/citizens", include_in_schema=False)
     def citizen_form_redirect():
         return Response(status_code=307, headers={"Location": "/citizens/"})

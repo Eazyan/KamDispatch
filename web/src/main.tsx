@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } 
 import { createRoot } from 'react-dom/client';
 import { CameraMap } from './Map';
 import type { SearchHit } from './MapSearch';
+import { matchesSearch } from './mapSearchResults';
 import { Overview } from './Overview';
 import { CitizenReports, RecentCitizenReports, useRecentCitizenReports } from './CitizenReports';
 import { cameraRoadAssessment, deliveryBucket, upcomingForecast } from './sectionViews';
@@ -588,9 +589,8 @@ function App() {
   const event = listedEvent ?? (linkedEvent?.id === eventId ? linkedEvent : null);
   const cameras = [...(data?.cameras ?? [])].sort((first, second) => Number(second.road) - Number(first.road));
   const cameraAttention = (camera: Camera) => !cameraHealthy(camera);
-  const search = cameraSearch.trim().toLocaleLowerCase('ru');
-  const visibleCameras = cameras.filter(camera => (!search || [camera.name, camera.area, camera.district, camera.section_name]
-    .some(value => value?.toLocaleLowerCase('ru').includes(search))) &&
+  const visibleCameras = cameras.filter(camera => matchesSearch(cameraSearch,
+    [camera.name, camera.area, camera.district, camera.section_name]) &&
     (cameraFilter === 'all' || (cameraFilter === 'snow' ? cameraShowsSnow(camera) : cameraAttention(camera))));
   const selectedCamera = visibleCameras.find(camera => camera.id === cameraId) ?? visibleCameras[0];
   const cameraCleanup = selectedCamera?.road ? data?.dispatch_queue.find(row => row.task?.work_kind === 'clear' &&

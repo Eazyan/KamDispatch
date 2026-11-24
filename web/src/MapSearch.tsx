@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Icon } from './Icon';
-import { dispatchSearchTarget, serviceSearchHits, type SearchHit } from './mapSearchResults';
+import { dispatchSearchTarget, normalizeSearch as normalize, serviceSearchHits, type SearchHit } from './mapSearchResults';
 import type { BusMap, Camera, DispatchGroup, RoadPoint } from './types';
 
 type Bus = BusMap['positions'][number];
@@ -19,9 +19,6 @@ type Props = {
   onDispatch: (row: DispatchGroup) => void;
   onCitizen: (id: string) => void;
 };
-
-const normalize = (value: string) => value.toLocaleLowerCase('ru').replaceAll('ё', 'е')
-  .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 
 const cues = ['автобус', 'маршрут', 'борт', 'бортовой'];
 const aliases: Record<string, string> = {
@@ -66,6 +63,7 @@ export function MapSearch({ cameras, buses, busSource, dispatch, scenario, searc
   const current = response?.term === term ? response : undefined;
   const streets: Result[] = [];
   const addresses: Result[] = [];
+  const places: Result[] = [];
   const cameraResults: Result[] = [];
   const busResults: Result[] = [];
   const dispatchResults: Result[] = [];
@@ -97,11 +95,12 @@ export function MapSearch({ cameras, buses, busSource, dispatch, scenario, searc
   for (const hit of hits) {
     if (hit.type === 'street' && hit.paths?.length) {
       const paths = hit.paths;
-      streets.push({ id: hit.id, title: hit.name,
+      streets.push({ id: hit.id, title: hit.name, label: hit.label,
         open: () => onRoad({ id: hit.id, name: hit.name, coordinates: paths.flat(), paths }) });
-    } else if (hit.type === 'address' && point(hit.coordinates)) {
+    } else if ((hit.type === 'address' || hit.type === 'poi') && point(hit.coordinates)) {
       const coordinates = hit.coordinates;
-      addresses.push({ id: hit.id, title: hit.name, open: () => onRoad({ id: hit.id, name: hit.name, coordinates: [coordinates] }) });
+      const group = hit.type === 'address' ? addresses : places;
+      group.push({ id: hit.id, title: hit.name, open: () => onRoad({ id: hit.id, name: hit.name, coordinates: [coordinates] }) });
     } else if (hit.type === 'camera') {
       const camera = cameras.find(item => item.id === hit.id);
       const coordinates = hit.coordinates;
@@ -112,12 +111,13 @@ export function MapSearch({ cameras, buses, busSource, dispatch, scenario, searc
         } });
     } else if (hit.type === 'bus') {
       const bus = buses.find(item => item.id === hit.id);
-      if (!bus) continue;
+      const coordinates = bus ? [bus.lon, bus.lat] as RoadPoint : hit.coordinates;
+      if (!point(coordinates)) continue;
       const label = [hit.route && 'Маршрут ' + hit.route,
-        busSource === 'simulation' ? 'Имитация' : new Intl.DateTimeFormat('ru', {
+        busSource === 'simulation' ? 'Имитация' : bus && new Intl.DateTimeFormat('ru', {
           timeZone: 'Asia/Kamchatka', timeStyle: 'medium',
         }).format(new Date(bus.measured_at))].filter(Boolean).join(' · ');
-      busResults.push({ id: hit.id, title: hit.name, label, open: () => onBus(hit.id, [bus.lon, bus.lat]) });
+      busResults.push({ id: hit.id, title: hit.name, label, open: () => onBus(hit.id, coordinates) });
     } else if (hit.type === 'task' || hit.type === 'event') {
       const target = dispatchSearchTarget(hit, dispatch);
       dispatchResults.push({ id: hit.id, title: hit.name,
@@ -132,7 +132,7 @@ export function MapSearch({ cameras, buses, busSource, dispatch, scenario, searc
     }
   }
   const groups: [string, Result[]][] = [
-    ['Адреса', addresses], ['Улицы и участки', streets], ['Камеры', cameraResults], ['Автобусы', busResults],
+    ['Адреса', addresses], ['Улицы и участки', streets], ['Места', places], ['Камеры', cameraResults], ['Автобусы', busResults],
     ['Обращения и задания', dispatchResults], ['Разделы', pages],
   ];
 
