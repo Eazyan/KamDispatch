@@ -1,3 +1,4 @@
+from base64 import b64decode
 from contextlib import asynccontextmanager
 from functools import lru_cache, partial
 import logging
@@ -160,14 +161,25 @@ def make_app(db_path=None, building_path=None, graph_path=None, solver=None, wea
             raise HTTPException(429, str(error)) from error
 
     @api.get("/api/v1/operations/city/runs/{run_id}")
-    def city_snow_status(run_id: str, compact: bool = False):
+    def city_snow_status(run_id: str, compact: bool = False, manifest: bool = False):
         try:
-            result = city_snow.status(run_id, compact)
+            result = city_snow.manifest(run_id) if manifest else city_snow.status(run_id, compact)
         except ValueError as error:
             raise HTTPException(404, "Расчёт не найден.") from error
         if result is None:
             raise HTTPException(404, "Расчёт не найден.")
         return result
+
+    @api.get("/api/v1/operations/city/runs/{run_id}/image/{layer}")
+    def city_snow_image(run_id: str, layer: str, frame: int | None = Query(default=None, ge=0, le=MAX_FRAME)):
+        try:
+            image = city_snow.image(run_id, layer, frame)
+        except ValueError:
+            image = None
+        if image is None:
+            raise HTTPException(404, "Слой снега недоступен.")
+        return Response(b64decode(image.split(",", 1)[1]), media_type="image/png",
+                        headers={"Cache-Control": "public, max-age=31536000, immutable"})
 
     @api.get("/api/v1/operations/city/runs/{run_id}/replay")
     def download_city_snow(run_id: str, roads: bool = False):

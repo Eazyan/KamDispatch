@@ -326,7 +326,7 @@ class CitySnow:
 
     @lru_cache(maxsize=6)
     def frame_field(self, run_id, frame, layer):
-        if frame is None:
+        if frame is None or frame < 0:
             return None
         if layer == "snow":
             timeline = self.probe_fields(run_id).get("timeline", [])
@@ -430,6 +430,33 @@ class CitySnow:
             return json.loads((meta if compact and meta.is_file() else path).read_text())
         with self.lock:
             return {"run_id": run_id, **self.jobs[run_id]} if run_id in self.jobs else None
+
+    @lru_cache(maxsize=1)
+    def image_result(self, run_id):
+        return self.status(run_id)
+
+    def manifest(self, run_id):
+        status = self.status(run_id, compact=True)
+        if not status or status["status"] != "completed":
+            return status
+        result = self.image_result(run_id)
+        root = f"/api/v1/operations/city/runs/{run_id}/image"
+        manifest = {**result, "overlays": {layer: f"{root}/{layer}" for layer in result["overlays"]}}
+        for key, layer in (("timeline", "snow_cm"), ("drift_timeline", "drift_cm")):
+            if key in result:
+                manifest[key] = [f"{root}/{layer}?frame={i}" for i in range(len(result[key]))]
+        return manifest
+
+    def image(self, run_id, layer, frame=None):
+        status = self.status(run_id, compact=True)
+        if not status or status["status"] != "completed":
+            return None
+        result = self.image_result(run_id)
+        if frame is None:
+            return result["overlays"].get(layer)
+        key = {"snow_cm": "timeline", "drift_cm": "drift_timeline"}.get(layer)
+        frames = result.get(key, [])
+        return frames[frame] if 0 <= frame < len(frames) else None
 
     def _calculate(self, run_id, spec, select, source):
         import logging

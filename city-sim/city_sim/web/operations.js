@@ -161,7 +161,8 @@ export function createOperations(view, health) {
       button.setAttribute('aria-pressed', String(button.dataset.model === choice));
     }
     const temporal = calculated?.timeline?.length > 0 && modelFrame < calculated.timeline.length;
-    const finalOnly = temporal && choice !== 'snow_cm' && calculated.overlays[choice];
+    const temporalLayer = choice === 'snow_cm' || (choice === 'drift_cm' && calculated?.drift_timeline);
+    const finalOnly = temporal && !temporalLayer;
     const image = finalOnly ? undefined : calculated?.overlays[choice];
     const visible = Boolean(image);
     const volumeVisible = visible && choice === 'snow_cm' && $('snow-volume').checked;
@@ -307,7 +308,7 @@ export function createOperations(view, health) {
 
   async function runCity(token, data) {
     const start = await request('/operations/city/runs', data);
-    const url = `/operations/city/runs/${start.run_id}`;
+    const url = `/operations/city/runs/${start.run_id}?manifest=true`;
     while (token === snowRequest) {
       const result = await request(url);
       if (token !== snowRequest) return;
@@ -587,10 +588,13 @@ export function createOperations(view, health) {
       const choice = layer.value;
       const query = new URLSearchParams({ lon: where.lng, lat: where.lat });
       if (nearby) query.set('nearby_m', 22);
+      const drift = choice === 'drift_cm' && calculated.drift_timeline;
+      if (drift) query.set('layer', 'drift');
       if (Number.isInteger(frame)) query.set('frame', frame);
       try {
         const row = await request(`/operations/city/runs/${run_id}/sample?${query}`);
-        if (calculated?.run_id !== run_id || modelFrame !== frame) return [];
+        if (calculated?.run_id !== run_id || modelFrame !== frame || layer.value !== choice) return [];
+        if (drift) return row.drift_cm == null ? [] : [`Нанос по модели · ${format(row.drift_cm)} см`];
         if (row.snow_cm == null) return ['В этой точке нет ячейки расчёта снега.'];
         return [
           `Свежий снег по модели · ${format(choice === 'opposite_snow_cm' && frame >= timeline.length

@@ -58,6 +58,11 @@ class LiveRevisionTests(unittest.TestCase):
                 self.assertEqual(saved["frame_interval_minutes"], 10)
                 self.assertEqual(len(saved["wind_frames"]), 7)
                 self.assertEqual(len(saved["timeline"]), 6)
+                manifest = client.get(path, params={"manifest": "true"}).json()
+                image = client.get(manifest["timeline"][3])
+                self.assertEqual(image.headers["content-type"], "image/png")
+                self.assertTrue(image.content.startswith(b"\x89PNG"))
+                self.assertEqual(client.get(path+"/image/snow_cm", params={"frame": 9}).status_code, 404)
                 point = {"lon": 158.642, "lat": 53.0363}
                 for frame, depth in [(0, 0), (3, expected/2), (6, expected)]:
                     result = client.get(path + "/sample", params={**point, "frame": frame}).json()
