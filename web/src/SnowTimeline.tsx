@@ -8,8 +8,9 @@ const dateTime = new Intl.DateTimeFormat('ru', {
 const date = new Intl.DateTimeFormat('ru', { timeZone: 'Asia/Kamchatka', day: 'numeric', month: 'short' });
 const time = new Intl.DateTimeFormat('ru', { timeZone: 'Asia/Kamchatka', hour: '2-digit', minute: '2-digit' });
 
-export function SnowTimeline({ snow, onMode, onFrame, onPlay }: {
+export function SnowTimeline({ snow, archived = false, onMode, onFrame, onPlay }: {
   snow: NonNullable<MapControls['snow']>;
+  archived?: boolean;
   onMode: (mode: string) => void;
   onFrame: (frame: number) => void;
   onPlay: () => void;
@@ -89,7 +90,7 @@ export function SnowTimeline({ snow, onMode, onFrame, onPlay }: {
       {longRange && hasTimeline && <button type="button" aria-pressed={zoomed} onClick={() => {
         if (!zoomed && index > nearEnd) onFrame(nearEnd);
         setNear(!zoomed);
-      }}>{zoomed ? 'Весь прогноз' : 'Первые 3 ч'}</button>}
+      }}>{zoomed ? (archived ? 'Весь период' : 'Весь прогноз') : 'Первые 3 ч'}</button>}
     </div>
   </div>;
 }

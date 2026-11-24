@@ -130,6 +130,11 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
   const clock = scenarioClock(scenario, phase);
   const snow = data.snow_forecast;
   const validSnow = snow?.status === 'ready' || snow?.status === 'partial';
+  const forecastUrl = new URL(location.href);
+  const selectedSnowRun = forecastUrl.searchParams.get('snow_run');
+  const archiveSnowRun = !scenario && selectedSnowRun && /^[0-9a-f]{64}$/.test(selectedSnowRun)
+    ? selectedSnowRun : undefined;
+  forecastUrl.searchParams.delete('snow_run');
   const [busClock, setBusClock] = useState(Date.now);
   const widgets = useMemo(() => overviewWidgets(data, roads, scenario ? Date.parse(clock) : Math.max(Date.parse(updatedAt) || 0, busClock)),
     [data, roads, scenario, updatedAt, clock, busClock]);
@@ -146,6 +151,13 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
   const [mapControls, setMapControls] = useState<MapControls | null>(null);
   const [state, setState] = useState<'offline' | 'loading' | 'ready'>('offline');
   const [model, setModel] = useState<'loading' | 'ready' | 'failed'>();
+  const openedArchive = useRef<string>();
+  const frameCount = mapControls?.snow?.frames.length ?? 0;
+  useEffect(() => {
+    if (!archiveSnowRun || model !== 'ready' || !frameCount || openedArchive.current === archiveSnowRun) return;
+    openedArchive.current = archiveSnowRun;
+    mapRef.current?.send({ action: 'frame', value: frameCount - 1 });
+  }, [archiveSnowRun, model, frameCount]);
   const [modelProgress, setModelProgress] = useState<string>();
   const [selected, setSelected] = useState<string>();
   const [selection, setSelection] = useState<Selection | null>(null);
@@ -162,6 +174,8 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
       traffic.stale && 'данные устарели', publication.status === 'partial' && 'частичное покрытие',
       'приглушённые линии — интерполяция'].filter(Boolean).join(' · ');
   const [showMarkers, setShowMarkers] = useState(true);
+  const [showCameras, setShowCameras] = useState(true);
+  const [showCitizenMarkers, setShowCitizenMarkers] = useState(true);
   const [showBuses, setShowBuses] = useState(true);
   const [selectedBusId, setSelectedBusId] = useState<string>();
   const busMap = data.bus_map;
@@ -178,13 +192,21 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
     return [{ id: 'bus:' + bus.id, label, kind: 'bus', badge: bus.route || bus.fleet_number || '•',
       coordinates: [[bus.lon, bus.lat]], color: '#74edc5', priority: -1 }];
   }), [positions]);
+  const cameraMarkers = useMemo<MapMarker[]>(() => scenario ? [] : data.cameras.flatMap(camera => {
+    if (!camera.coordinates) return [];
+    return [{ id: 'camera-pin:' + camera.id, label: camera.name, coordinates: [camera.coordinates],
+      color: '#7bd5ff', priority: 10 }];
+  }), [data.cameras, scenario]);
   const citizenMarkers = useMemo<MapMarker[]>(() => (citizenReports ?? []).map(report => ({
     id: 'citizen:' + report.id, label: 'Обращение жителя · ' + fullTime(report.created_at),
     coordinates: [[report.longitude, report.latitude]], color: '#e5a4ff', priority: 20,
   })), [citizenReports]);
   const displayedMarkers = useMemo(() => [
-    ...(showMarkers ? [...markers, ...citizenMarkers] : []), ...(showBuses ? busMarkers : []),
-  ], [markers, citizenMarkers, busMarkers, showMarkers, showBuses]);
+    ...(showMarkers ? markers : []),
+    ...(showCameras ? cameraMarkers : []),
+    ...(showCitizenMarkers ? citizenMarkers : []),
+    ...(showBuses ? busMarkers : []),
+  ], [markers, cameraMarkers, citizenMarkers, busMarkers, showMarkers, showCameras, showCitizenMarkers, showBuses]);
   const demoCoordinates = !scenario && busMap?.source === 'simulation'
     ? JSON.stringify(busMap.positions.map(bus => [bus.lon, bus.lat])) : '';
   const demoBusFocus = useMemo(() => demoCoordinates ? {
@@ -232,15 +254,20 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
     : data.city_map_url && state === 'offline' ? 'Подключаем архивную карту'
     : !data.city_map_url && (error || updatedAt) ? 'Архивная карта недоступна'
     : 'Рассчитываем архивный снег' + (modelProgress ? ' · ' + modelProgress : '');
+  const archiveStatus = model === 'ready' ? 'Архивный расчёт снега'
+    : model === 'failed' ? 'Архив снега недоступен' : 'Загружаем архив снега';
   const cityUrl = scenario && !cleanup ? null : data.city_map_url;
   return <section className="ops-overview" aria-label="Дорожная обстановка">
-    <OverviewMap key={cityUrl ?? ''} ref={mapRef} onControls={setMapControls} cityUrl={cityUrl} cleanupAt={cleanup ? clock : undefined} runId={validSnow ? snow?.remote_run_id : undefined}
-      roads={validSnow ? roads : emptyRoads} markers={displayedMarkers} selection={selection ?? demoBusFocus}
+    <OverviewMap key={cityUrl ?? ''} ref={mapRef} onControls={setMapControls} cityUrl={cityUrl} cleanupAt={cleanup ? clock : undefined} runId={archiveSnowRun ?? (validSnow ? snow?.remote_run_id : undefined)}
+      roads={validSnow && !archiveSnowRun ? roads : emptyRoads} markers={displayedMarkers} selection={selection ?? demoBusFocus}
       traffic={trafficSegments} trafficStale={traffic.stale || traffic.unavailable}
       showSnow={showSnow} showMarkers={displayedMarkers.length > 0} onClientState={setState} onModelState={(status, progress) => { setModel(status); setModelProgress(progress); }}
       onSelect={id => {
-        const citizen = citizenMarkers.find(marker => marker.id === id);
-        if (citizen) {
+        if (id.startsWith('camera-pin:')) {
+          onCamera(id.slice('camera-pin:'.length));
+          return;
+        }
+        if (id.startsWith('citizen:')) {
           onCitizenReport(id.slice('citizen:'.length));
           return;
         }
@@ -256,6 +283,7 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
     <header className="ops-heading">
       <div className="ops-location"><span className="small-dot" />Петропавловск-Камчатский</div>
       <h1>Дорожная<br className="ops-break" /> обстановка</h1>
+      {archiveSnowRun && <p className="ops-status" role="status">{archiveStatus}</p>}
       {error && <p className="ops-error" role="alert">{error} <button onClick={onRefresh}>Повторить</button></p>}
     </header>
     <MapSearch scenario={Boolean(scenario)} cameras={data.cameras} buses={positions ?? []} busSource={busMap?.source} dispatch={data.dispatch_queue} search={search}
@@ -367,6 +395,18 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
           onClick={() => setShowMarkers(value => !value)}>
           <Icon name="bell" /><span className="ops-map-tool-label">События</span>
         </button>
+        {!scenario && <>
+          <button className="ops-topbar-button ops-map-tool" type="button" aria-label="Камеры"
+            aria-pressed={showCameras} onClick={() => setShowCameras(value => !value)}>
+            <Icon name="camera" /><span className="ops-map-tool-label">Камеры</span>
+          </button>
+          {citizenReports && (
+            <button className="ops-topbar-button ops-map-tool" type="button" aria-label="Обращения"
+              aria-pressed={showCitizenMarkers} onClick={() => setShowCitizenMarkers(value => !value)}>
+              <Icon name="reports" /><span className="ops-map-tool-label">Обращения</span>
+            </button>
+          )}
+        </>}
         {busMap ? <button className="ops-topbar-button ops-map-tool ops-bus-toggle" type="button" aria-label="Автобусы"
           aria-description={busStatus + (busMap.source === 'simulation' ? ' · имитация' : '')} aria-pressed={showBuses}
           onClick={() => setShowBuses(value => !value)}>
@@ -375,6 +415,9 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
           : data.mode !== 'live' && <a className="ops-topbar-button ops-map-tool" href="/demo" aria-label="Демо автобусов">
             <Icon name="bus" /><span className="ops-map-tool-label">Демо автобусов</span>
           </a>}
+        {archiveSnowRun && <a className="ops-topbar-button ops-map-tool" href={forecastUrl.href} aria-label="Текущий прогноз">
+          <Icon name="forecast" /><span className="ops-map-tool-label">Текущий прогноз</span>
+        </a>}
         {data.city_map_url && !scenario && <a className="ops-topbar-button ops-map-tool" href={data.city_map_url} target="_blank" rel="noopener noreferrer"
           aria-label="Сценарии модели">
           <Icon name="expand" /><span className="ops-map-tool-label">Сценарии модели</span>
@@ -405,7 +448,7 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
             </div>
           </details>
         </div>
-        {showSnow && mapControls.snow && <SnowTimeline snow={mapControls.snow}
+        {showSnow && mapControls.snow && <SnowTimeline snow={mapControls.snow} archived={Boolean(archiveSnowRun)}
           onMode={value => mapRef.current?.send({ action: 'mode', value })}
           onFrame={value => mapRef.current?.send({ action: 'frame', value })}
           onPlay={() => mapRef.current?.send({ action: 'play' })} />}
@@ -413,7 +456,7 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
     </div>
     <footer className="ops-foot">
       <span>{scenario || data.mode === 'demo' ? 'Демо' : data.mode === 'replay' ? 'Архив' : 'Камчатка · UTC+12'}{scenario ? ' · ' + fullTime(clock) : ''}</span>
-      {snow?.calculated_at && <span>Расчёт · {fullTime(snow.calculated_at)}</span>}
+      {!archiveSnowRun && snow?.calculated_at && <span>Расчёт · {fullTime(snow.calculated_at)}</span>}
     </footer>
   </section>;
 }
