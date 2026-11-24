@@ -2,7 +2,7 @@ import { $, empty, request } from '../api.js';
 import { createMap } from '../map.js?v=twist';
 import { raster } from '../raster_motion.js';
 import { createSnowVolume } from '../snow_volume.js';
-import { createTrafficVolume, trafficColors } from './traffic-volume.js?v=6';
+import { createTrafficVolume, trafficColors } from './traffic-volume.js?v=7';
 
 const parentOrigin = new URLSearchParams(location.search).get('parent');
 const send = (type, fields) => {
