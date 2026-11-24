@@ -1,10 +1,11 @@
 import { useTraffic } from './traffic';
+import { SnowTimeline } from './SnowTimeline';
 import { MapSearch, type SearchHit } from './MapSearch';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { Report } from './CitizenReports';
 import { Icon, type IconName } from './Icon';
 import { busDuration, busReasons } from './BusChecks';
-import { OverviewMap, type Selection, type MapMarker } from './OverviewMap';
+import { OverviewMap, type Selection, type MapMarker, type MapControls, type MapControlHandle } from './OverviewMap';
 import { cleanupPhases, demoScenarios, scenarioClock, type CleanupPhase, type DemoScenario } from './overviewDemo';
 import { actionRequired, overviewWidgets, taskStages, type Widget } from './overviewWidgets';
 import type { Dashboard, DispatchGroup, RoadPoint, SnowSegment } from './types';
@@ -76,7 +77,6 @@ function WidgetCard({ widget, selected, onSelect, onDispatch, onSignal, onCamera
   const image = signal?.frame_id ?? (widget.type === 'camera' ? widget.camera.analyzed_frame_id : null);
   const body = row ? task ? task.result || (task.assignee ? task.assignee + (task.due_at ? ' · до ' + shortTime(task.due_at) : '') : 'Исполнитель ещё не назначен')
     : signal?.reason || report?.description || issueNames[row.kind]
-    : widget.type === 'model' ? 'Модель указывает, где снег может накопиться сильнее.'
     : widget.type === 'forecast' ? fullTime(widget.warning.payload.start) + ' — ' + shortTime(widget.warning.payload.end)
     : widget.type === 'camera' ? widget.camera.scene?.evidence
     : widget.type === 'bus' ? busDuration(widget.observation.usual_seconds) + ' → ' +
@@ -140,6 +140,10 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
     return [{ id: widget.id, label: widget.title, coordinates, priority: widget.priority,
       color: markerColors[cardDesign(widget).mood] }];
   }), [widgets]);
+  const dataModeMenu = useRef<HTMLDetailsElement>(null);
+  const dataModeTrigger = useRef<HTMLElement>(null);
+  const mapRef = useRef<MapControlHandle>(null);
+  const [mapControls, setMapControls] = useState<MapControls | null>(null);
   const [state, setState] = useState<'offline' | 'loading' | 'ready'>('offline');
   const [model, setModel] = useState<'loading' | 'ready' | 'failed'>();
   const [modelProgress, setModelProgress] = useState<string>();
@@ -227,15 +231,10 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
     : model === 'failed' ? 'Архивный расчёт недоступен'
     : data.city_map_url && state === 'offline' ? 'Подключаем архивную карту'
     : !data.city_map_url && (error || updatedAt) ? 'Архивная карта недоступна'
-    : !data.city_map_url ? 'Проверяем подключение Neverrie' : 'Рассчитываем исторический снег' + (modelProgress ? ' · ' + modelProgress : '');
-  const modelStatus = cleanup ? cleanupStatus : !snow ? 'Расчёт не подключён' : snow.status === 'running' ? 'Рассчитываем снег' : snow.status === 'pending' ? 'Ожидается первый расчёт'
-    : snow.status === 'stale' ? 'Модель ждёт обновления' : snow.status === 'unavailable' || snow.status === 'configuration_error'
-    ? 'Расчёт недоступен' : state === 'ready' && snow.remote_run_id && model === 'loading' ? 'Загружается поле снега'
-    : state === 'ready' && snow.remote_run_id && model === 'failed' ? 'Доступна оценка по дорогам'
-    : snow.status === 'partial' ? 'Часть участков рассчитана' : 'Расчёт готов';
-
+    : 'Рассчитываем архивный снег' + (modelProgress ? ' · ' + modelProgress : '');
+  const cityUrl = scenario && !cleanup ? null : data.city_map_url;
   return <section className="ops-overview" aria-label="Дорожная обстановка">
-    <OverviewMap cityUrl={scenario && !cleanup ? null : data.city_map_url} cleanupAt={cleanup ? clock : undefined} runId={validSnow ? snow?.remote_run_id : undefined}
+    <OverviewMap key={cityUrl ?? ''} ref={mapRef} onControls={setMapControls} cityUrl={cityUrl} cleanupAt={cleanup ? clock : undefined} runId={validSnow ? snow?.remote_run_id : undefined}
       roads={validSnow ? roads : emptyRoads} markers={displayedMarkers} selection={selection ?? demoBusFocus}
       traffic={trafficSegments} trafficStale={traffic.stale || traffic.unavailable}
       showSnow={showSnow} showMarkers={displayedMarkers.length > 0} onClientState={setState} onModelState={(status, progress) => { setModel(status); setModelProgress(progress); }}
@@ -257,28 +256,44 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
     <header className="ops-heading">
       <div className="ops-location"><span className="small-dot" />Петропавловск-Камчатский</div>
       <h1>Дорожная<br className="ops-break" /> обстановка</h1>
-      <p className="ops-status" role="status">
-        <Icon name="map" width="15" height="15" />{state === 'ready' ? 'Карта Neverrie' : state === 'loading' ? 'Подключаем карту Neverrie' : 'Обзорная карта'}
-        <span aria-hidden="true">·</span>{modelStatus}
-      </p>
       {error && <p className="ops-error" role="alert">{error} <button onClick={onRefresh}>Повторить</button></p>}
     </header>
+    <MapSearch scenario={Boolean(scenario)} cameras={data.cameras} buses={positions ?? []} busSource={busMap?.source} dispatch={data.dispatch_queue} search={search}
+      onCamera={onCamera} onDispatch={onDispatch} onCitizen={onCitizenReport} onRoad={road => {
+        setSelected(undefined);
+        setSelection({ id: road.id, coordinates: road.coordinates, paths: road.paths, label: road.name, revision: ++revision.current });
+      }} onBus={(id, point) => {
+        setSelected(undefined); setShowBuses(true); setSelectedBusId(id);
+        setSelection({ id: 'bus:' + id, coordinates: [point], revision: ++revision.current });
+      }} />
     <div className="ops-topbar" aria-label="Инструменты карты">
-      <div className="ops-demo">
-        <label htmlFor="ops-demo-select"><Icon name="overview" width="15" height="15" /> Демо</label>
-        <select id="ops-demo-select" aria-label="Демосценарий" value={scenario ?? ''} onChange={e => onScenario((e.target.value || null) as DemoScenario | null)}>
-          <option value="">Данные сервиса</option>
-          {Object.entries(demoScenarios).map(([code, title]) => <option key={code} value={code}>{title}</option>)}
-        </select>
-      </div>
-      <MapSearch scenario={Boolean(scenario)} cameras={data.cameras} buses={positions ?? []} busSource={busMap?.source} dispatch={data.dispatch_queue} search={search}
-        onCamera={onCamera} onDispatch={onDispatch} onCitizen={onCitizenReport} onRoad={road => {
-          setSelected(undefined);
-          setSelection({ id: road.id, coordinates: road.coordinates, paths: road.paths, label: road.name, revision: ++revision.current });
-        }} onBus={(id, point) => {
-          setSelected(undefined); setShowBuses(true); setSelectedBusId(id);
-          setSelection({ id: 'bus:' + id, coordinates: [point], revision: ++revision.current });
-        }} />
+      <details ref={dataModeMenu} className="ops-demo" onBlur={event => {
+        if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
+      }} onKeyDown={event => {
+        if (event.key === 'Escape' && event.currentTarget.open) {
+          event.preventDefault();
+          event.currentTarget.open = false;
+          dataModeTrigger.current?.focus();
+        }
+      }}>
+        <summary ref={dataModeTrigger} aria-label="Режим данных">
+          <Icon name="overview" width="17" height="17" />
+          <span>{scenario ? demoScenarios[scenario] : 'Данные сервиса'}</span>
+          <Icon name="chevron" className="ops-demo-chevron" width="15" height="15" />
+        </summary>
+        <div className="ops-demo-options" role="group" aria-label="Режимы данных">
+          {([[null, 'Данные сервиса'], ...Object.entries(demoScenarios)] as [DemoScenario | null, string][])
+            .map(([mode, title]) => <button key={mode ?? 'service'} type="button" aria-pressed={scenario === mode}
+              onClick={() => {
+                if (dataModeMenu.current) dataModeMenu.current.open = false;
+                dataModeTrigger.current?.focus();
+                onScenario(mode);
+              }}>
+              <span>{title}</span>
+              {scenario === mode && <Icon name="check" width="15" height="15" />}
+            </button>)}
+        </div>
+      </details>
       <details className="ops-profile" onBlur={event => {
         if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
       }} onKeyDown={event => {
@@ -292,7 +307,6 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
         </summary>
         <div className="ops-profile-panel ops-toolbar-panel">
           <strong>Диспетчер</strong>
-          <span>Демонстрационный профиль</span>
         </div>
       </details>
     </div>
@@ -312,6 +326,7 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
             </button>)}
           </div>
           <p>{cleanupPhases[phase].description}</p>
+          <small role="status">{cleanupStatus}</small>
           <small>Слой показывает расчёт накопления снега. Задания и кадр камеры демонстрационные.</small>
         </div>}
         <div className="ops-filters" aria-label="Фильтр виджетов">
@@ -324,29 +339,77 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
             <WidgetCard widget={widget} selected={selected === widget.id} onSelect={() => select(widget)}
               {...{ onDispatch, onSignal, onCamera, frameUrl, scenario }} />
           </div>)}
-          {!visible.length && <div className="ops-empty"><Icon name="check" /><div><strong>{onlyActions ? 'Всё под контролем' : 'Спокойная обстановка'}</strong>
-            <p>{onlyActions ? 'Здесь появятся события, по которым нужно принять решение.' : 'Активных сигналов, обращений и заданий нет.'}</p></div></div>}
+          {!visible.length && <div className="ops-empty"><Icon name="check" /><span>{onlyActions ? 'Нет событий к решению' : 'Нет активных событий'}</span></div>}
         </div>
       </>}
     </aside>
-    <div className="ops-map-tools" aria-label="Отображение на карте">
-      {selectedBus && <div className="ops-bus-detail" role="status">
-        <div><strong>{selectedBus.fleet_number ? 'Автобус № ' + selectedBus.fleet_number : 'Автобус'}</strong>
-          <span>{selectedBus.route && 'Маршрут ' + selectedBus.route + ' · '}{busMap?.source === 'simulation' ? 'Имитация' : 'РНИС'} · {fullTime(selectedBus.measured_at)}</span></div>
-        <button type="button" aria-label="Закрыть сведения об автобусе" onClick={() => setSelectedBusId(undefined)}>
-          <Icon name="close" width="16" height="16" /></button>
+    <div className="ops-map-dock">
+      <div className="ops-map-tools" role="group" aria-label="Отображение на карте">
+        {selectedBus && <div className="ops-bus-detail" role="status">
+          <div><strong>{selectedBus.fleet_number ? 'Автобус № ' + selectedBus.fleet_number : 'Автобус'}</strong>
+            <span>{selectedBus.route && 'Маршрут ' + selectedBus.route + ' · '}{busMap?.source === 'simulation' ? 'Имитация' : 'РНИС'} · {fullTime(selectedBus.measured_at)}</span></div>
+          <button type="button" aria-label="Закрыть сведения об автобусе" onClick={() => setSelectedBusId(undefined)}>
+            <Icon name="close" width="16" height="16" /></button>
+        </div>}
+        {mapControls && <button className="ops-topbar-button ops-map-tool" type="button" aria-label="Режим 3D"
+          aria-pressed={mapControls.is3D} onClick={() => mapRef.current?.send({ action: 'view' })}>
+          <span className="ops-map-tool-icon">3D</span><span className="ops-map-tool-label">Режим 3D</span>
+        </button>}
+        <button className="ops-topbar-button ops-map-tool" type="button" aria-pressed={showTraffic} aria-description={trafficTitle}
+          aria-label="Пробки" onClick={() => setShowTraffic(value => !value)}>
+          <Icon name="traffic" /><span className="ops-map-tool-label">Пробки</span>
+        </button>
+        <button className="ops-topbar-button ops-map-tool" type="button" aria-label="Снег" aria-pressed={showSnow}
+          onClick={() => setShowSnow(value => !value)}>
+          <Icon name="forecast" /><span className="ops-map-tool-label">Снег</span>
+        </button>
+        <button className="ops-topbar-button ops-map-tool" type="button" aria-label="События" aria-pressed={showMarkers}
+          onClick={() => setShowMarkers(value => !value)}>
+          <Icon name="bell" /><span className="ops-map-tool-label">События</span>
+        </button>
+        {busMap ? <button className="ops-topbar-button ops-map-tool ops-bus-toggle" type="button" aria-label="Автобусы"
+          aria-description={busStatus + (busMap.source === 'simulation' ? ' · имитация' : '')} aria-pressed={showBuses}
+          onClick={() => setShowBuses(value => !value)}>
+          <Icon name="bus" /><span className="ops-map-tool-label">Автобусы</span>
+        </button>
+          : data.mode !== 'live' && <a className="ops-topbar-button ops-map-tool" href="/demo" aria-label="Демо автобусов">
+            <Icon name="bus" /><span className="ops-map-tool-label">Демо автобусов</span>
+          </a>}
+        {data.city_map_url && !scenario && <a className="ops-topbar-button ops-map-tool" href={data.city_map_url} target="_blank" rel="noopener noreferrer"
+          aria-label="Сценарии модели">
+          <Icon name="expand" /><span className="ops-map-tool-label">Сценарии модели</span>
+        </a>}
+      </div>
+      {mapControls && <div className="ops-map-time" role="group" aria-label="Район и время на карте">
+        <div className="ops-map-time-heading">
+          <button className="ops-topbar-button" type="button" aria-label="Вернуться к выбранному району"
+            title="Вернуться к выбранному району" onClick={() => mapRef.current?.send({ action: 'focus' })}><Icon name="focus" /></button>
+          <select aria-label="Район карты" value={mapControls.area}
+            onChange={e => mapRef.current?.send({ action: 'area', value: e.target.value })}>
+            {mapControls.areas.map(area => <option key={area.id} value={area.id}>{area.label}</option>)}
+          </select>
+          <details className="ops-map-layers" onBlur={event => {
+            if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
+          }} onKeyDown={event => {
+            if (event.key === 'Escape' && event.currentTarget.open) {
+              event.currentTarget.open = false;
+              event.currentTarget.querySelector('summary')?.focus();
+            }
+          }}>
+            <summary className="ops-topbar-button" aria-label="Слои карты" title="Слои карты"><Icon name="layers" /></summary>
+            <div className="ops-toolbar-panel">
+              {mapControls.layers.map(layer => <label key={layer.id}>
+                <input type="checkbox" checked={layer.checked} disabled={layer.disabled}
+                  onChange={() => mapRef.current?.send({ action: 'layer', value: layer.id })} />{layer.label}
+              </label>)}
+            </div>
+          </details>
+        </div>
+        {showSnow && mapControls.snow && <SnowTimeline snow={mapControls.snow}
+          onMode={value => mapRef.current?.send({ action: 'mode', value })}
+          onFrame={value => mapRef.current?.send({ action: 'frame', value })}
+          onPlay={() => mapRef.current?.send({ action: 'play' })} />}
       </div>}
-      <button type="button" aria-pressed={showTraffic} title={trafficTitle}
-        aria-label={showTraffic ? trafficTitle : 'Пробки'} onClick={() => setShowTraffic(value => !value)}>
-        <Icon name="traffic" width="16" height="16" />Пробки
-      </button>
-      <button type="button" aria-pressed={showSnow} onClick={() => setShowSnow(!showSnow)}><Icon name="forecast" width="16" height="16" />Снег</button>
-      <button type="button" aria-pressed={showMarkers} onClick={() => setShowMarkers(!showMarkers)}><Icon name="bell" width="16" height="16" />События</button>
-      {busMap ? <button className="ops-bus-toggle" type="button" aria-pressed={showBuses} onClick={() => setShowBuses(!showBuses)}>
-        <Icon name="bus" width="16" height="16" />Автобусы · {busStatus}{busMap.source === 'simulation' && ' · имитация'}
-      </button> : data.mode !== 'live' && <a href="/demo" title="Открыть автобусы на демонстрационной карте"><Icon name="bus" width="16" height="16" />Демо автобусов</a>}
-      {data.city_map_url && !scenario && <a href={data.city_map_url} target="_blank" rel="noopener noreferrer">
-        <Icon name="expand" width="15" height="15" />Сценарии модели</a>}
     </div>
     <footer className="ops-foot">
       <span>{scenario || data.mode === 'demo' ? 'Демо' : data.mode === 'replay' ? 'Архив' : 'Камчатка · UTC+12'}{scenario ? ' · ' + fullTime(clock) : ''}</span>

@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Neverrie · карта снега</title>
+  <title>Карта снега</title>
   <link rel="stylesheet" href="../vendor/maplibre-gl.css">
   <link rel="stylesheet" href="../app.css">
-  <link rel="stylesheet" href="map.css?v=2">
+  <link rel="stylesheet" href="map.css?v=5">
   <script src="../vendor/maplibre-gl.js" defer></script>
-  <script src="map.js?v=6" type="module"></script>
+  <script src="map.js?v=9" type="module"></script>
 </head>
 <body>
-  <main aria-label="Городская карта Neverrie">
+  <main aria-label="Городская карта">
     <div id="map"></div>
     <span id="metadata" hidden></span><span id="scene-location" hidden></span><span id="coords" hidden></span>
     <p id="scene-status" role="status"></p><p id="ops-result-status" role="status"></p>
-    <section class="city-controls" aria-label="Настройки карты">
+    <section id="city-controls" class="city-controls" aria-label="Настройки карты">
       <div class="city-tools">
         <button id="view" type="button" aria-label="Переключить 2D и 3D">3D</button>
         <select id="area" aria-label="Район карты"></select>

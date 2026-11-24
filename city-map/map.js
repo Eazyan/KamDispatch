@@ -3,7 +3,12 @@ import { createMap } from '../map.js?v=twist';
 import { raster } from '../raster_motion.js';
 import { createSnowVolume } from '../snow_volume.js';
 
-const parentOrigin = new URLSearchParams(location.search).get('parent');
+const params = new URLSearchParams(location.search);
+const parentOrigin = params.get('parent');
+const externalControls = window.parent !== window && Boolean(parentOrigin) && params.get('controls') === 'parent';
+const mapLayers = ['terrain', 'buildings', 'roads', 'assets', 'slopes', 'candidates', 'topo', 'show-wind'];
+document.body.classList.toggle('external-controls', externalControls);
+if (externalControls) $('city-controls').hidden = true;
 const send = (type, fields) => {
   if (window.parent !== window && /^https?:\/\/[^/]+$/.test(parentOrigin ?? '')) {
     window.parent.postMessage({ type: 'camchatka:' + type, ...fields }, parentOrigin);
@@ -36,9 +41,15 @@ async function start() {
   const view = createMap(metadata, () => {}, async point => {
     if (!model || !state.showSnow) return [];
     const current = model.run_id;
-    const query = new URLSearchParams({ lon: point.lng, lat: point.lat, frame: index });
+    const drift = layer.value === 'drift_cm';
+    const query = new URLSearchParams({ lon: point.lng, lat: point.lat,
+      frame: drift && !model.drift_timeline ? model.wind_frames.length-1 : index,
+      ...(drift && model.drift_timeline ? { layer: 'drift' } : {}),
+    });
     const row = await request('/operations/city/runs/' + current + '/sample?' + query);
-    return current === model?.run_id && row.snow_cm != null ? ['Свежий снег по модели · ' + row.snow_cm.toFixed(1) + ' см'] : [];
+    const value = drift && model?.drift_timeline ? row.drift_cm : row.snow_cm;
+    return current === model?.run_id && value != null
+      ? [(drift && model.drift_timeline ? 'Нанос по модели · ' : 'Свежий снег по модели · ') + value.toFixed(1) + ' см'] : [];
   });
   await view.ready;
   const { map } = view;
@@ -47,6 +58,30 @@ async function start() {
   const layer = $('model-layer');
   const slider = $('model-frame');
   const play = $('play');
+  let lastControls;
+  function publishControls() {
+    if (!externalControls) return;
+    const area = $('area');
+    const layers = mapLayers.map(id => {
+      const input = $(id);
+      return { id, label: input.labels[0].textContent.trim(), checked: input.checked, disabled: input.disabled };
+    });
+    const controls = {
+      areas: [...area.options].map(option => ({ id: option.value, label: option.text })),
+      area: area.value, is3D: map.getPitch() > 1, layers,
+      snow: model && state.showSnow ? {
+        frames: model.wind_frames.map(frame => frame.valid_at ?? null),
+        minutes: model.frame_offsets_minutes ?? null,
+        index, mode: layer.value, scale: $('model-scale').textContent,
+        playing: Boolean(timer), disabled: slider.disabled,
+      } : null,
+    };
+    const serialized = JSON.stringify(controls);
+    if (serialized === lastControls) return;
+    lastControls = serialized;
+    send('controls', { controls });
+  }
+
   function pause() {
     clearInterval(timer); timer = undefined;
     play.textContent = '▶';
@@ -58,23 +93,25 @@ async function start() {
     const frame = model?.wind_frames?.[index];
     const isVolume = mode === 'volume';
     const visible = Boolean(model && state.showSnow);
-    const image = mode === 'drift_cm' ? model?.overlays.drift_cm : model?.timeline?.[index] || model?.overlays.snow_cm;
+    const image = mode === 'drift_cm' ? model?.drift_timeline?.[index] || model?.overlays.drift_cm
+      : model?.timeline?.[index] || model?.overlays.snow_cm;
     $('model-tools').hidden = !visible;
     $('frame-time').textContent = frame?.valid_at ? time.format(new Date(frame.valid_at)) : '';
     slider.setAttribute('aria-valuetext', $('frame-time').textContent || 'Шаг ' + (index + 1));
     slider.value = index;
-    slider.disabled = play.disabled = mode === 'drift_cm' || Number(slider.max) === 0;
+    slider.disabled = play.disabled = (mode === 'drift_cm' && !model?.drift_timeline) || Number(slider.max) === 0;
     $('model-scale').textContent = !model ? '' : isVolume ? 'Высота снега на экране ×12' :
       'Шкала модели 0–' + model.scales[mode] + ' см';
     map.setLayoutProperty('operations-snow', 'visibility', visible && image && !isVolume ? 'visible' : 'none');
     map.setLayoutProperty('dispatch-roads', 'visibility', state.showSnow && !model ? 'visible' : 'none');
     if (visible && image && !isVolume) raster(map, 'operations-snow', model.bounds, image);
     volume.show(visible && isVolume ? model.run_id : null, index < (model?.timeline?.length ?? 0) ? index : undefined);
-    const points = $('show-wind').checked ? frame?.points ?? [] : [];
+    const points = visible && $('show-wind').checked ? frame?.points ?? [] : [];
     map.getSource('weather-arrows').setData({ ...empty(), features: points.map(point => ({
       type: 'Feature', geometry: { type: 'Point', coordinates: point.coordinates },
       properties: { toward: (point.wind_from_deg + 180) % 360, speed: point.wind_speed_ms },
     })) });
+    publishControls();
   }
   function syncCleanupTime(at) {
     if (!model || !at) return;
@@ -86,9 +123,9 @@ async function start() {
   }
 
   async function fetchModel(id, token) {
-    if (id !== 'cleanup') return request('/operations/city/runs/' + id);
+    if (id !== 'cleanup') return request('/operations/city/runs/' + id + '?manifest=true');
     const job = await request('/operations/city/runs', { source: 'reanalysis', event_id: 'january-2026' });
-    const url = '/operations/city/runs/' + job.run_id;
+    const url = '/operations/city/runs/' + job.run_id + '?manifest=true';
     while (token === generation) {
       const result = await request(url);
       if (result.status === 'completed') return result;
@@ -119,7 +156,9 @@ async function start() {
       const count = Math.max(0, result.wind_frames.length - 1);
       const matching = result.wind_frames.findIndex(frame => frame.valid_at === displayed);
       slider.max = count;
-      index = matching < 0 ? count : matching;
+      const nearEnd = result.frame_offsets_minutes?.at(-1) > 360
+        ? result.frame_offsets_minutes.indexOf(180) : count;
+      index = matching < 0 ? nearEnd : matching;
       if (id === 'cleanup') syncCleanupTime(state.cleanupAt);
       else paint();
       send('model', { state: 'ready' });
@@ -134,21 +173,52 @@ async function start() {
   $('show-wind').onchange = paint;
   slider.oninput = () => { pause(); index = slider.valueAsNumber; paint(); };
   play.onclick = () => {
-    if (timer) { pause(); return; }
+    if (play.disabled) return;
+    if (timer) { pause(); publishControls(); return; }
     if (index >= Number(slider.max)) index = 0;
     paint();
     play.textContent = 'Ⅱ';
     play.setAttribute('aria-label', 'Пауза');
     play.setAttribute('aria-pressed', 'true');
     timer = setInterval(() => {
-      index += 1; paint();
+      index += 1;
       if (index >= Number(slider.max)) pause();
+      paint();
     }, 950);
+    publishControls();
   };
+  function change(input, value) {
+    input.value = value;
+    input.dispatchEvent(new Event('change'));
+  }
+
+  function applyControl({ action, value }) {
+    const area = $('area');
+    if (action === 'area' && [...area.options].some(option => option.value === value)) change(area, value);
+    if (action === 'focus') $('focus').click();
+    if (action === 'view') $('view').click();
+    if (action === 'layer' && mapLayers.includes(value)) $(value).click();
+    if (action === 'mode' && [...layer.options].some(option => option.value === value)) change(layer, value);
+    if (action === 'play') play.click();
+    if (action === 'frame' && model && state.showSnow && !slider.disabled &&
+      Number.isInteger(value) && value >= 0 && value <= Number(slider.max)) {
+      slider.value = value;
+      slider.dispatchEvent(new Event('input'));
+    }
+    publishControls();
+  }
+
+  map.on('pitchend', publishControls);
   window.addEventListener('message', event => {
-    if (event.origin !== parentOrigin || event.source !== window.parent || event.data?.type !== 'camchatka:state') return;
+    if (event.origin !== parentOrigin || event.source !== window.parent) return;
+    if (event.data?.type === 'camchatka:control' && externalControls) {
+      applyControl(event.data);
+      return;
+    }
+    if (event.data?.type !== 'camchatka:state') return;
     const previousCleanupAt = state.cleanupAt;
     state = event.data;
+    if (!state.showSnow && timer) pause();
     const nextRoads = JSON.stringify(state.roads);
     if (roadData !== nextRoads) {
       map.getSource('dispatch-roads').setData({ ...empty(), features: (state.roads ?? []).filter(validLine).map(line) });
@@ -213,6 +283,7 @@ async function start() {
     else paint();
   });
   send('ready', { busBadges: true, traffic: true });
+  publishControls();
 }
 
 function underlay(map) {
