@@ -41,9 +41,15 @@ async function start() {
   const view = createMap(metadata, () => {}, async point => {
     if (!model || !state.showSnow) return [];
     const current = model.run_id;
-    const query = new URLSearchParams({ lon: point.lng, lat: point.lat, frame: index });
+    const drift = layer.value === 'drift_cm';
+    const query = new URLSearchParams({ lon: point.lng, lat: point.lat,
+      frame: drift && !model.drift_timeline ? model.wind_frames.length-1 : index,
+      ...(drift && model.drift_timeline ? { layer: 'drift' } : {}),
+    });
     const row = await request('/operations/city/runs/' + current + '/sample?' + query);
-    return current === model?.run_id && row.snow_cm != null ? ['Свежий снег по модели · ' + row.snow_cm.toFixed(1) + ' см'] : [];
+    const value = drift && model?.drift_timeline ? row.drift_cm : row.snow_cm;
+    return current === model?.run_id && value != null
+      ? [(drift && model.drift_timeline ? 'Нанос по модели · ' : 'Свежий снег по модели · ') + value.toFixed(1) + ' см'] : [];
   });
   await view.ready;
   const { map } = view;
@@ -65,6 +71,7 @@ async function start() {
       area: area.value, is3D: map.getPitch() > 1, layers,
       snow: model && state.showSnow ? {
         frames: model.wind_frames.map(frame => frame.valid_at ?? null),
+        minutes: model.frame_offsets_minutes ?? null,
         index, mode: layer.value, scale: $('model-scale').textContent,
         playing: Boolean(timer), disabled: slider.disabled,
       } : null,
@@ -86,12 +93,13 @@ async function start() {
     const frame = model?.wind_frames?.[index];
     const isVolume = mode === 'volume';
     const visible = Boolean(model && state.showSnow);
-    const image = mode === 'drift_cm' ? model?.overlays.drift_cm : model?.timeline?.[index] || model?.overlays.snow_cm;
+    const image = mode === 'drift_cm' ? model?.drift_timeline?.[index] || model?.overlays.drift_cm
+      : model?.timeline?.[index] || model?.overlays.snow_cm;
     $('model-tools').hidden = !visible;
     $('frame-time').textContent = frame?.valid_at ? time.format(new Date(frame.valid_at)) : '';
     slider.setAttribute('aria-valuetext', $('frame-time').textContent || 'Шаг ' + (index + 1));
     slider.value = index;
-    slider.disabled = play.disabled = mode === 'drift_cm' || Number(slider.max) === 0;
+    slider.disabled = play.disabled = (mode === 'drift_cm' && !model?.drift_timeline) || Number(slider.max) === 0;
     $('model-scale').textContent = !model ? '' : isVolume ? 'Высота снега на экране ×12' :
       'Шкала модели 0–' + model.scales[mode] + ' см';
     map.setLayoutProperty('operations-snow', 'visibility', visible && image && !isVolume ? 'visible' : 'none');
@@ -115,9 +123,9 @@ async function start() {
   }
 
   async function fetchModel(id, token) {
-    if (id !== 'cleanup') return request('/operations/city/runs/' + id);
+    if (id !== 'cleanup') return request('/operations/city/runs/' + id + '?manifest=true');
     const job = await request('/operations/city/runs', { source: 'reanalysis', event_id: 'january-2026' });
-    const url = '/operations/city/runs/' + job.run_id;
+    const url = '/operations/city/runs/' + job.run_id + '?manifest=true';
     while (token === generation) {
       const result = await request(url);
       if (result.status === 'completed') return result;
@@ -148,7 +156,9 @@ async function start() {
       const count = Math.max(0, result.wind_frames.length - 1);
       const matching = result.wind_frames.findIndex(frame => frame.valid_at === displayed);
       slider.max = count;
-      index = matching < 0 ? count : matching;
+      const nearEnd = result.frame_offsets_minutes?.at(-1) > 360
+        ? result.frame_offsets_minutes.indexOf(180) : count;
+      index = matching < 0 ? nearEnd : matching;
       if (id === 'cleanup') syncCleanupTime(state.cleanupAt);
       else paint();
       send('model', { state: 'ready' });

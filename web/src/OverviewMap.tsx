@@ -15,6 +15,7 @@ export type MapControls = {
   layers: { id: string; label: string; checked: boolean; disabled: boolean }[];
   snow: {
     frames: (string | null)[];
+    minutes?: number[] | null;
     index: number;
     mode: string;
     scale: string;

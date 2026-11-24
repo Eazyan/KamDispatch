@@ -228,6 +228,11 @@
 .ops-snow-ruler input::-moz-range-thumb {
   box-sizing: border-box; width: 16px; height: 16px; border: 2px solid #17313f; border-radius: 50%; background: #cdf5fa;
 }
+.ops-snow-caption { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.ops-snow-caption button {
+  min-height: 24px; padding: 1px 6px; border-radius: 6px; background: #284b5b;
+  color: #eaf6fc; font-size: 11px;
+}
 .ops-snow-scale { display: block; margin: 0 2px 1px; color: var(--subtle); font-size: 10px; }
 .ops-icon:hover, .card-actions :is(button,a):hover { background: #315463; border-color: #8abbc47c; }
 .ops-foot { right: var(--edge); bottom: 32px; display: flex; justify-content: flex-end; gap: 11px; color: #d0e1e9; font-size: 11px; text-shadow: 0 1px 3px #000; }
