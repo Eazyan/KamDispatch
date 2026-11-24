@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+root=$(CDPATH='' cd -- "$(dirname -- "$0")/../.." && pwd)
+exec env -i PATH="$PATH" HOME="$HOME" docker compose --project-name kamdispatch-resilience \
+  --project-directory "$root/.resilience-local/source" --env-file "$root/.resilience-local/local.env" \
+  -f "$root/resilience_audit/deploy/local.compose.yaml" "$@"

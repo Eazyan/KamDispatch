@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Аудит ЦУП Камчатки</title>
+  <style>
+    :root{color-scheme:dark;--bg:#101b21;--panel:#18272f;--text:#eaf4f4;--muted:#a9bdc4;--line:#354b53;--green:#9be4be;--red:#ffb3a2;--gold:#ffe0a0}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.58 system-ui,sans-serif}
+    main{max-width:1100px;margin:auto;padding:52px 24px 72px}header{border-bottom:1px solid var(--line);padding-bottom:25px}
+    h1{margin:0;font-size:clamp(2rem,6vw,4.2rem);line-height:1.05;letter-spacing:-.04em}
+    h2{margin:0 0 14px;font-size:1.45rem}h3{margin:.6em 0;font-size:1.1rem}p{margin:.55em 0}
+    a{color:var(--green)}.date,.caption,.muted{color:var(--muted)}.date{margin:0 0 8px}
+    section{margin-top:31px}.metrics,.systems,.layout,.findings{display:grid;gap:12px}
+    .metrics{grid-template-columns:repeat(3,1fr);margin-top:20px}.systems{grid-template-columns:repeat(4,1fr)}
+    .layout{grid-template-columns:minmax(155px,230px) 1fr}.findings{grid-template-columns:repeat(3,1fr)}
+    .card,.node,article,pre{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+    .card strong{display:block;font-size:1.6rem}.node{font-weight:650;min-height:78px;display:flex;align-items:center}
+    .node.affected{box-shadow:inset 0 0 0 2px var(--gold);color:var(--gold)}.caption{font-size:.92rem}
+    .tag{font-size:.84rem;font-weight:750}.pass{color:var(--green)}.fail{color:var(--red)}.other{color:var(--gold)}
+    nav{display:grid;gap:6px;align-content:start}button{font:inherit;text-align:left;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:8px 10px;cursor:pointer}
+    button[aria-pressed=true]{border-color:var(--green);color:var(--green)}button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+    #detail{min-width:0}.trail{padding:12px;background:#112027;border-radius:7px;margin:14px 0;color:var(--gold)}
+    pre{font:13px/1.5 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;padding:12px}
+    @media(max-width:740px){main{padding:27px 15px}.systems,.findings{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}nav{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:420px){.metrics,.findings{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="date">24 ноября 2026 · Петропавловск-Камчатский</p>
+    <h1>Аудит отказоустойчивости ЦУП</h1>
+    <p>Два изолированных стенда на Mac. Данные и контейнеры отказов принадлежат локальному испытательному окружению.</p>
+    <div class="metrics" id="metrics"></div>
+  </header>
+  <section>
+    <h2>Как проходит сигнал</h2>
+    <div class="systems" id="systems">
+      <div class="node" data-node="source">Погода · камеры · РНИС · пробки</div>
+      <div class="node" data-node="worker">Обработчик и адаптеры</div>
+      <div class="node" data-node="db">PostgreSQL и кадры</div>
+      <div class="node" data-node="monitor">FastAPI и React</div>
+      <div class="node" data-node="geo">DEM · OSM · решатель</div>
+      <div class="node" data-node="city">City API и SQLite</div>
+      <div class="node" data-node="gateway">Nginx и прокси панели</div>
+      <div class="node" data-node="viewer">Диспетчер и зритель</div>
+    </div>
+    <p class="caption">Верхняя цепочка получает и сохраняет наблюдения. Рельеф и снег идут через City API. Публичный шлюз объединяет выдачу. Выберите опыт, чтобы подсветить затронутые компоненты.</p>
+  </section>
+  <section>
+    <h2>Сценарии и каскады</h2>
+    <div class="layout"><nav id="scenarios" aria-label="Сценарии"></nav><article id="detail" aria-live="polite"></article></div>
+  </section>
+  <section>
+    <h2>Критические зависимости</h2>
+    <div class="findings">
+      <article><h3>Яндекс Карты</h3><p>Изменения браузерной выдачи или калибровки останавливают обновление дорожных интервалов.</p></article>
+      <article><h3>OpenWeather</h3><p>Отказ источника оставляет прошлый результат. Оба используемых API принадлежат одному поставщику.</p></article>
+      <article><h3>Снежный решатель и конфигурация</h3><p>Восстановление зависит от закреплённой модели, образов и фактических Windows-патчей.</p></article>
+    </div>
+  </section>
+  <section aria-label="Материалы">
+    <a href="REPORT_RU.md">Полный отчёт</a> · <a href="DIARY.md">Дневник</a> · <a href="RISK_REGISTER.csv">Реестр рисков</a> · <a href="TEST_RESULTS.json">Результаты JSON</a>
+  </section>
+</main>
+<script type="application/json" id="evidence">{
+  "target": "http://127.0.0.1:18088",
+  "results": {
+    "BASELINE": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:24:03.073033+00:00",
+      "evidence": {
+        "http": {
+          "/": 200,
+          "/healthz": 200,
+          "/city/": 200,
+          "/api/v1/health": 200,
+          "/static/ops/map.js": 200,
+          "/api/v1/traffic": 200,
+          "/api/v1/operations/city/catalog": 200,
+          "/citizens/": 404
+        },
+        "role": "viewer",
+        "mode": "preview",
+        "frames_http": 200,
+        "observed_cameras": 20,
+        "forecast_points": 6,
+        "bus_positions": 0,
+        "terrain": true,
+        "snow_solver": true,
+        "address_found": true,
+        "seconds_to_ready": 0.11
+      }
+    },
+    "F01_WEATHER": {
+      "status": "FAIL",
+      "started_at": "2026-11-24T04:24:09.707343+00:00",
+      "evidence": {
+        "down": {
+          "seconds": 1.26,
+          "dashboard_http": 200,
+          "visible_checks": 0,
+          "same_forecast_as_before": true,
+          "horizons": [
+            "hourly"
+          ],
+          "db_checks": "unavailable|6"
+        },
+        "invalid": {
+          "seconds": 1.09,
+          "dashboard_http": 200,
+          "visible_checks": 0,
+          "same_forecast_as_before": true,
+          "horizons": [
+            "hourly"
+          ],
+          "db_checks": "unavailable|6"
+        },
+        "fallback": {
+          "seconds": 1.45,
+          "dashboard_http": 200,
+          "visible_checks": 0,
+          "same_forecast_as_before": false,
+          "horizons": [
+            "three_hourly"
+          ],
+          "db_checks": "three_hourly|6"
+        },
+        "ok": {
+          "seconds": 1.93,
+          "dashboard_http": 200,
+          "visible_checks": 0,
+          "same_forecast_as_before": false,
+          "horizons": [
+            "hourly"
+          ],
+          "db_checks": "ready|6"
+        }
+      }
+    },
+    "F02_CAMERAS": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:27:04.545393+00:00",
+      "evidence": {
+        "initial": {
+          "available": 20
+        },
+        "outage": {
+          "error": 20
+        },
+        "recovered": {
+          "available": 20
+        },
+        "http": 200,
+        "detect_s": 3.2,
+        "recover_s": 20.22
+      }
+    },
+    "F03_TRAFFIC": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:24:59.610639+00:00",
+      "evidence": {
+        "mismatch_http": 503,
+        "detect_s": 20.49,
+        "stale_http": 200,
+        "stale_segments": 1,
+        "expired_by_s": 6600.04,
+        "stale_fetch_s": 0.06,
+        "recover_s": 20.33,
+        "recovered_segments": 1,
+        "api_exposes_expiry": true
+      }
+    },
+    "F04_COMBINED": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:25:40.500451+00:00",
+      "evidence": {
+        "http": {
+          "/": 200,
+          "/api/v1/dashboard": 200,
+          "/api/v1/health": 200,
+          "/api/v1/traffic": 503
+        },
+        "traffic_detect_s": 19.02,
+        "visible_checks": 0,
+        "weather_rows_still_returned": 6,
+        "camera_status": {
+          "error": 20
+        },
+        "runtime_internet": "blocked by Docker internal network throughout all experiments"
+      }
+    },
+    "F05_CITY": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:26:02.083719+00:00",
+      "evidence": {
+        "city_api_http": 0,
+        "remaining_http": {
+          "/": 200,
+          "/api/v1/dashboard": 200,
+          "/city/": 200,
+          "/static/ops/map.js": 200
+        },
+        "detect_s": 8.0,
+        "recover_s": 7.0
+      }
+    },
+    "F06_DATABASE": {
+      "status": "FAIL",
+      "started_at": "2026-11-24T04:26:19.779435+00:00",
+      "evidence": {
+        "http": {
+          "/": 200,
+          "/healthz": 503,
+          "/api/v1/dashboard": 500,
+          "/api/v1/health": 200
+        },
+        "detect_s": 0.02,
+        "recover_s": 0.49,
+        "forecasts_after": 6
+      }
+    },
+    "F07_WORKER": {
+      "status": "FAIL",
+      "started_at": "2026-11-24T04:26:21.111745+00:00",
+      "evidence": {
+        "health": 200,
+        "dashboard": 200,
+        "public_checks": 0,
+        "heartbeat_unchanged": true,
+        "forecast_count": 6,
+        "recover_s": 1.23
+      }
+    },
+    "F08_LOAD": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:26:26.516996+00:00",
+      "evidence": {
+        "requests": 36,
+        "parallelism": 6,
+        "status": {
+          "200": 36
+        },
+        "p95_s": 0.083,
+        "total_s": 0.41,
+        "public_workflows": {
+          "/citizens/": 404,
+          "/api/v1/dispatch/roads": 404
+        }
+      }
+    },
+    "F09_RESTORE": {
+      "status": "PASS",
+      "started_at": "2026-11-24T04:26:26.931175+00:00",
+      "evidence": {
+        "db_schema_before": 21,
+        "db_schema_restored": 21,
+        "restore_s": 1.16,
+        "restored_frame_and_forecast_counts": [
+          425,
+          31
+        ],
+        "sqlite_integrity": "ok",
+        "media_archive_bytes": 2119680,
+        "tested_new_database": true
+      }
+    },
+    "F10_COLD_RECOVERY": {
+      "status": "PASS",
+      "evidence": {
+        "fresh_volumes": true,
+        "rto_s": 18.21,
+        "forecast_points": 6,
+        "frame_http": 200,
+        "validated_jpeg_bytes": 3878,
+        "city_health": {
+          "status": "ok",
+          "solver_connected": false,
+          "terrain_loaded": true,
+          "snow_solver_connected": true
+        }
+      },
+      "started_at": "2026-11-24T04:31:24.594028+00:00"
+    }
+  },
+  "coverage": {
+    "public_automatic_dispatch": {
+      "status": "NOT_IMPLEMENTED",
+      "scope": "Публичный viewer-шлюз; закрытый контур задач существует, его тесты проходят."
+    },
+    "external_dispatch_delivery": {
+      "status": "NOT_TESTED",
+      "scope": "Реальные Telegram, MAX, SMTP и OIDC. Контракты проверены в локальных тестах."
+    },
+    "live_rnis_and_field_accuracy": {
+      "status": "NOT_TESTED",
+      "scope": "Текущие позиции автобусов, физическая точность прогноза и фактические зоны подрядчиков."
+    },
+    "citizen_write_capacity": {
+      "status": "NOT_TESTED",
+      "scope": "Предельная нагрузка на запись обращений. F08 относится к чтению панели."
+    },
+    "host_loss_without_artifacts": {
+      "status": "NOT_TESTED",
+      "scope": "Потеря площадки с одновременной недоступностью GitHub, реестра и резервных артефактов."
+    }
+  }
+}
+</script>
+<script>
+const tests = JSON.parse(document.querySelector('#evidence').textContent).results;
+const meta = {
+  F01_WEATHER: ['Погода', 'Отказ и неверный ответ оставляют предыдущий прогноз без сигнала в публичной панели.',
+    ['source','worker','db','gateway','viewer'], 'Источник → worker → PostgreSQL → публичная панель'],
+  F02_CAMERAS: ['Камеры', 'Все 20 тестовых источников стали недоступны и восстановились после возврата JPEG.',
+    ['source','worker','db','viewer'], 'Камеры → обработчик → статусы и последние кадры'],
+  F03_TRAFFIC: ['Пробки', 'Несовместимый граф отклонён. Старому ответу присвоен истёкший срок годности.',
+    ['source','monitor','gateway','viewer'], 'Публикация → сверка графа и TTL → слой карты'],
+  F04_COMBINED: ['Совместный отказ', 'Локальный City Sim доступен при одновременном отказе погоды, пробок и камер.',
+    ['source','worker','db','monitor','viewer'], 'Три источника → неполные сведения → ручная проверка'],
+  F05_CITY: ['City API', 'Сбой расчётного API оставил доступными HTML, карту и основную панель.',
+    ['geo','city','gateway','viewer'], 'City API → загрузка данных карты → прогноз'],
+  F06_DATABASE: ['PostgreSQL', 'Панель перестала отдавать данные, при этом City API и HTML продолжали работать.',
+    ['db','monitor','gateway','viewer'], 'PostgreSQL → API → прокси панели → диспетчер'],
+  F07_WORKER: ['Обработчик', 'Readiness и панель отвечали 200 при остановившемся сборе.',
+    ['worker','db','monitor','gateway','viewer'], 'Обработчик → неподвижный heartbeat → внешний статус 200'],
+  F08_LOAD: ['Контрольная нагрузка', '36 чтений при параллелизме 6. Внутренние маршруты отсутствуют в публичной выдаче.',
+    ['db','monitor','gateway'], 'HTTP → публичный прокси → база'],
+  F09_RESTORE: ['Резервные копии', 'Проверены дамп PostgreSQL, целостность SQLite и архив кадров.',
+    ['db','city'], 'БД и тома → изолированные резервные копии'],
+  F10_COLD_RECOVERY: ['Чистое восстановление', 'Проверены новая сеть, чистые тома, восстановленная панель, кадр и рельеф.',
+    ['db','city','monitor','gateway','viewer'], 'Копии → свежие тома → локальный стек → контрольное чтение'],
+};
+const node = (tag, value, name) => {
+  const el = document.createElement(tag);
+  el.textContent = value;
+  if (name) el.className = name;
+  return el;
+};
+const metric = (value, label) => {
+  const wrapper = node('div', '', 'card');
+  wrapper.append(node('strong', value), node('span', label, 'muted'));
+  document.querySelector('#metrics').append(wrapper);
+};
+metric(Object.keys(meta).length, 'локальных сценариев');
+metric(Object.entries(meta).filter(([id]) => tests[id]?.status === 'FAIL').length, 'выявленных отказа');
+const recovery = tests.F10_COLD_RECOVERY.evidence.rto_s;
+metric(recovery ? String(recovery).replace('.', ',') + ' с' : tests.F10_COLD_RECOVERY.status, 'восстановление на Mac');
+const detail = document.querySelector('#detail');
+const nav = document.querySelector('#scenarios');
+function select(id) {
+  const [name, text, nodes, trail] = meta[id];
+  const test = tests[id];
+  for (const button of nav.querySelectorAll('button')) button.setAttribute('aria-pressed', button.dataset.id === id);
+  for (const item of document.querySelectorAll('.node')) item.classList.toggle('affected', nodes.includes(item.dataset.node));
+  const cls = test.status === 'PASS' ? 'pass' : test.status === 'FAIL' ? 'fail' : 'other';
+  const evidence = document.createElement('details');
+  evidence.append(node('summary', 'Измерения и HTTP-ответы'), node('pre', JSON.stringify(test.evidence, null, 2)));
+  detail.replaceChildren(node('div', id.split('_')[0] + ' · ' + test.status, 'tag ' + cls),
+    node('h3', name), node('p', text), node('p', trail, 'trail'), evidence);
+}
+for (const [id, [name]] of Object.entries(meta)) {
+  const button = node('button', id.split('_')[0] + '  ' + name);
+  button.type = 'button';
+  button.dataset.id = id;
+  button.addEventListener('click', () => select(id));
+  nav.append(button);
+}
+select('F01_WEATHER');
+</script>
+</body>
+</html>

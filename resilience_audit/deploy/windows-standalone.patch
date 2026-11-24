@@ -1,0 +1,286 @@
+--- a/city_sim/city_snow.py
++++ b/city_sim/city_snow.py
+@@ -8,0 +9,2 @@
++import multiprocessing
++import os
+@@ -13 +15 @@
+-from concurrent.futures import ThreadPoolExecutor
++from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+@@ -38,0 +41,2 @@
++BANDS = ("snow_cm", "drift_cm", "opposite_snow_cm", "combined", "opposite", "uniform",
++         "terrain", "weather_snow", "weather_wind", "weather_distance")
+@@ -107,0 +112,113 @@
++# Shared with the forked worker processes: populated in the parent right before a
++# ProcessPoolExecutor is created, then inherited read-only by each worker.
++_WORKER_STATE = {}
++
++
++def _tile_geometry(city, sources, base_land, bounds, cells, revision):
++    w, s, e, n = bounds
++    sx, sy, _, _ = sources.projection(bounds)
++    neighbors = city.buildings((w-360/sx, s-360/sy, e+360/sx, n+360/sy))["features"]
++    buildings = []
++    for item in neighbors:
++        props = item["properties"]
++        for polygon in polygons(shape(item["geometry"])):
++            local = scale(translate(polygon, xoff=-w, yoff=-s), xfact=sx, yfact=sy, origin=(0, 0))
++            if local.area >= 4:
++                buildings.append(sources.Building(local, props["height_m"] or 9., props["height_source"]))
++    coords = (np.arange(cells)+.5)/cells
++    x, y = np.meshgrid(w+(e-w)*coords, n-(n-s)*coords)
++    ground = intersects_xy(base_land, x, y)
++    center = city.terrain.sample(x, y)
++    surrounding = np.asarray([city.terrain.sample(x+dx/sx, y+dy/sy)
++                               for dx, dy in ((90, 0), (-90, 0), (0, 90), (0, -90))])
++    relief = np.clip((surrounding.mean(axis=0)-center)/12, 0, 1)
++    return buildings, ground, relief
++
++
++def _estimate_tile(job):
++    i, j, bounds = job["i"], job["j"], job["bounds"]
++    cells = job["cells"]
++    revision = job["revision"]
++    local_area = job["local_area"]
++    state = _WORKER_STATE
++    domain = job["land"] if job["land"] is not None else state["land"]
++    hours = job["hours"]
++    point_distance = job["distance"]
++    source_kind = job["source"]
++    model, city, sources, base_land = state["model"], state["city"], state["sources"], state["land"]
++
++    w, s, e, n = bounds
++    tile = {"i": i, "j": j, "distance_to_source_m": point_distance, "hours": hours}
++    representative = domain.intersection(box(*bounds)).representative_point()
++    times = checkpoints(len(hours))
++    frame_points = [{
++        "valid_at": hours[offset].get("valid_at"),
++        "coordinates": [round(representative.x, 6), round(representative.y, 6)],
++        "wind_from_deg": hours[offset]["wind_from_deg"], "wind_speed_ms": hours[offset]["wind_speed_ms"],
++        "gust_ms": hours[offset].get("gust_ms", hours[offset].get("gust_mps")),
++        "snowfall_cm": hours[offset]["snowfall_cm"], "distance_to_source_m": point_distance,
++    } for offset in times]
++    signal = None
++    tile_stats = {}
++    if source_kind == "openweather":
++        row = hours[0]
++        extrapolated = point_distance > LOCAL_WEATHER_M
++        tile_stats["extrapolated_weather_tiles"] = 1 if extrapolated else 0
++        sig, reasons = weather_status(row["snow_mm_3h"] or 0, row["wind_speed_ms"], row["gust_mps"])
++        tile.update(weather_signal=sig, signal_reasons=reasons, extrapolated=extrapolated)
++        if sig == "inspect":
++            tile_stats["weather_alert_tiles"] = 1
++            tile_stats["weather_alert_tiles_local"] = 0 if extrapolated else 1
++            signal = {"coordinates": [(w+e)/2, (s+n)/2], "distance_to_source_m": point_distance,
++                      "reasons": reasons, "extrapolated": extrapolated}
++    buildings, ground, relief = _tile_geometry(city, sources, base_land, bounds, cells, revision)
++    if local_area:
++        coords = (np.arange(cells)+.5)/cells
++        x, y = np.meshgrid(w+(e-w)*coords, n-(n-s)*coords)
++        ground = ground & intersects_xy(domain, x, y)
++    total = sum(h["snowfall_cm"] for h in hours)
++    speeds = [h["wind_speed_ms"] for h in hours]
++    direct = model.estimate(bounds, buildings, hours, cells, True)
++    actual = remap(direct["snow_depth_cm"], cells)
++    alt = actual
++    if total > 0 and max(speeds) > 2:
++        opposite = [{**row, "wind_from_deg": (row["wind_from_deg"]+180) % 360} for row in hours]
++        reverse = model.estimate(bounds, buildings, opposite, cells, True)
++        alt = remap(reverse["snow_depth_cm"], cells)
++    valid = ground & np.isfinite(actual)
++
++    def risk(values):
++        return (.75*np.clip((values/total-1)/1.5, 0, 1)+.25*np.nan_to_num(relief)
++                if total > 0 and max(speeds) > 2 else np.zeros_like(values))
++
++    drift = np.where(actual > total, actual-total, np.nan)
++    values = (actual, drift, alt, risk(actual), risk(alt), 0., relief, total, max(speeds),
++              point_distance/1000 if point_distance is not None else np.nan)
++    bands = {key: np.where(valid, value, np.nan) for key, value in zip(BANDS, values)}
++    cumulative_blocks = []
++    if source_kind in {"reanalysis", "live"} and len(hours) > 1:
++        running = np.zeros_like(actual)
++        start = 0
++        for frame, offset in enumerate(times[:-1]):
++            block = hours[start:offset+1]
++            start = offset+1
++            snowfall = sum(h["snowfall_cm"] for h in block)
++            if snowfall > 0:
++                if all(h["wind_speed_ms"] <= 2 for h in block):
++                    running += snowfall
++                else:
++                    step = model.estimate(bounds, buildings, block, cells, True)
++                    running += np.nan_to_num(remap(step["snow_depth_cm"], cells))
++            cumulative_blocks.append((frame, np.where(valid, running, np.nan)))
++    tile_stats.update({
++        "computed_tiles": 1,
++        "dry_tiles": 1 if total == 0 else 0,
++        "hybrid_tiles": 1 if direct["model"] == "hybrid" else 0,
++        "hybrid_partial_tiles": 1 if direct["model"] == "hybrid_partial" else 0,
++        "ground_cells_computed": int(valid.sum()),
++    })
++    return {"i": i, "j": j, "tile": tile, "frame_points": frame_points, "signal": signal,
++            "bands": bands, "cumulative_blocks": cumulative_blocks, "source_key": job["source_key"],
++            "distance": point_distance, "stats": tile_stats}
++
++
+@@ -128,22 +244,0 @@
+-
+-    @lru_cache(maxsize=192)
+-    def tile_geometry(self, bounds, cells, revision):
+-        w, s, e, n = bounds
+-        _, engine = self.study.engine
+-        sx, sy, _, _ = engine.projection(bounds)
+-        neighbors = self.city.buildings((w-360/sx, s-360/sy, e+360/sx, n+360/sy))["features"]
+-        buildings = []
+-        for item in neighbors:
+-            props = item["properties"]
+-            for polygon in polygons(shape(item["geometry"])):
+-                local = scale(translate(polygon, xoff=-w, yoff=-s), xfact=sx, yfact=sy, origin=(0, 0))
+-                if local.area >= 4:
+-                    buildings.append(engine.Building(local, props["height_m"] or 9., props["height_source"]))
+-        coords = (np.arange(cells)+.5)/cells
+-        x, y = np.meshgrid(w+(e-w)*coords, n-(n-s)*coords)
+-        ground = intersects_xy(self.land, x, y)
+-        center = self.city.terrain.sample(x, y)
+-        surrounding = np.asarray([self.city.terrain.sample(x+dx/sx, y+dy/sy)
+-                                   for dx, dy in ((90, 0), (-90, 0), (0, 90), (0, -90))])
+-        relief = np.clip((surrounding.mean(axis=0)-center)/12, 0, 1)
+-        return buildings, ground, relief
+@@ -443 +538 @@
+-        model, _ = self.study.engine
++        model, sources = self.study.engine
+@@ -456,4 +551 @@
+-        bands = ["snow_cm", "drift_cm", "opposite_snow_cm", "combined", "opposite", "uniform", "terrain", "weather_snow", "weather_wind",
+-                 "weather_distance"]
+-        fields = {key: np.full((ny*cells, nx*cells), np.nan) for key in bands}
+-        cumulative = []
++        fields = {key: np.full((ny*cells, nx*cells), np.nan) for key in BANDS}
+@@ -467,5 +559,4 @@
+-        tile_inputs, signals, sources_found = [], [], set()
+-        wind_frames = []
+-        stats = Counter()
+-        distance_max = None
+-        for done, (i, j, bounds) in enumerate(stripes, 1):
++
++        _WORKER_STATE.update(model=model, sources=sources, city=city, land=self.land)
++        jobs = []
++        for i, j, bounds in stripes:
+@@ -475,2 +566 @@
+-                stats["missing_weather_tiles"] += 1
+-                progress(done, len(stripes))
++                jobs.append(None)
+@@ -479,59 +569,30 @@
+-            sources_found.add(source_key)
+-            tile = {"i": i, "j": j, "distance_to_source_m": point_distance, "hours": hours}
+-            tile_inputs.append(tile)
+-            representative = land.intersection(box(*bounds)).representative_point()
+-            times = checkpoints(len(hours))
+-            for index, offset in enumerate(times):
+-                hour = hours[offset]
+-                if index == len(wind_frames):
+-                    wind_frames.append({"valid_at": hour.get("valid_at"), "points": []})
+-                wind_frames[index]["points"].append({
+-                    "coordinates": [round(representative.x, 6), round(representative.y, 6)],
+-                    "wind_from_deg": hour["wind_from_deg"], "wind_speed_ms": hour["wind_speed_ms"],
+-                    "gust_ms": hour.get("gust_ms", hour.get("gust_mps")), "snowfall_cm": hour["snowfall_cm"],
+-                    "distance_to_source_m": point_distance,
+-                })
+-            if point_distance is not None:
+-                distance_max = max(point_distance, distance_max or 0)
+-            if spec.source == "openweather":
+-                row = hours[0]
+-                extrapolated = point_distance > LOCAL_WEATHER_M
+-                stats["extrapolated_weather_tiles"] += extrapolated
+-                signal, reasons = weather_status(row["snow_mm_3h"] or 0, row["wind_speed_ms"], row["gust_mps"])
+-                tile.update(weather_signal=signal, signal_reasons=reasons, extrapolated=extrapolated)
+-                if signal == "inspect":
+-                    stats["weather_alert_tiles"] += 1
+-                    stats["weather_alert_tiles_local"] += not extrapolated
+-                    signals.append({"coordinates": [(w+e)/2, (s+n)/2], "distance_to_source_m": point_distance,
+-                                    "reasons": reasons, "extrapolated": extrapolated})
+-            buildings, ground, relief = self.tile_geometry(bounds, cells, revision)
+-            if local_area:
+-                coords = (np.arange(cells)+.5)/cells
+-                x, y = np.meshgrid(w+(e-w)*coords, n-(n-s)*coords)
+-                ground = ground & intersects_xy(land, x, y)
+-            total = sum(h["snowfall_cm"] for h in hours)
+-            speeds = [h["wind_speed_ms"] for h in hours]
+-            direct = model.estimate(bounds, buildings, hours, cells, True)
+-            actual = remap(direct["snow_depth_cm"], cells)
+-            alt = actual
+-            if total > 0 and max(speeds) > 2:
+-                opposite = [{**row, "wind_from_deg": (row["wind_from_deg"]+180) % 360} for row in hours]
+-                reverse = model.estimate(bounds, buildings, opposite, cells, True)
+-                alt = remap(reverse["snow_depth_cm"], cells)
+-            valid = ground & np.isfinite(actual)
+-            def risk(values):
+-                return (.75*np.clip((values/total-1)/1.5, 0, 1)+.25*np.nan_to_num(relief)
+-                        if total > 0 and max(speeds) > 2 else np.zeros_like(values))
+-            target = np.s_[j*cells:(j+1)*cells, i*cells:(i+1)*cells]
+-            drift = np.where(actual > total, actual-total, np.nan)
+-            values = (actual, drift, alt, risk(actual), risk(alt), 0., relief, total, max(speeds),
+-                      point_distance/1000 if point_distance is not None else np.nan)
+-            for key, values in zip(bands, values):
+-                fields[key][target] = np.where(valid, values, np.nan)
+-            if spec.source in {"reanalysis", "live"} and len(hours) > 1:
+-                running = np.zeros_like(actual)
+-                start = 0
+-                for frame, offset in enumerate(times[:-1]):
+-                    block = hours[start:offset+1]
+-                    start = offset+1
+-                    if frame == len(cumulative):
++            jobs.append({"i": i, "j": j, "bounds": bounds, "cells": cells, "revision": revision,
++                         "local_area": local_area, "land": land if local_area else None, "hours": hours,
++                         "distance": point_distance, "source": spec.source, "source_key": source_key})
++
++        tile_inputs, signals, sources_found = [], [], set()
++        wind_frames, cumulative = [], []
++        stats = Counter()
++        distance_max = None
++        workers = max(1, int(os.getenv("CITY_SIM_WORKERS") or os.cpu_count() or 1))
++        valid_jobs = [job for job in jobs if job is not None]
++        ctx = multiprocessing.get_context("fork")
++        with ProcessPoolExecutor(max_workers=workers, mp_context=ctx) as pool:
++            results = iter(pool.map(_estimate_tile, valid_jobs,
++                                    chunksize=max(1, len(valid_jobs)//(workers*2))))
++            for done, job in enumerate(jobs, 1):
++                if job is None:
++                    stats["missing_weather_tiles"] += 1
++                    progress(done, len(stripes))
++                    continue
++                result = next(results)
++                i, j = result["i"], result["j"]
++                target = np.s_[j*cells:(j+1)*cells, i*cells:(i+1)*cells]
++                for key in BANDS:
++                    fields[key][target] = result["bands"][key]
++                for index, point in enumerate(result["frame_points"]):
++                    while index >= len(wind_frames):
++                        wind_frames.append({"valid_at": point.get("valid_at"), "points": []})
++                    wind_frames[index]["points"].append(point)
++                for frame, block in result["cumulative_blocks"]:
++                    while frame >= len(cumulative):
+@@ -539,14 +600,10 @@
+-                    snowfall = sum(h["snowfall_cm"] for h in block)
+-                    if snowfall > 0:
+-                        if all(h["wind_speed_ms"] <= 2 for h in block):
+-                            running += snowfall
+-                        else:
+-                            step = model.estimate(bounds, buildings, block, cells, True)
+-                            running += np.nan_to_num(remap(step["snow_depth_cm"], cells))
+-                    cumulative[frame][target] = np.where(valid, running, np.nan)
+-            stats["computed_tiles"] += 1
+-            stats["dry_tiles"] += total == 0
+-            stats["hybrid_tiles"] += direct["model"] == "hybrid"
+-            stats["hybrid_partial_tiles"] += direct["model"] == "hybrid_partial"
+-            stats["ground_cells_computed"] += int(valid.sum())
+-            progress(done, len(stripes))
++                    cumulative[frame][target] = block
++                if result["signal"] is not None:
++                    signals.append(result["signal"])
++                sources_found.add(result["source_key"])
++                if result["distance"] is not None:
++                    distance_max = max(result["distance"], distance_max or 0)
++                tile_inputs.append(result["tile"])
++                for key, value in result["stats"].items():
++                    stats[key] += value
++                progress(done, len(stripes))

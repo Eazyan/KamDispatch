@@ -1,0 +1,197 @@
+{
+  "public_windows": {
+    "/": {
+      "http": 200,
+      "bytes": 464,
+      "sha256": "1aab224515eebabeb7b980b8c6f121aa76825dba25048eb8a53681c1853b3b5b"
+    },
+    "/assets/index-Cmhd2usP.js": {
+      "http": 200,
+      "bytes": 435948,
+      "sha256": "00a36d2fd0f7847e96227763bfb16411c7ba5df924f0c84e8db26636478f417b"
+    },
+    "/assets/index-DwUI9zkh.css": {
+      "http": 200,
+      "bytes": 68033,
+      "sha256": "a12cbf11bccff239dd0d8fe2652dc36fd5cbc7ba574b517a775a2721114004da"
+    },
+    "/static/ops/index.html": {
+      "http": 200,
+      "bytes": 3049,
+      "sha256": "04e8495af21796882f0818df964fc3e38e2557a4f3ddad0127acf137d34b2bc1"
+    },
+    "/static/ops/map.js": {
+      "http": 200,
+      "bytes": 11913,
+      "sha256": "87e1f3728f04c404ab6e7f5c3964f841952364b56597376a7bb4d02735dfc611"
+    },
+    "/static/ops/traffic-volume.js": {
+      "http": 200,
+      "bytes": 7070,
+      "sha256": "0461c26c1fb47f41d768ad7215756ea275a7ff6d206aad4d71017495dc5e7524"
+    },
+    "/api/v1/health": {
+      "http": 200,
+      "bytes": 91,
+      "sha256": "79e0da78e3d53bfce7f9e3fcabde182d13e1069e583342de2658c319901c982f"
+    },
+    "city_landing": {
+      "http": 200,
+      "bytes": 20555,
+      "sha256": "1b5a14bf6475b46b3c49168fab4f472345697a73bcd07edfc3a0cdde1320968f"
+    },
+    "/healthz": {
+      "http": 200,
+      "bytes": 18,
+      "sha256": "31bf75f4c0a97cc1f7b60df824fa390b3be9ba014f29b63c87c698ba63d9a9fd"
+    }
+  },
+  "previous_mac": {
+    "/": {
+      "http": 200,
+      "bytes": 454,
+      "sha256": "ebac4c54e95517999aea2de671280026d6b321aeef9dbc6a8482885ba1cb0b7e"
+    },
+    "/assets/index-Cmhd2usP.js": {
+      "http": 200,
+      "bytes": 435948,
+      "sha256": "00a36d2fd0f7847e96227763bfb16411c7ba5df924f0c84e8db26636478f417b"
+    },
+    "/assets/index-DwUI9zkh.css": {
+      "http": 200,
+      "bytes": 68033,
+      "sha256": "a12cbf11bccff239dd0d8fe2652dc36fd5cbc7ba574b517a775a2721114004da"
+    },
+    "/static/ops/index.html": {
+      "http": 200,
+      "bytes": 2993,
+      "sha256": "840cdde6dc26024d19b9ccc5c545653deb84b2b6b4cb7bc249e8e5f99ad94e0d"
+    },
+    "/static/ops/map.js": {
+      "http": 200,
+      "bytes": 11676,
+      "sha256": "da23b3783ba4eade73a470d8f6433c3046baeadf2619d56f619cf75085184ddb"
+    },
+    "/static/ops/traffic-volume.js": {
+      "http": 200,
+      "bytes": 6870,
+      "sha256": "a0cb6e835edc224ddefc887a888e57c03e50bdb75fedadb8689b6c8670700f16"
+    },
+    "/api/v1/health": {
+      "http": 200,
+      "bytes": 91,
+      "sha256": "79e0da78e3d53bfce7f9e3fcabde182d13e1069e583342de2658c319901c982f"
+    },
+    "city_landing": {
+      "http": 200,
+      "bytes": 20285,
+      "sha256": "afb7307782e1bb9fd97801afee3083995e10f86ebeeeb3369d24360321ac6b9e"
+    },
+    "/healthz": {
+      "http": 200,
+      "bytes": 18,
+      "sha256": "31bf75f4c0a97cc1f7b60df824fa390b3be9ba014f29b63c87c698ba63d9a9fd"
+    }
+  },
+  "isolated_mac": {
+    "/": {
+      "http": 200,
+      "bytes": 464,
+      "sha256": "1aab224515eebabeb7b980b8c6f121aa76825dba25048eb8a53681c1853b3b5b"
+    },
+    "/assets/index-Cmhd2usP.js": {
+      "http": 200,
+      "bytes": 435948,
+      "sha256": "00a36d2fd0f7847e96227763bfb16411c7ba5df924f0c84e8db26636478f417b"
+    },
+    "/assets/index-DwUI9zkh.css": {
+      "http": 200,
+      "bytes": 68033,
+      "sha256": "a12cbf11bccff239dd0d8fe2652dc36fd5cbc7ba574b517a775a2721114004da"
+    },
+    "/static/ops/index.html": {
+      "http": 200,
+      "bytes": 3049,
+      "sha256": "04e8495af21796882f0818df964fc3e38e2557a4f3ddad0127acf137d34b2bc1"
+    },
+    "/static/ops/map.js": {
+      "http": 200,
+      "bytes": 11913,
+      "sha256": "87e1f3728f04c404ab6e7f5c3964f841952364b56597376a7bb4d02735dfc611"
+    },
+    "/static/ops/traffic-volume.js": {
+      "http": 200,
+      "bytes": 7070,
+      "sha256": "0461c26c1fb47f41d768ad7215756ea275a7ff6d206aad4d71017495dc5e7524"
+    },
+    "/api/v1/health": {
+      "http": 200,
+      "bytes": 91,
+      "sha256": "79e0da78e3d53bfce7f9e3fcabde182d13e1069e583342de2658c319901c982f"
+    },
+    "city_landing": {
+      "http": 200,
+      "bytes": 20555,
+      "sha256": "1b5a14bf6475b46b3c49168fab4f472345697a73bcd07edfc3a0cdde1320968f"
+    },
+    "/healthz": {
+      "http": 200,
+      "bytes": 18,
+      "sha256": "31bf75f4c0a97cc1f7b60df824fa390b3be9ba014f29b63c87c698ba63d9a9fd"
+    }
+  },
+  "separate_public_city_sim": {
+    "/": {
+      "http": 200,
+      "bytes": 20345,
+      "sha256": "d65d539c35f27d3e52780a966f56b3fc7df3d213fcd4cf62e4dd7c38a2bcb1b2"
+    },
+    "/static/map.js": {
+      "http": 200,
+      "bytes": 25112,
+      "sha256": "9b71e5eeb6ae10949620915391cdc5157e1426fc9cc9fc8679e0d3f085dc155d"
+    },
+    "/static/app.js": {
+      "http": 200,
+      "bytes": 2378,
+      "sha256": "e8d1bff9c9e16a48f7184df5721a15b7938a1348425605ecdac0963410296aad"
+    },
+    "/static/app.css": {
+      "http": 200,
+      "bytes": 17104,
+      "sha256": "01f4356fd1aad12354218531dc1239fd2c1ca4f9275b5778229a28f678d0c1db"
+    },
+    "/api/v1/health": {
+      "http": 200,
+      "bytes": 91,
+      "sha256": "79e0da78e3d53bfce7f9e3fcabde182d13e1069e583342de2658c319901c982f"
+    }
+  },
+  "isolated_standalone_city_sim": {
+    "/": {
+      "http": 200,
+      "bytes": 20345,
+      "sha256": "d65d539c35f27d3e52780a966f56b3fc7df3d213fcd4cf62e4dd7c38a2bcb1b2"
+    },
+    "/static/map.js": {
+      "http": 200,
+      "bytes": 25112,
+      "sha256": "9b71e5eeb6ae10949620915391cdc5157e1426fc9cc9fc8679e0d3f085dc155d"
+    },
+    "/static/app.js": {
+      "http": 200,
+      "bytes": 2378,
+      "sha256": "e8d1bff9c9e16a48f7184df5721a15b7938a1348425605ecdac0963410296aad"
+    },
+    "/static/app.css": {
+      "http": 200,
+      "bytes": 17104,
+      "sha256": "01f4356fd1aad12354218531dc1239fd2c1ca4f9275b5778229a28f678d0c1db"
+    },
+    "/api/v1/health": {
+      "http": 200,
+      "bytes": 91,
+      "sha256": "79e0da78e3d53bfce7f9e3fcabde182d13e1069e583342de2658c319901c982f"
+    }
+  }
+}

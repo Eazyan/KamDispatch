@@ -1,0 +1,20 @@
+{
+  "gateway": {
+    "status": "PASS",
+    "run_id": "faa600b33bf5dc76fbb02ebdeb22006163ef5e947c32ef7ee84359a8167c30bc",
+    "seconds": 0.08,
+    "sample_http": 200,
+    "poll_timeouts": 0,
+    "snow_cm": 2.514,
+    "completed_tiles": null
+  },
+  "standalone": {
+    "status": "PASS",
+    "run_id": "3dff46f3b6d40e54bceeed4b9dc7cbb20d8907b0924021cfa0a652b68df35065",
+    "seconds": 0.28,
+    "sample_http": 200,
+    "poll_timeouts": 0,
+    "snow_cm": 2.514,
+    "completed_tiles": null
+  }
+}

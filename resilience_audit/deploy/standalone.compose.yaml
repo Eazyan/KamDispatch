@@ -1,0 +1,31 @@
+name: kamdispatch-resilience-standalone
+services:
+  city-api:
+    image: ${STANDALONE_API_IMAGE:-kamdispatch-resilience-standalone-api:7d567eb}
+    environment:
+      CITY_SIM_DB: /state/city-sim.sqlite3
+      CITY_SIM_WEATHER: /atlas-local/heatmaps
+      CITY_SIM_SOLVER_URL: ""
+      CITY_SIM_FORECAST_URL: ""
+    volumes:
+      - city-state:/state
+      - ../../.resilience-local/standalone/build/weather_coverage:/atlas-local:ro
+    networks: [sandbox]
+    healthcheck:
+      test: [CMD, python, -c, "import json,urllib.request; result=json.load(urllib.request.urlopen('http://127.0.0.1:8008/api/v1/health', timeout=4)); assert result['terrain_loaded'] and result['snow_solver_connected']"]
+      interval: 4s
+      timeout: 5s
+      retries: 20
+  city-web:
+    image: ${STANDALONE_WEB_IMAGE:-kamdispatch-resilience-standalone-web:7d567eb}
+    ports: ["127.0.0.1:18089:8080"]
+    networks: [sandbox, ingress]
+    depends_on:
+      city-api:
+        condition: service_healthy
+volumes:
+  city-state: {}
+networks:
+  sandbox:
+    internal: true
+  ingress: {}
