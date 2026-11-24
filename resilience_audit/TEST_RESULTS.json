@@ -217,5 +217,27 @@
       },
       "started_at": "2026-11-24T04:31:24.594028+00:00"
     }
+  },
+  "coverage": {
+    "public_automatic_dispatch": {
+      "status": "NOT_IMPLEMENTED",
+      "scope": "Публичный viewer-шлюз; закрытый контур задач существует, его тесты проходят."
+    },
+    "external_dispatch_delivery": {
+      "status": "NOT_TESTED",
+      "scope": "Реальные Telegram, MAX, SMTP и OIDC. Контракты проверены в локальных тестах."
+    },
+    "live_rnis_and_field_accuracy": {
+      "status": "NOT_TESTED",
+      "scope": "Текущие позиции автобусов, физическая точность прогноза и фактические зоны подрядчиков."
+    },
+    "citizen_write_capacity": {
+      "status": "NOT_TESTED",
+      "scope": "Предельная нагрузка на запись обращений. F08 относится к чтению панели."
+    },
+    "host_loss_without_artifacts": {
+      "status": "NOT_TESTED",
+      "scope": "Потеря площадки с одновременной недоступностью GitHub, реестра и резервных артефактов."
+    }
   }
 }

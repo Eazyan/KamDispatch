@@ -269,6 +269,7 @@ def main():
         parser.error(f"unknown scenarios: {', '.join(sorted(unknown))}")
     output = AUDIT / "TEST_RESULTS.json"
     results = json.loads(output.read_text())["results"] if selected and output.exists() else {}
+    coverage = json.loads((AUDIT / "tests/coverage.json").read_text())
     for name in selected or scenarios:
         scenario = scenarios[name]
         start = datetime.now(timezone.utc)
@@ -278,7 +279,7 @@ def main():
             outcome, evidence = "BLOCKED", {"error": str(error)}
         results[name] = {"status": outcome, "started_at": start.isoformat(), "evidence": evidence}
         print(name, outcome, json.dumps(evidence, ensure_ascii=False), flush=True)
-        report = {"target": BASE, "results": results}
+        report = {"target": BASE, "results": results, "coverage": coverage}
         output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
 
 
