@@ -155,8 +155,7 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
     : publication === undefined ? 'Пробки · загружаем'
     : !publication || !trafficSegments?.length ? 'Пробки · нет наблюдений'
     : ['Пробки', 'Яндекс Карты', fullTime(publication.published_at),
-      traffic.stale && 'данные устарели', publication.status === 'partial' && 'частичное покрытие',
-      'приглушённые линии — интерполяция'].filter(Boolean).join(' · ');
+      traffic.stale && 'данные устарели', publication.status === 'partial' && 'частичное покрытие'].filter(Boolean).join(' · ');
   const [showMarkers, setShowMarkers] = useState(true);
   const [showBuses, setShowBuses] = useState(true);
   const [selectedBusId, setSelectedBusId] = useState<string>();

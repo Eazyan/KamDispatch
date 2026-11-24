@@ -80,7 +80,7 @@ function FallbackMap({ roads, traffic, trafficStale, markers, selection, showSno
     map.attributionControl.addAttribution(attribution);
     for (const segment of traffic) {
       L.polyline(segment.coordinates.map(latLng), { renderer: canvas, color: trafficColors[segment.status],
-        weight: 4, opacity: (trafficStale ? .46 : .95) * (segment.estimated ? .68 : 1), interactive: false }).addTo(layer);
+        weight: 4, opacity: trafficStale ? .46 : .95, interactive: false }).addTo(layer);
     }
     return () => { layer.remove(); canvas.remove(); map.attributionControl.removeAttribution(attribution); };
   }, [traffic, trafficStale]);

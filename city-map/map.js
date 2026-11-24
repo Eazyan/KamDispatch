@@ -2,6 +2,7 @@ import { $, empty, request } from '../api.js';
 import { createMap } from '../map.js?v=twist';
 import { raster } from '../raster_motion.js';
 import { createSnowVolume } from '../snow_volume.js';
+import { createTrafficVolume, trafficColors } from './traffic-volume.js?v=8';
 
 const parentOrigin = new URLSearchParams(location.search).get('parent');
 const send = (type, fields) => {
@@ -14,7 +15,6 @@ const time = new Intl.DateTimeFormat('ru', { timeZone: 'Asia/Kamchatka', day: 'n
 const line = coordinates => ({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates } });
 const coordinate = point => Array.isArray(point) && point.length === 2 &&
   point.every(Number.isFinite) && Math.abs(point[0]) <= 180 && Math.abs(point[1]) <= 90;
-const trafficColors = { free: '#52cf73', slow: '#f6be48', congested: '#f46c67' };
 const validLine = row => Array.isArray(row) && row.length >= 2 && row.every(coordinate);
 
 async function start() {
@@ -44,6 +44,7 @@ async function start() {
   const { map } = view;
   underlay(map);
   const volume = createSnowVolume(map);
+  const trafficVolume = createTrafficVolume(map, 'dispatch-traffic');
   const layer = $('model-layer');
   const slider = $('model-frame');
   const play = $('play');
@@ -156,13 +157,17 @@ async function start() {
     }
     const nextTraffic = JSON.stringify(state.traffic);
     if (trafficData !== nextTraffic) {
-      map.getSource('dispatch-traffic').setData({ ...empty(), features: (state.traffic ?? [])
-        .filter(row => Object.hasOwn(trafficColors, row.status) && validLine(row.coordinates))
-        .map(row => ({ ...line(row.coordinates), properties: { color: trafficColors[row.status], estimated: row.estimated === true } })) });
+      const rows = (state.traffic ?? []).filter(row => row && Object.hasOwn(trafficColors, row.status) && validLine(row.coordinates));
+      trafficVolume.setData(rows);
+      map.getSource('dispatch-traffic').setData({ ...empty(), features: rows.map(row => ({
+        ...line(row.coordinates),
+        properties: { color: trafficColors[row.status] },
+      })) });
       trafficData = nextTraffic;
     }
+    trafficVolume.setStale(Boolean(state.trafficStale));
     const opacity = state.trafficStale ? .46 : .95;
-    map.setPaintProperty('dispatch-traffic', 'line-opacity', ['case', ['get', 'estimated'], opacity * .68, opacity]);
+    map.setPaintProperty('dispatch-traffic', 'line-opacity', opacity);
     const nextMarkers = JSON.stringify(state.showMarkers && state.markers);
     if (markerData !== nextMarkers) {
       markerObjects.forEach(marker => marker.remove());
