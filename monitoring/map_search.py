@@ -27,6 +27,7 @@ PAGES = {
 CATEGORY_WORDS = {
     "камеры": "камера", "камер": "камера",
     "автобусы": "автобус", "автобусов": "автобус", "маршруты": "маршрут",
+    "авто": "автобус", "бус": "автобус", "бусик": "автобус",
     "задания": "задание", "обращения": "событие", "обращение": "событие",
     "события": "событие", "адреса": "адрес",
 }
@@ -86,8 +87,35 @@ def houses_by_number():
     return result
 
 
+def bus_hit(bus):
+    number = bus.get("fleet_number")
+    return {
+        "id": bus["id"], "type": "bus", "name": f"Автобус № {number}" if number else "Автобус",
+        "coordinates": (bus["lon"], bus["lat"]), "route": bus.get("route"),
+    }
+
+
+def search_buses(words, buses):
+    route_only = "маршрут" in words
+    fleet_only = any(word in {"борт", "бортовой"} for word in words)
+    cues = {"автобус", "маршрут", "борт", "бортовой", "номер"}
+    terms = tuple(word for word in words if word not in cues)
+    if not terms:
+        return buses
+    fleet = [bus for bus in buses if _text.terms(bus.get("fleet_number") or "") == terms]
+    if fleet_only:
+        return fleet
+    routes = [bus for bus in buses if _text.terms(bus.get("route") or "") == terms]
+    if route_only:
+        return routes
+    return fleet + [bus for bus in routes if bus not in fleet]
+
+
 def search(query, cameras, buses, dispatch, reports=()):
     normalized = [CATEGORY_WORDS.get(word, word) for word in _text.normalize(query).split()]
+    if set(normalized) & {"автобус", "маршрут", "борт", "бортовой"}:
+        return [bus_hit(bus) for bus in search_buses(normalized, list(buses))[:5]]
+    buses_by_id = {bus["id"]: bus for bus in buses}
     terms, _, category = _text.interpret(" ".join(normalized))
     roads = streets()
     pages = [Entity(key, "base", label, SOURCE, aliases=aliases) for key, (label, aliases) in PAGES.items()]
@@ -103,9 +131,10 @@ def search(query, cameras, buses, dispatch, reports=()):
                            coordinates=row.get("coordinates"),
                            aliases=tuple(row[key] for key in ("area", "district", "section_name") if row.get(key)))
                     for row in cameras)
-    entities.extend(Entity(row["id"], "bus", "Маршрут " + row["route"], SOURCE,
-                           coordinates=(row["lon"], row["lat"]), aliases=(row["route"], row["id"]))
-                    for row in buses if row.get("route"))
+    entities.extend(Entity(row["id"], "bus", "Автобус", SOURCE,
+                           coordinates=(row["lon"], row["lat"]),
+                           aliases=tuple(filter(None, (row.get("route"), row.get("fleet_number")))))
+                    for row in buses_by_id.values())
     entities.extend(Entity(row["location_key"] + "/" + row["kind"], "task" if row["task"] else "event",
                            row["address"], SOURCE, aliases=tuple(filter(None, (
                                row.get("district"), *(text for report in row["reports"]
@@ -134,6 +163,9 @@ def search(query, cameras, buses, dispatch, reports=()):
         if counts.get(kind, 0) >= 5:
             continue
         counts[kind] = counts.get(kind, 0) + 1
+        if kind == "bus":
+            result.append(bus_hit(buses_by_id[hit["id"]]))
+            continue
         result.append({
             "id": hit["id"], "type": "page" if kind == "base" else kind, "name": hit["name"],
             "coordinates": hit["coordinates"],

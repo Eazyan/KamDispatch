@@ -175,7 +175,7 @@ async function start() {
         button.setAttribute('aria-label', mark.label);
         button.style.setProperty('--pin', mark.color);
         if (mark.kind === 'bus') {
-          if (typeof mark.badge !== 'string' || !/\d/.test(mark.badge)) return [];
+          if (typeof mark.badge !== 'string' || !mark.badge.trim()) return [];
           button.textContent = mark.badge;
           button.title = mark.label;
         }

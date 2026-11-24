@@ -86,7 +86,7 @@ export type BusObservations = {
 } | { source: 'rnis'; state: 'ready' | 'insufficient' | 'unavailable'; as_of: string | null; rows: BusObservation[] };
 export type BusMap = {
   source: 'rnis' | 'simulation'; state: 'ready' | 'waiting' | 'insufficient' | 'unavailable';
-  positions: { id: string; lon: number; lat: number; route: string | null; measured_at: string }[];
+  positions: { id: string; lon: number; lat: number; route: string | null; fleet_number?: string; measured_at: string }[];
 };
 export type ActionItem = { request_id: string; actor: string; state: string; note: string; created_at: string };
 export type Period = {

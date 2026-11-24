@@ -169,9 +169,9 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
   const positions = useMemo(() => busMap?.positions.filter(bus =>
     busMap.source === 'simulation' || Date.parse(bus.measured_at) > busClock - 90_000), [busMap, busClock]);
   const busMarkers = useMemo<MapMarker[]>(() => (positions ?? []).flatMap(bus => {
-    const route = bus.route?.trim();
-    if (!route || !/\d/.test(route)) return [];
-    return [{ id: 'bus:' + bus.id, label: 'Автобус · маршрут ' + route, kind: 'bus', badge: route,
+    const vehicle = bus.fleet_number ? 'Автобус № ' + bus.fleet_number : 'Автобус';
+    const label = bus.route ? vehicle + ' · маршрут ' + bus.route : vehicle;
+    return [{ id: 'bus:' + bus.id, label, kind: 'bus', badge: bus.route || bus.fleet_number || '•',
       coordinates: [[bus.lon, bus.lat]], color: '#74edc5', priority: -1 }];
   }), [positions]);
   const citizenMarkers = useMemo<MapMarker[]>(() => (citizenReports ?? []).map(report => ({
@@ -271,7 +271,7 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
           {Object.entries(demoScenarios).map(([code, title]) => <option key={code} value={code}>{title}</option>)}
         </select>
       </div>
-      <MapSearch scenario={Boolean(scenario)} cameras={data.cameras} buses={positions ?? []} dispatch={data.dispatch_queue} search={search}
+      <MapSearch scenario={Boolean(scenario)} cameras={data.cameras} buses={positions ?? []} busSource={busMap?.source} dispatch={data.dispatch_queue} search={search}
         onCamera={onCamera} onDispatch={onDispatch} onCitizen={onCitizenReport} onRoad={road => {
           setSelected(undefined);
           setSelection({ id: road.id, coordinates: road.coordinates, paths: road.paths, label: road.name, revision: ++revision.current });
@@ -331,8 +331,8 @@ export function Overview({ data, error, updatedAt, scenario, onScenario, phase, 
     </aside>
     <div className="ops-map-tools" aria-label="Отображение на карте">
       {selectedBus && <div className="ops-bus-detail" role="status">
-        <div><strong>{selectedBus.route ? 'Маршрут ' + selectedBus.route : 'Автобус'}</strong>
-          <span>{busMap?.source === 'simulation' ? 'Имитация' : 'РНИС'} · {fullTime(selectedBus.measured_at)}</span></div>
+        <div><strong>{selectedBus.fleet_number ? 'Автобус № ' + selectedBus.fleet_number : 'Автобус'}</strong>
+          <span>{selectedBus.route && 'Маршрут ' + selectedBus.route + ' · '}{busMap?.source === 'simulation' ? 'Имитация' : 'РНИС'} · {fullTime(selectedBus.measured_at)}</span></div>
         <button type="button" aria-label="Закрыть сведения об автобусе" onClick={() => setSelectedBusId(undefined)}>
           <Icon name="close" width="16" height="16" /></button>
       </div>}

@@ -158,7 +158,8 @@ def map_demo():
         for fraction, direction in ((.32, 1), (.73, 2)):
             lon, lat = location(section, section.length * fraction)
             positions.append({"id": f"demo-{index}-{direction}", "lon": lon, "lat": lat,
-                              "route": f"Д{index}", "measured_at": at})
+                              "route": f"Д{index}", "fleet_number": str(20 + 2 * (index - 1) + direction - 1),
+                              "measured_at": at})
     return {"source": "simulation", "state": "ready", "positions": positions}
 
 

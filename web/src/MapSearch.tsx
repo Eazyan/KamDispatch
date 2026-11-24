@@ -1,12 +1,13 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Icon } from './Icon';
-import type { Camera, DispatchGroup, RoadPoint } from './types';
+import type { BusMap, Camera, DispatchGroup, RoadPoint } from './types';
 
-type Bus = { id: string; route: string | null; lon: number; lat: number };
+type Bus = BusMap['positions'][number];
 type Result = { id: string; title: string; label?: string; open: () => void };
 export type SearchHit = {
   id: string; type: 'street' | 'address' | 'camera' | 'bus' | 'task' | 'event' | 'page'; name: string;
   page?: string | null;
+  route?: string | null;
   coordinates: RoadPoint | null;
   paths?: RoadPoint[][];
 };
@@ -14,6 +15,7 @@ type Props = {
   cameras: Camera[];
   scenario: boolean;
   buses: Bus[];
+  busSource?: BusMap['source'];
   dispatch: DispatchGroup[];
   search: (query: string, signal: AbortSignal) => Promise<SearchHit[]>;
   onRoad: (location: { id: string; name: string; coordinates: RoadPoint[]; paths?: RoadPoint[][] }) => void;
@@ -26,7 +28,25 @@ type Props = {
 const normalize = (value: string) => value.toLocaleLowerCase('ru').replaceAll('ё', 'е')
   .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 
-export function MapSearch({ cameras, buses, dispatch, scenario, search, onRoad, onCamera, onBus, onDispatch, onCitizen }: Props) {
+const cues = ['автобус', 'маршрут', 'борт', 'бортовой'];
+const aliases: Record<string, string> = {
+  камеры: 'камера', автобусы: 'автобус', автобусов: 'автобус', авто: 'автобус', авт: 'автобус',
+  бус: 'автобус', бусик: 'автобус', маршруты: 'маршрут', задания: 'задание', обращения: 'обращение',
+};
+
+function scenarioBuses(words: string[], buses: Bus[]) {
+  const routeOnly = words.includes('маршрут');
+  const fleetOnly = words.some(word => word === 'борт' || word === 'бортовой');
+  const terms = words.filter(word => !cues.includes(word) && word !== 'номер').join(' ');
+  if (!terms) return buses;
+  const fleet = buses.filter(bus => normalize(bus.fleet_number ?? '') === terms);
+  const routes = buses.filter(bus => normalize(bus.route ?? '') === terms);
+  if (fleetOnly) return fleet;
+  if (routeOnly) return routes;
+  return [...fleet, ...routes.filter(bus => !fleet.includes(bus))];
+}
+
+export function MapSearch({ cameras, buses, busSource, dispatch, scenario, search, onRoad, onCamera, onBus, onDispatch, onCitizen }: Props) {
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState<{ term: string; hits?: SearchHit[] }>();
   const [active, setActive] = useState(false);
@@ -55,21 +75,22 @@ export function MapSearch({ cameras, buses, dispatch, scenario, search, onRoad, 
   const busResults: Result[] = [];
   const dispatchResults: Result[] = [];
   const pages: Result[] = [];
-  const hits = [...(current?.hits ?? [])];
+  const hits = (current?.hits ?? []).filter(hit => !scenario || hit.type !== 'bus');
+  const words = normalize(term).split(' ').map(word => aliases[word] ?? word);
+  const busQuery = words.some(word => cues.includes(word));
   if (scenario && term) {
-    const words = normalize(term).split(' ').map(word =>
-      ({ камеры: 'камера', автобусы: 'автобус', маршруты: 'маршрут', задания: 'задание',
-        обращения: 'обращение' } as Record<string, string>)[word] ?? word);
     const matches = (text: string) => {
       const normalized = normalize(text);
       return words.every(word => /\d/.test(word) ? normalized.split(' ').includes(word) : normalized.includes(word));
     };
     const scenarios: SearchHit[] = [
-      ...cameras.filter(camera => matches(['Камера', camera.name, camera.area, camera.district].join(' ')))
+      ...cameras.filter(camera => !busQuery && matches(['Камера', camera.name, camera.area, camera.district].join(' ')))
         .map((camera): SearchHit => ({ id: camera.id, type: 'camera', name: camera.name, coordinates: camera.coordinates ?? null })),
-      ...buses.filter(bus => bus.route && matches('Автобус Маршрут ' + bus.route))
-        .map((bus): SearchHit => ({ id: bus.id, type: 'bus', name: 'Маршрут ' + bus.route, coordinates: [bus.lon, bus.lat] })),
-      ...dispatch.filter(row => matches([row.task ? 'Задание' : 'Обращение', row.address, row.district,
+      ...scenarioBuses(words, buses).map((bus): SearchHit => ({
+        id: bus.id, type: 'bus', route: bus.route,
+        name: bus.fleet_number ? 'Автобус № ' + bus.fleet_number : 'Автобус', coordinates: [bus.lon, bus.lat],
+      })),
+      ...dispatch.filter(row => !busQuery && matches([row.task ? 'Задание' : 'Обращение', row.address, row.district,
         ...row.reports.map(report => report.description)].join(' ')))
         .map((row): SearchHit => ({ id: row.location_key + '/' + row.kind, type: row.task ? 'task' : 'event',
           name: row.address, coordinates: null })),
@@ -96,8 +117,12 @@ export function MapSearch({ cameras, buses, dispatch, scenario, search, onRoad, 
         } });
     } else if (hit.type === 'bus') {
       const bus = buses.find(item => item.id === hit.id);
-      const coordinates = bus ? [bus.lon, bus.lat] as RoadPoint : hit.coordinates;
-      if (point(coordinates)) busResults.push({ id: hit.id, title: hit.name, open: () => onBus(hit.id, coordinates) });
+      if (!bus) continue;
+      const label = [hit.route && 'Маршрут ' + hit.route,
+        busSource === 'simulation' ? 'Имитация' : new Intl.DateTimeFormat('ru', {
+          timeZone: 'Asia/Kamchatka', timeStyle: 'medium',
+        }).format(new Date(bus.measured_at))].filter(Boolean).join(' · ');
+      busResults.push({ id: hit.id, title: hit.name, label, open: () => onBus(hit.id, [bus.lon, bus.lat]) });
     } else if (hit.type === 'task' || hit.type === 'event') {
       const row = dispatch.find(item => item.location_key + '/' + item.kind === hit.id);
       dispatchResults.push({ id: hit.id, title: hit.name, label: row?.district, open: () => {
@@ -147,7 +172,12 @@ export function MapSearch({ cameras, buses, dispatch, scenario, search, onRoad, 
       <div className="ops-search-field">
         <Icon name="search" width="18" height="18" />
         <input autoFocus autoComplete="off" type="search" maxLength={120} aria-label="Адрес, камера, автобус или раздел"
-          placeholder="Адрес, камера, автобус, раздел" value={query} onChange={event => setQuery(event.target.value)} />
+          placeholder="Адрес, камера, автобус, раздел" value={query} onChange={event => setQuery(event.target.value)}
+          onKeyDown={event => {
+            if (event.key !== 'Enter' || event.nativeEvent.isComposing) return;
+            const first = groups.find(([, items]) => items.length)?.[1][0];
+            if (first) { event.preventDefault(); close(); first.open(); }
+          }} />
         <button className="ops-search-close" type="button" aria-label="Закрыть поиск" onClick={close}>
           <Icon name="close" width="17" height="17" />
         </button>
@@ -162,7 +192,7 @@ export function MapSearch({ cameras, buses, dispatch, scenario, search, onRoad, 
         </section>)}
         {!current && <p role="status">Ищем…</p>}
         {current && !current.hits && <p role="status">Поиск недоступен</p>}
-        {current?.hits && !groups.some(([, items]) => items.length) && <p role="status">Ничего не найдено</p>}
+        {current?.hits && !groups.some(([, items]) => items.length) && <p role="status">{busQuery ? 'Нет автобусов с таким номером и свежей позицией' : 'Ничего не найдено'}</p>}
       </div>}
     </dialog>
   </div>;

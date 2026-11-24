@@ -79,6 +79,8 @@ def parse_positions(data, received_at):
             continue
         pseudonym = sha256(f"rnis:{vehicle}".encode()).hexdigest()
         route = item.get("RouteNumber")
+        if type(route) is int:
+            route = str(route)
         route = (route.strip()[:24] or None) if isinstance(route, str) else None
         point = Position(pseudonym, lon, lat, measured_at, received_at, route)
         if usable_position(point):

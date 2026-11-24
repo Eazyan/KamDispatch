@@ -28,3 +28,28 @@ def test_leninskaya_uses_graph_and_finds_building_from_atlas():
 def test_avenue_with_number_in_name_is_searchable():
     assert any(hit["type"] == "street" and "50 лет Октября" in hit["name"]
                for hit in search("проспект 50 лет Октября", [], [], []))
+
+
+def test_bus_search_distinguishes_vehicle_from_route():
+    fleet = [
+        {"id": "a", "fleet_number": "20", "route": "4", "lon": 158.6, "lat": 53.0},
+        {"id": "b", "route": "20", "lon": 158.61, "lat": 53.01},
+        {"id": "c", "route": "20", "lon": 158.62, "lat": 53.02},
+        {"id": "d", "route": "120", "lon": 158.63, "lat": 53.03},
+    ]
+
+    hits = search("20 авто", [], fleet, [])
+    assert [hit["id"] for hit in hits] == ["a", "b", "c"]
+    assert hits[0]["name"] == "Автобус № 20"
+    assert hits[1]["route"] == "20" and hits[1]["coordinates"] == (158.61, 53.01)
+    assert [hit["id"] for hit in search("маршрут №20", [], fleet, [])] == ["b", "c"]
+    assert [hit["id"] for hit in search("бортовой номер 20", [], fleet, [])] == ["a"]
+    assert len(search("автобусы", [], fleet, [])) == 4
+    assert search("борт 120", [], fleet, []) == []
+
+
+def test_bus_search_finds_numbered_demo_vehicle():
+    from monitoring.bus_demo import map_demo
+
+    hits = search("20 авто", [], map_demo()["positions"], [])
+    assert [(hit["name"], hit["route"]) for hit in hits] == [("Автобус № 20", "Д1")]
